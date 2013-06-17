@@ -27,7 +27,7 @@
   <groupId>org.apache.jclouds.labs</groupId>
   <artifactId>jclouds-labs-google</artifactId>
   <packaging>pom</packaging>
-  <name>jclouds labs google</name>
+  <name>Apache jclouds labs google</name>
 
   <scm>
     <connection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-jclouds-labs-google.git</connection>
