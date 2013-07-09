@@ -26,6 +26,7 @@
   </parent>
   <groupId>org.apache.jclouds.labs</groupId>
   <artifactId>jclouds-labs-google</artifactId>
+  <version>1.7.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Apache jclouds labs google</name>
 
@@ -35,10 +36,6 @@
     <url>https://git-wip-us.apache.org/repos/asf?p=incubator-jclouds-labs-google.git</url>
     <tag>HEAD</tag>
   </scm>
-
-  <properties>
-    <jclouds.version>1.7.0-SNAPSHOT</jclouds.version>
-  </properties>
 
   <repositories>
     <repository>
