@@ -35,22 +35,18 @@ import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.config.ComputeServiceAdapterContextModule;
 import org.jclouds.compute.domain.Hardware;
 import org.jclouds.compute.domain.NodeMetadata;
-import org.jclouds.compute.domain.SecurityGroup;
 import org.jclouds.compute.extensions.ImageExtension;
-import org.jclouds.compute.extensions.SecurityGroupExtension;
 import org.jclouds.compute.options.TemplateOptions;
 import org.jclouds.compute.strategy.PrioritizeCredentialsFromTemplate;
 import org.jclouds.domain.Location;
 import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
 import org.jclouds.googlecomputeengine.compute.GoogleComputeEngineService;
 import org.jclouds.googlecomputeengine.compute.GoogleComputeEngineServiceAdapter;
-import org.jclouds.googlecomputeengine.compute.extensions.GoogleComputeEngineSecurityGroupExtension;
 import org.jclouds.googlecomputeengine.compute.functions.BuildInstanceMetadata;
 import org.jclouds.googlecomputeengine.compute.functions.FirewallToIpPermission;
 import org.jclouds.googlecomputeengine.compute.functions.GoogleComputeEngineImageToImage;
 import org.jclouds.googlecomputeengine.compute.functions.InstanceInZoneToNodeMetadata;
 import org.jclouds.googlecomputeengine.compute.functions.MachineTypeInZoneToHardware;
-import org.jclouds.googlecomputeengine.compute.functions.NetworkToSecurityGroup;
 import org.jclouds.googlecomputeengine.compute.functions.OrphanedGroupsFromDeadNodes;
 import org.jclouds.googlecomputeengine.compute.functions.RegionToLocation;
 import org.jclouds.googlecomputeengine.compute.functions.ZoneToLocation;
@@ -122,9 +118,6 @@ public class GoogleComputeEngineServiceContextModule
       bind(new TypeLiteral<Function<Firewall, Iterable<IpPermission>>>() {})
               .to(FirewallToIpPermission.class);
 
-      bind(new TypeLiteral<Function<Network, SecurityGroup>>() {})
-              .to(NetworkToSecurityGroup.class);
-
       bind(new TypeLiteral<Function<TemplateOptions, ImmutableMap.Builder<String, String>>>() {})
               .to(BuildInstanceMetadata.class);
 
@@ -146,9 +139,6 @@ public class GoogleComputeEngineServiceContextModule
 
       bind(new TypeLiteral<CacheLoader<NetworkAndAddressRange, Network>>() {})
               .to(FindNetworkOrCreate.class);
-
-      bind(new TypeLiteral<SecurityGroupExtension>() {})
-              .to(GoogleComputeEngineSecurityGroupExtension.class);
 
       bind(PrioritizeCredentialsFromTemplate.class).to(UseNodeCredentialsButOverrideFromTemplate.class);
 
@@ -258,11 +248,6 @@ public class GoogleComputeEngineServiceContextModule
    @Override
    protected Optional<ImageExtension> provideImageExtension(Injector i) {
       return Optional.absent();
-   }
-
-   @Override
-   protected Optional<SecurityGroupExtension> provideSecurityGroupExtension(Injector i) {
-      return Optional.of(i.getInstance(SecurityGroupExtension.class));
    }
 
    @VisibleForTesting
