@@ -401,7 +401,11 @@ public class GoogleComputeEngineParserModule extends AbstractModule {
       @Override
       public JsonElement serialize(Firewall.Rule src, Type typeOfSrc, JsonSerializationContext context) {
          JsonObject ruleObject = new JsonObject();
-         ruleObject.addProperty("IPProtocol", src.getIpProtocol().value());
+         ruleObject.addProperty("IPProtocol", src.getIpProtocol()
+            // jclouds 1.7 supports:  .value()
+            .toString().toLowerCase()
+            );
+
          if (src.getPorts() != null && !src.getPorts().isEmpty()) {
             JsonArray ports = new JsonArray();
             for (Range<Integer> range : src.getPorts().asRanges()) {
