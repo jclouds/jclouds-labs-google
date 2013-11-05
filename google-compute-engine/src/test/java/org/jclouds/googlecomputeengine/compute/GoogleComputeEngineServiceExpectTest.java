@@ -198,7 +198,7 @@ public class GoogleComputeEngineServiceExpectTest extends BaseGoogleComputeEngin
    @Override
    protected Properties setupProperties() {
       Properties overrides = super.setupProperties();
-      overrides.put("google-compute-engine.identity", "myproject");
+      overrides.put("google-compute-engine.identity", "myproject@developer.gserviceaccount.com");
       try {
          overrides.put("google-compute-engine.credential", toStringAndClose(getClass().getResourceAsStream("/testpk.pem")));
       } catch (IOException e) {
