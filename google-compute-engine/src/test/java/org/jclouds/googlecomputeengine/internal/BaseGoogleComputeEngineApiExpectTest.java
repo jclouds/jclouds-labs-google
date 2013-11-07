@@ -28,7 +28,7 @@ public class BaseGoogleComputeEngineApiExpectTest extends BaseGoogleComputeEngin
    @Override
    protected Properties setupProperties() {
       Properties properties = super.setupProperties();
-      properties.put("google-compute-engine.identity", "myproject");
+      properties.put("google-compute-engine.identity", "myproject@developer.gserviceaccount.com");
       return properties;
    }
 }
