@@ -16,9 +16,9 @@
  */
 package org.jclouds.googlecomputeengine.domain;
 
-import static com.google.common.base.Objects.equal;
-import static com.google.common.base.Optional.fromNullable;
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.google.common.annotations.Beta;
+import com.google.common.base.Objects;
+import com.google.common.base.Optional;
 
 import java.beans.ConstructorProperties;
 import java.net.URI;
@@ -27,6 +27,9 @@ import java.util.Date;
 import com.google.common.annotations.Beta;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
+import static com.google.common.base.Objects.equal;
+import static com.google.common.base.Optional.fromNullable;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Represents an Address resource.
