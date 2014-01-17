@@ -17,6 +17,7 @@
 package org.jclouds.googlecomputeengine.internal;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.jclouds.oauth.v2.OAuthTestUtils.setCredentialFromPemFile;
 import static org.jclouds.util.Predicates2.retry;
 import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
@@ -25,8 +26,12 @@ import java.net.URI;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.jclouds.apis.ApiMetadata;
 import org.jclouds.apis.BaseApiLiveTest;
+import org.jclouds.compute.domain.TemplateBuilder;
 import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
+import org.jclouds.googlecomputeengine.GoogleComputeEngineApiMetadata;
+import org.jclouds.googlecomputeengine.compute.GoogleComputeEngineServiceAdapter;
 import org.jclouds.googlecomputeengine.config.UserProject;
 import org.jclouds.googlecomputeengine.domain.Operation;
 
@@ -38,6 +43,7 @@ import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
+import org.jclouds.ssh.SshClient;
 
 
 /**
@@ -70,7 +76,14 @@ public class BaseGoogleComputeEngineApiLiveTest extends BaseApiLiveTest<GoogleCo
 
 
    public BaseGoogleComputeEngineApiLiveTest() {
-      provider = "google-compute-engine";
+      this.provider = "google-compute-engine";
+   }
+
+   @Override
+   protected Properties setupProperties() {
+      Properties props = super.setupProperties();
+      setCredentialFromPemFile(props, provider + ".credential");
+      return props;
    }
 
    protected GoogleComputeEngineApi create(Properties props, Iterable<Module> modules) {

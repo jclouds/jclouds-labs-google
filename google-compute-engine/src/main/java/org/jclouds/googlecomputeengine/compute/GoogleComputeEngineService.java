@@ -192,7 +192,6 @@ public class GoogleComputeEngineService extends BaseComputeService {
       }
    }
 
-
    /**
     * returns template options, except of type {@link org.jclouds.googlecomputeengine.compute.options.GoogleComputeEngineTemplateOptions}.
     */

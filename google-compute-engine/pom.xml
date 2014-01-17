@@ -91,6 +91,21 @@
             <version>${jclouds.version}</version>
             <scope>test</scope>
         </dependency>
+        <!--
+            <exclusions>
+                <exclusion>
+                        <groupId>net.schmizz</groupId>
+                        <artifactId>sshj</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>net.schmizz</groupId>
+            <artifactId>sshj</artifactId>
+            <version>0.9.0</version>
+            <scope>test</scope>
+        </dependency>
+        -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>

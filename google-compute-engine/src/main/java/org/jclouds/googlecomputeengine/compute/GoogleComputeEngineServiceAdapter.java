@@ -16,33 +16,20 @@
  */
 package org.jclouds.googlecomputeengine.compute;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Iterables.contains;
-import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.tryFind;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.CENTOS_PROJECT;
-import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.DEBIAN_PROJECT;
-import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.GCE_BOOT_DISK_SUFFIX;
-import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.GCE_DELETE_BOOT_DISK_METADATA_KEY;
-import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.GCE_IMAGE_METADATA_KEY;
-import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.OPERATION_COMPLETE_INTERVAL;
-import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.OPERATION_COMPLETE_TIMEOUT;
-import static org.jclouds.googlecomputeengine.domain.Instance.NetworkInterface.AccessConfig.Type;
-import static org.jclouds.googlecomputeengine.predicates.InstancePredicates.isBootDisk;
-import static org.jclouds.util.Predicates2.retry;
-
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.annotation.Resource;
-import javax.inject.Named;
-
+import com.google.common.base.Function;
+import com.google.common.base.Objects;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.base.Splitter;
+import com.google.common.base.Supplier;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Atomics;
+import com.google.common.util.concurrent.UncheckedTimeoutException;
+import com.google.inject.Inject;
 import org.jclouds.collect.Memoized;
 import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.domain.Hardware;
@@ -52,7 +39,6 @@ import org.jclouds.compute.reference.ComputeServiceConstants;
 import org.jclouds.domain.Location;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
-import org.jclouds.googlecomputeengine.compute.functions.FirewallTagNamingConvention;
 import org.jclouds.googlecomputeengine.compute.options.GoogleComputeEngineTemplateOptions;
 import org.jclouds.googlecomputeengine.config.UserProject;
 import org.jclouds.googlecomputeengine.domain.Disk;
@@ -73,19 +59,32 @@ import org.jclouds.googlecomputeengine.features.InstanceApi;
 import org.jclouds.http.HttpResponse;
 import org.jclouds.logging.Logger;
 
-import com.google.common.base.Function;
-import com.google.common.base.Objects;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.base.Supplier;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import com.google.common.primitives.Ints;
-import com.google.common.util.concurrent.Atomics;
-import com.google.common.util.concurrent.UncheckedTimeoutException;
-import com.google.inject.Inject;
+import javax.annotation.Resource;
+import javax.inject.Named;
+import java.net.URI;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.Iterables.contains;
+import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.Iterables.tryFind;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.CENTOS_PROJECT;
+import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.DEBIAN_PROJECT;
+import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.GCE_BOOT_DISK_SUFFIX;
+import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.GCE_DELETE_BOOT_DISK_METADATA_KEY;
+import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.GCE_IMAGE_METADATA_KEY;
+import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.OPERATION_COMPLETE_INTERVAL;
+import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.OPERATION_COMPLETE_TIMEOUT;
+import static org.jclouds.googlecomputeengine.domain.Instance.NetworkInterface.AccessConfig.Type;
+import static org.jclouds.googlecomputeengine.predicates.InstancePredicates.isBootDisk;
+import static org.jclouds.util.Predicates2.retry;
 
 /**
  * @author David Alves
@@ -103,7 +102,6 @@ public class GoogleComputeEngineServiceAdapter implements ComputeServiceAdapter<
    private final Predicate<AtomicReference<Operation>> retryOperationDonePredicate;
    private final long operationCompleteCheckInterval;
    private final long operationCompleteCheckTimeout;
-   private final FirewallTagNamingConvention.Factory firewallTagNamingConvention;
 
    @Inject
    public GoogleComputeEngineServiceAdapter(GoogleComputeEngineApi api,
@@ -113,8 +111,8 @@ public class GoogleComputeEngineServiceAdapter implements ComputeServiceAdapter<
                                             @Named("zone") Predicate<AtomicReference<Operation>> operationDonePredicate,
                                             @Named(OPERATION_COMPLETE_INTERVAL) Long operationCompleteCheckInterval,
                                             @Named(OPERATION_COMPLETE_TIMEOUT) Long operationCompleteCheckTimeout,
-                                            @Memoized Supplier<Map<URI, ? extends Location>> zones,
-                                            FirewallTagNamingConvention.Factory firewallTagNamingConvention) {
+                                            @Memoized Supplier<Map<URI, ? extends Location>> zones) {
+
       this.api = checkNotNull(api, "google compute api");
       this.userProject = checkNotNull(userProject, "user project name");
       this.metatadaFromTemplateOptions = checkNotNull(metatadaFromTemplateOptions,
@@ -122,11 +120,10 @@ public class GoogleComputeEngineServiceAdapter implements ComputeServiceAdapter<
       this.operationCompleteCheckInterval = checkNotNull(operationCompleteCheckInterval,
               "operation completed check interval");
       this.operationCompleteCheckTimeout = checkNotNull(operationCompleteCheckTimeout,
-                                                        "operation completed check timeout");
+              "operation completed check timeout");
       this.retryOperationDonePredicate = retry(operationDonePredicate, operationCompleteCheckTimeout,
-                                               operationCompleteCheckInterval, TimeUnit.MILLISECONDS);
+              operationCompleteCheckInterval, TimeUnit.MILLISECONDS);
       this.zones = checkNotNull(zones, "zones");
-      this.firewallTagNamingConvention = checkNotNull(firewallTagNamingConvention, "firewallTagNamingConvention");
    }
 
    @Override
@@ -149,10 +146,10 @@ public class GoogleComputeEngineServiceAdapter implements ComputeServiceAdapter<
          Disk bootDisk = createBootDisk(template, name);
 
          disks.add(new PersistentDisk(Mode.READ_WRITE,
-                                      bootDisk.getSelfLink(),
-                                      null,
-                                      true,
-                                      true));
+                 bootDisk.getSelfLink(),
+                 null,
+                 true,
+                 true));
       }
 
       disks.addAll(options.getDisks());
@@ -215,20 +212,6 @@ public class GoogleComputeEngineServiceAdapter implements ComputeServiceAdapter<
          }, operationCompleteCheckTimeout, operationCompleteCheckInterval, MILLISECONDS).apply(instance);
       }
 
-      // Add tags for security groups
-      final FirewallTagNamingConvention naming = firewallTagNamingConvention.get(group);
-      Set<String> tags = FluentIterable.from(Ints.asList(options.getInboundPorts()))
-              .transform(new Function<Integer, String>(){
-                       @Override
-                       public String apply(Integer input) {
-                          return input != null
-                                  ? naming.name(input)
-                                  : null;
-                       }
-                    })
-              .toSet();
-      instanceApi.setTagsInZone(zone, instance.get().getName(), tags, instance.get().getTags().getFingerprint());
-
       InstanceInZone instanceInZone = new InstanceInZone(instance.get(), zone);
 
       return new NodeAndInitialCredentials<InstanceInZone>(instanceInZone, instanceInZone.slashEncode(), credentials);
@@ -244,15 +227,15 @@ public class GoogleComputeEngineServiceAdapter implements ComputeServiceAdapter<
       String diskName = instanceName + "-" + GCE_BOOT_DISK_SUFFIX;
 
       Operation diskOperation = api.getDiskApiForProject(userProject.get())
-                                   .createFromImageWithSizeInZone(imageUri.toString(),
-                                                                  diskName,
-                                                                  diskSize,
-                                                                  template.getLocation().getId());
+              .createFromImageWithSizeInZone(imageUri.toString(),
+                      diskName,
+                      diskSize,
+                      template.getLocation().getId());
 
       waitOperationDone(diskOperation);
 
       return api.getDiskApiForProject(userProject.get()).getInZone(template.getLocation().getId(),
-                                                                   diskName);
+              diskName);
    }
 
    @Override
@@ -287,8 +270,8 @@ public class GoogleComputeEngineServiceAdapter implements ComputeServiceAdapter<
    @Override
    public Image getImage(String id) {
       return Objects.firstNonNull(api.getImageApiForProject(userProject.get()).get(id),
-                                  Objects.firstNonNull(api.getImageApiForProject(DEBIAN_PROJECT).get(id),
-                                                       api.getImageApiForProject(CENTOS_PROJECT).get(id)));
+              Objects.firstNonNull(api.getImageApiForProject(DEBIAN_PROJECT).get(id),
+                      api.getImageApiForProject(CENTOS_PROJECT).get(id)));
 
    }
 
@@ -301,10 +284,10 @@ public class GoogleComputeEngineServiceAdapter implements ComputeServiceAdapter<
    public InstanceInZone getNode(String name) {
       SlashEncodedIds slashEncodedIds = SlashEncodedIds.fromSlashEncoded(name);
 
-      Instance instance= api.getInstanceApiForProject(userProject.get()).getInZone(slashEncodedIds.getFirstId(),
+      Instance instance = api.getInstanceApiForProject(userProject.get()).getInZone(slashEncodedIds.getFirstId(),
               slashEncodedIds.getSecondId());
 
-      return instance == null ?  null : new InstanceInZone(instance, slashEncodedIds.getFirstId());
+      return instance == null ? null : new InstanceInZone(instance, slashEncodedIds.getFirstId());
    }
 
    @Override
@@ -341,18 +324,19 @@ public class GoogleComputeEngineServiceAdapter implements ComputeServiceAdapter<
       String diskName = null;
       try {
          Instance instance = api.getInstanceApiForProject(userProject.get()).getInZone(slashEncodedIds.getFirstId(),
-                                                                              slashEncodedIds.getSecondId());
+                 slashEncodedIds.getSecondId());
          if (instance.getMetadata().getItems().get(GCE_DELETE_BOOT_DISK_METADATA_KEY).equals("true")) {
             Optional<AttachedDisk> disk = tryFind(instance.getDisks(), new Predicate<AttachedDisk>() {
                @Override
                public boolean apply(AttachedDisk input) {
                   return PersistentAttachedDisk.class.isInstance(input) &&
-                         PersistentAttachedDisk.class.cast(input).isBoot();
+                          PersistentAttachedDisk.class.cast(input).isBoot();
                }
             });
             if (disk.isPresent()) {
                diskName = PersistentAttachedDisk.class.cast(disk.get()).getSourceDiskName();
             }
+
          }
       } catch (Exception e) {
          // TODO: what exception actually gets thrown here if the instance doesn't really exist?
@@ -362,9 +346,8 @@ public class GoogleComputeEngineServiceAdapter implements ComputeServiceAdapter<
 
       if (diskName != null) {
          waitOperationDone(api.getDiskApiForProject(userProject.get()).deleteInZone(slashEncodedIds.getFirstId(),
-                                                                                    diskName));
+                 diskName));
       }
-
    }
 
    @Override

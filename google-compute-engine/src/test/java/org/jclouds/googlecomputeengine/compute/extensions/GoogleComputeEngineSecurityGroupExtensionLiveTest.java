@@ -19,6 +19,11 @@ package org.jclouds.googlecomputeengine.compute.extensions;
 import org.jclouds.compute.extensions.internal.BaseSecurityGroupExtensionLiveTest;
 import org.testng.annotations.Test;
 
+import java.util.Properties;
+
+import static org.jclouds.compute.config.ComputeServiceProperties.TEMPLATE;
+import static org.jclouds.oauth.v2.OAuthTestUtils.setCredentialFromPemFile;
+
 /**
  * @author Andrew Bayer
  */
@@ -28,4 +33,13 @@ public class GoogleComputeEngineSecurityGroupExtensionLiveTest extends BaseSecur
    public GoogleComputeEngineSecurityGroupExtensionLiveTest() {
       provider = "google-compute-engine";
    }
+
+   @Override
+   protected Properties setupProperties() {
+      Properties props = super.setupProperties();
+      setCredentialFromPemFile(props, provider + ".credential");
+      props.setProperty(TEMPLATE, "osFamily=CENTOS,locationId=us-central1-a,loginUser=jclouds");
+      return props;
+   }
+
 }
