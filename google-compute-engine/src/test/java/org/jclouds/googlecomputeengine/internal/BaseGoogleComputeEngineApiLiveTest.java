@@ -76,7 +76,7 @@ public class BaseGoogleComputeEngineApiLiveTest extends BaseApiLiveTest<GoogleCo
 
 
    public BaseGoogleComputeEngineApiLiveTest() {
-      this.provider = "google-compute-engine";
+      provider = "google-compute-engine";
    }
 
    @Override

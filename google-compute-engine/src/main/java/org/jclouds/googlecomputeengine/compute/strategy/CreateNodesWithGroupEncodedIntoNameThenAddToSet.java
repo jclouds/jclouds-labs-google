@@ -23,6 +23,7 @@ import static com.google.common.util.concurrent.Atomics.*;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.OPERATION_COMPLETE_INTERVAL;
 import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.OPERATION_COMPLETE_TIMEOUT;
+import static org.jclouds.googlecomputeengine.domain.Firewall.Rule;
 import static org.jclouds.util.Predicates2.retry;
 
 import java.util.List;
@@ -33,11 +34,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.primitives.Ints;
 import org.jclouds.Constants;
 import org.jclouds.compute.config.CustomizationResponse;
 import org.jclouds.compute.domain.NodeMetadata;
@@ -48,7 +45,6 @@ import org.jclouds.compute.strategy.CreateNodeWithGroupEncodedIntoName;
 import org.jclouds.compute.strategy.CustomizeNodeAndAddToGoodMapOrPutExceptionIntoBadMap;
 import org.jclouds.compute.strategy.ListNodesStrategy;
 import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
-import org.jclouds.googlecomputeengine.compute.functions.FirewallTagNamingConvention;
 import org.jclouds.googlecomputeengine.compute.options.GoogleComputeEngineTemplateOptions;
 import org.jclouds.googlecomputeengine.config.UserProject;
 import org.jclouds.googlecomputeengine.domain.Firewall;
@@ -61,10 +57,7 @@ import org.jclouds.googlecomputeengine.options.FirewallOptions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
-import com.google.common.util.concurrent.Atomics;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 
@@ -76,7 +69,6 @@ public class CreateNodesWithGroupEncodedIntoNameThenAddToSet extends
 
    public static final String EXTERIOR_RANGE = "0.0.0.0/0";
    public static final String DEFAULT_INTERNAL_NETWORK_RANGE = "10.0.0.0/8";
-   private static final String FIREWALL_PREFIX = "jclouds-firewall-";
 
    private final GoogleComputeEngineApi api;
    private final Supplier<String> userProject;
@@ -149,46 +141,39 @@ public class CreateNodesWithGroupEncodedIntoNameThenAddToSet extends
     * For each group of nodes, there must be a firewall which opens the requested ports for all sources on both TCP and UDP protocols.
     * @see org.jclouds.googlecomputeengine.features.FirewallApi#patch(String, org.jclouds.googlecomputeengine.options.FirewallOptions)
     */
-   private void getAndPatchOrCreateFirewalls(GoogleComputeEngineTemplateOptions templateOptions, Network network, String sharedResourceName) {
+   private void getAndPatchOrCreateFirewalls(GoogleComputeEngineTemplateOptions templateOptions, Network network,
+                                             String sharedResourceName) {
       String firewallName = templateOptions.getNetworkName().or(sharedResourceName);
       String projectName = userProject.get();
       FirewallApi firewallApi = api.getFirewallApiForProject(projectName);
       Firewall firewall = firewallApi.get(firewallName);
       List<Firewall.Rule> rules = createFirewallRulesFromInboundPorts(templateOptions.getInboundPorts());
+      FirewallOptions firewallOptions = new FirewallOptions().name(firewallName).network(network.getSelfLink())
+                                                             .sourceTags(templateOptions.getTags())
+                                                             .sourceRanges(of(DEFAULT_INTERNAL_NETWORK_RANGE,
+                                                                     EXTERIOR_RANGE));
       if (firewall == null) {
-         FirewallOptions firewallOptions = new FirewallOptions()
-                 .name(firewallName)
-                 .network(network.getSelfLink())
-                 .allowedRules(rules)
-                 .sourceTags(templateOptions.getTags())
-                 .sourceRanges(of(DEFAULT_INTERNAL_NETWORK_RANGE, EXTERIOR_RANGE));
-         AtomicReference<Operation> operation = newReference(firewallApi.createInNetwork(
-                 firewallOptions.getName(),
+         firewallOptions.allowedRules(rules);
+         AtomicReference<Operation> operation = newReference(firewallApi.createInNetwork(firewallOptions.getName(),
                  network.getSelfLink(),
                  firewallOptions));
          retry(operationDonePredicate, operationCompleteCheckTimeout, operationCompleteCheckInterval,
                  MILLISECONDS).apply(operation);
-         checkState(!operation.get().getHttpError().isPresent(),"Could not create firewall, operation failed" + operation);
+         checkState(!operation.get().getHttpError().isPresent(), "Could not create firewall, operation failed " + operation);
       } else {
          rules.addAll(firewall.getAllowed());
-         FirewallOptions firewallOptions = new FirewallOptions()
-                 .name(firewallName)
-                 .network(network.getSelfLink())
-                 .allowedRules(rules)
-                 .sourceTags(templateOptions.getTags())
-                 .sourceRanges(of(DEFAULT_INTERNAL_NETWORK_RANGE, EXTERIOR_RANGE));
          AtomicReference<Operation> operation = newReference(firewallApi.patch(firewallOptions.getName(), firewallOptions));
          retry(operationDonePredicate, operationCompleteCheckTimeout, operationCompleteCheckInterval,
                  MILLISECONDS).apply(operation);
-         checkState(!operation.get().getHttpError().isPresent(),"Could not patch firewall, operation failed" + operation);
+         checkState(!operation.get().getHttpError().isPresent(), "Could not patch firewall, operation failed " + operation);
       }
    }
 
-   private List<Firewall.Rule> createFirewallRulesFromInboundPorts(int[] inboundPorts) {
-      List<Firewall.Rule> rules = Lists.newArrayList();
-      for (Integer port : inboundPorts) {
-         rules.add(Firewall.Rule.permitTcpRule(port));
-         rules.add(Firewall.Rule.permitUdpRule(port));
+   private List<Rule> createFirewallRulesFromInboundPorts(int[] inboundPorts) {
+      List<Rule> rules = Lists.newArrayList();
+      for (int port : inboundPorts) {
+         rules.add(Rule.permitTcpRule(port));
+         rules.add(Rule.permitUdpRule(port));
       }
       return rules;
    }
