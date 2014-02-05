@@ -57,7 +57,7 @@ public class FirewallOptions {
    /**
     * @see org.jclouds.googlecomputeengine.domain.Firewall#getAllowed()
     */
-   public FirewallOptions allowedRules(List<Firewall.Rule> allowedRules) {
+   public FirewallOptions allowedRules(Set<Firewall.Rule> allowedRules) {
       this.allowed = ImmutableSet.builder();
       this.allowed.addAll(allowedRules);
       return this;

@@ -35,6 +35,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.jclouds.Constants;
 import org.jclouds.compute.config.CustomizationResponse;
 import org.jclouds.compute.domain.NodeMetadata;
@@ -147,7 +148,7 @@ public class CreateNodesWithGroupEncodedIntoNameThenAddToSet extends
       String projectName = userProject.get();
       FirewallApi firewallApi = api.getFirewallApiForProject(projectName);
       Firewall firewall = firewallApi.get(firewallName);
-      List<Firewall.Rule> rules = createFirewallRulesFromInboundPorts(templateOptions.getInboundPorts());
+      Set<Rule> rules = createFirewallRulesFromInboundPorts(templateOptions.getInboundPorts());
       FirewallOptions firewallOptions = new FirewallOptions().name(firewallName).network(network.getSelfLink())
                                                              .sourceTags(templateOptions.getTags())
                                                              .sourceRanges(of(DEFAULT_INTERNAL_NETWORK_RANGE,
@@ -169,8 +170,8 @@ public class CreateNodesWithGroupEncodedIntoNameThenAddToSet extends
       }
    }
 
-   private List<Rule> createFirewallRulesFromInboundPorts(int[] inboundPorts) {
-      List<Rule> rules = Lists.newArrayList();
+   private Set<Rule> createFirewallRulesFromInboundPorts(int[] inboundPorts) {
+      Set<Rule> rules = Sets.newLinkedHashSet();
       for (int port : inboundPorts) {
          rules.add(Rule.permitTcpRule(port));
          rules.add(Rule.permitUdpRule(port));
