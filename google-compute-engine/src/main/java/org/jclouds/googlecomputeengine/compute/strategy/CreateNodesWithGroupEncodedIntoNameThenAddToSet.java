@@ -16,26 +16,13 @@
  */
 package org.jclouds.googlecomputeengine.compute.strategy;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableSet.of;
-import static com.google.common.util.concurrent.Atomics.*;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.OPERATION_COMPLETE_INTERVAL;
-import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.OPERATION_COMPLETE_TIMEOUT;
-import static org.jclouds.googlecomputeengine.domain.Firewall.Rule;
-import static org.jclouds.util.Predicates2.retry;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import com.google.common.collect.Lists;
+import com.google.common.base.Predicate;
+import com.google.common.base.Supplier;
+import com.google.common.cache.LoadingCache;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
 import org.jclouds.Constants;
 import org.jclouds.compute.config.CustomizationResponse;
 import org.jclouds.compute.domain.NodeMetadata;
@@ -55,12 +42,21 @@ import org.jclouds.googlecomputeengine.domain.internal.NetworkAndAddressRange;
 import org.jclouds.googlecomputeengine.features.FirewallApi;
 import org.jclouds.googlecomputeengine.options.FirewallOptions;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Supplier;
-import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Multimap;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableSet.of;
+import static com.google.common.util.concurrent.Atomics.newReference;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.OPERATION_COMPLETE_INTERVAL;
+import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.OPERATION_COMPLETE_TIMEOUT;
+import static org.jclouds.googlecomputeengine.domain.Firewall.Rule;
+import static org.jclouds.util.Predicates2.retry;
 
 /**
  * @author David Alves
@@ -121,7 +117,7 @@ public class CreateNodesWithGroupEncodedIntoNameThenAddToSet extends
 
       // get or create the network and create a firewall with the users configuration
       Network network = getOrCreateNetwork(templateOptions, sharedResourceName);
-      getAndPatchOrCreateFirewalls(templateOptions, network, group);
+      getAndUpdateOrCreateFirewalls(templateOptions, network, group);
       templateOptions.network(network.getSelfLink());
       templateOptions.userMetadata(ComputeServiceConstants.NODE_GROUP_KEY, group);
 
@@ -142,7 +138,7 @@ public class CreateNodesWithGroupEncodedIntoNameThenAddToSet extends
     * For each group of nodes, there must be a firewall which opens the requested ports for all sources on both TCP and UDP protocols.
     * @see org.jclouds.googlecomputeengine.features.FirewallApi#patch(String, org.jclouds.googlecomputeengine.options.FirewallOptions)
     */
-   private void getAndPatchOrCreateFirewalls(GoogleComputeEngineTemplateOptions templateOptions, Network network,
+   private void getAndUpdateOrCreateFirewalls(GoogleComputeEngineTemplateOptions templateOptions, Network network,
                                              String sharedResourceName) {
       String firewallName = templateOptions.getNetworkName().or(sharedResourceName);
       String projectName = userProject.get();
