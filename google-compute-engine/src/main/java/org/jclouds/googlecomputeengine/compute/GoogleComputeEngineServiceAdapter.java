@@ -16,33 +16,19 @@
  */
 package org.jclouds.googlecomputeengine.compute;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Iterables.contains;
-import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.tryFind;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.CENTOS_PROJECT;
-import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.DEBIAN_PROJECT;
-import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.GCE_BOOT_DISK_SUFFIX;
-import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.GCE_DELETE_BOOT_DISK_METADATA_KEY;
-import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.GCE_IMAGE_METADATA_KEY;
-import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.OPERATION_COMPLETE_INTERVAL;
-import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.OPERATION_COMPLETE_TIMEOUT;
-import static org.jclouds.googlecomputeengine.domain.Instance.NetworkInterface.AccessConfig.Type;
-import static org.jclouds.googlecomputeengine.predicates.InstancePredicates.isBootDisk;
-import static org.jclouds.util.Predicates2.retry;
-
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.annotation.Resource;
-import javax.inject.Named;
-
+import com.google.common.base.Function;
+import com.google.common.base.Objects;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.base.Supplier;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.primitives.Ints;
+import com.google.common.util.concurrent.Atomics;
+import com.google.common.util.concurrent.UncheckedTimeoutException;
+import com.google.inject.Inject;
 import org.jclouds.collect.Memoized;
 import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.domain.Hardware;
@@ -73,19 +59,34 @@ import org.jclouds.googlecomputeengine.features.InstanceApi;
 import org.jclouds.http.HttpResponse;
 import org.jclouds.logging.Logger;
 
-import com.google.common.base.Function;
-import com.google.common.base.Objects;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.base.Supplier;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import com.google.common.primitives.Ints;
-import com.google.common.util.concurrent.Atomics;
-import com.google.common.util.concurrent.UncheckedTimeoutException;
-import com.google.inject.Inject;
+import javax.annotation.Resource;
+import javax.inject.Named;
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.Iterables.contains;
+import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.tryFind;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.CENTOS_PROJECT;
+import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.DEBIAN_PROJECT;
+import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.GCE_BOOT_DISK_SUFFIX;
+import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.GCE_DELETE_BOOT_DISK_METADATA_KEY;
+import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.GCE_IMAGE_METADATA_KEY;
+import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.OPERATION_COMPLETE_INTERVAL;
+import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.OPERATION_COMPLETE_TIMEOUT;
+import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.RHEL_PROJECT;
+import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.SUSE_PROJECT;
+import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.WINDOWS_PROJECT;
+import static org.jclouds.googlecomputeengine.domain.Instance.NetworkInterface.AccessConfig.Type;
+import static org.jclouds.googlecomputeengine.predicates.InstancePredicates.isBootDisk;
+import static org.jclouds.util.Predicates2.retry;
 
 /**
  * @author David Alves
@@ -281,14 +282,23 @@ public class GoogleComputeEngineServiceAdapter implements ComputeServiceAdapter<
               .addAll(api.getImageApiForProject(userProject.get()).list().concat())
               .addAll(api.getImageApiForProject(DEBIAN_PROJECT).list().concat())
               .addAll(api.getImageApiForProject(CENTOS_PROJECT).list().concat())
+              .addAll(api.getImageApiForProject(RHEL_PROJECT).list().concat())
+              .addAll(api.getImageApiForProject(SUSE_PROJECT).list().concat())
+              .addAll(api.getImageApiForProject(WINDOWS_PROJECT).list().concat())
               .build();
    }
 
    @Override
    public Image getImage(String id) {
       return Objects.firstNonNull(api.getImageApiForProject(userProject.get()).get(id),
-                                  Objects.firstNonNull(api.getImageApiForProject(DEBIAN_PROJECT).get(id),
-                                                       api.getImageApiForProject(CENTOS_PROJECT).get(id)));
+                                  Objects.firstNonNull(
+                                         Objects.firstNonNull(
+                                             Objects.firstNonNull(api.getImageApiForProject(DEBIAN_PROJECT).get(id),
+                                                                  api.getImageApiForProject(CENTOS_PROJECT).get(id)),
+                                             Objects.firstNonNull(api.getImageApiForProject(RHEL_PROJECT).get(id),
+                                                                  api.getImageApiForProject(SUSE_PROJECT).get(id))),
+                                         api.getImageApiForProject(WINDOWS_PROJECT).get(id))
+      );
 
    }
 
