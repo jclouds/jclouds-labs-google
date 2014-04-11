@@ -24,6 +24,7 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.Atomics;
@@ -289,17 +290,15 @@ public class GoogleComputeEngineServiceAdapter implements ComputeServiceAdapter<
    }
 
    @Override
-   public Image getImage(String id) {
+   public Image getImage(final String id) {
       return Objects.firstNonNull(api.getImageApiForProject(userProject.get()).get(id),
-                                  Objects.firstNonNull(
-                                         Objects.firstNonNull(
-                                             Objects.firstNonNull(api.getImageApiForProject(DEBIAN_PROJECT).get(id),
-                                                                  api.getImageApiForProject(CENTOS_PROJECT).get(id)),
-                                             Objects.firstNonNull(api.getImageApiForProject(RHEL_PROJECT).get(id),
-                                                                  api.getImageApiForProject(SUSE_PROJECT).get(id))),
-                                         api.getImageApiForProject(WINDOWS_PROJECT).get(id))
+              Iterables.tryFind(listImages(), new Predicate<Image>() {
+                 @Override
+                 public boolean apply(Image input) {
+                    return input.getName().equalsIgnoreCase(id);
+                 }
+              }).orNull()
       );
-
    }
 
    @Override
