@@ -28,13 +28,13 @@
   <artifactId>jclouds-labs-google</artifactId>
   <packaging>pom</packaging>
   <name>Apache jclouds labs google</name>
-  <version>1.7.3-SNAPSHOT</version>
+  <version>1.7.3</version>
   
   <scm>
     <connection>scm:git:https://git-wip-us.apache.org/repos/asf/jclouds-labs-google.git</connection>
     <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/jclouds-labs-google.git</developerConnection>
     <url>https://git-wip-us.apache.org/repos/asf?p=jclouds-labs-google.git</url>
-    <tag>HEAD</tag>
+    <tag>jclouds-labs-google-1.7.3-rc1</tag>
   </scm>
 
   <properties>
