@@ -22,19 +22,19 @@
   <parent>
     <groupId>org.apache.jclouds</groupId>
     <artifactId>jclouds-project</artifactId>
-    <version>1.7.3</version>
+    <version>1.7.4-SNAPSHOT</version>
   </parent>
   <groupId>org.apache.jclouds.labs</groupId>
   <artifactId>jclouds-labs-google</artifactId>
   <packaging>pom</packaging>
   <name>Apache jclouds labs google</name>
-  <version>1.7.3</version>
+  <version>1.7.4-SNAPSHOT</version>
   
   <scm>
     <connection>scm:git:https://git-wip-us.apache.org/repos/asf/jclouds-labs-google.git</connection>
     <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/jclouds-labs-google.git</developerConnection>
     <url>https://git-wip-us.apache.org/repos/asf?p=jclouds-labs-google.git</url>
-    <tag>jclouds-labs-google-1.7.3-rc1</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <properties>
