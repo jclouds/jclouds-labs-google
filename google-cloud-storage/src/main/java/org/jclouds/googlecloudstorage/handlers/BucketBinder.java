@@ -14,26 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.googlecloudstorage.parse;
+package org.jclouds.googlecloudstorage.handlers;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.core.MediaType;
+import java.util.Map;
 
-import org.jclouds.googlecloudstorage.domain.DefaultObjectAccessControls;
-import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.ObjectRole;
-import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageParseTest;
+import javax.inject.Inject;
 
-public class DefaultObjectAclInsertTest extends BaseGoogleCloudStorageParseTest<DefaultObjectAccessControls> {
+import org.jclouds.googlecloudstorage.domain.BucketTemplate;
+import org.jclouds.http.HttpRequest;
+import org.jclouds.rest.MapBinder;
+import org.jclouds.rest.binders.BindToJsonPayload;
+
+public class BucketBinder implements MapBinder {
+
+   @Inject
+   private BindToJsonPayload jsonBinder;
 
    @Override
-   public String resource() {
-      return "/default_objectacl_insert_response.json";
+   public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams) {
+      BucketTemplate postBucket = (BucketTemplate) postParams.get("template");
+      return bindToRequest(request, postBucket);
    }
 
    @Override
-   @Consumes(MediaType.APPLICATION_JSON)
-   public DefaultObjectAccessControls expected() {
-      return DefaultObjectAccessControls.builder().entity("allUsers").role(ObjectRole.OWNER).etag("CAo=").build();
-
+   public <R extends HttpRequest> R bindToRequest(R request, Object input) {
+      return jsonBinder.bindToRequest(request, input);
    }
 }

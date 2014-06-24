@@ -20,12 +20,12 @@ import java.util.Properties;
 
 import org.jclouds.apis.BaseApiLiveTest;
 import org.jclouds.googlecloudstorage.GoogleCloudStorageApi;
-
 import com.google.inject.Injector;
-
 import com.google.inject.Module;
 
 public class BaseGoogleCloudStorageApiLiveTest extends BaseApiLiveTest<GoogleCloudStorageApi> {
+
+   protected static final String PROJECT_NUMBER = System.getProperty("test.google-cloud-storage.project-number");
 
    public BaseGoogleCloudStorageApiLiveTest() {
       provider = "google-cloud-storage";
@@ -37,3 +37,4 @@ public class BaseGoogleCloudStorageApiLiveTest extends BaseApiLiveTest<GoogleClo
    }
 
 }
+
