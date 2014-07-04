@@ -35,6 +35,12 @@ public final class GoogleComputeEngineConstants {
 
    public static final String DEBIAN_PROJECT = "debian-cloud";
 
+   public static final String RHEL_PROJECT = "rhel-cloud";
+
+   public static final String SUSE_PROJECT = "suse-cloud";
+
+   public static final String WINDOWS_PROJECT = "windows-cloud";
+
    public static final String COMPUTE_SCOPE = "https://www.googleapis.com/auth/compute";
 
    public static final String COMPUTE_READONLY_SCOPE = "https://www.googleapis.com/auth/compute.readonly";
