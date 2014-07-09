@@ -459,7 +459,7 @@ public class GoogleComputeEngineServiceExpectTest extends BaseGoogleComputeEngin
                  .builder()
                  .method("GET")
                  .endpoint("https://www.googleapis" +
-                         ".com/compute/v1/projects/myproject/global/firewalls/jclouds-test-port-22")
+                         ".com/compute/v1/projects/myproject/global/firewalls/test")
                  .addHeader("Accept", "application/json")
                  .addHeader("Authorization", "Bearer " + TOKEN).build();
 
@@ -469,11 +469,12 @@ public class GoogleComputeEngineServiceExpectTest extends BaseGoogleComputeEngin
                  .endpoint("https://www.googleapis.com/compute/v1/projects/myproject/global/firewalls")
                  .addHeader("Accept", "application/json")
                  .addHeader("Authorization", "Bearer " + TOKEN)
-                 .payload(payloadFromStringWithContentType("{\"name\":\"jclouds-test-port-22\",\"network\":\"https://www.googleapis" +
+                 .payload(payloadFromStringWithContentType("{\"name\":\"test\",\"network\":\"https://www.googleapis" +
                          ".com/compute/v1/projects/myproject/global/networks/jclouds-test\"," +
-                         "\"sourceRanges\":[\"10.0.0.0/8\",\"0.0.0.0/0\"],\"sourceTags\":[\"aTag\"],\"targetTags\":[\"jclouds-test-port-22\"],\"allowed\":[{\"IPProtocol\":\"tcp\"," +
-                         "\"ports\":[\"22\"]}," +
-                         "{\"IPProtocol\":\"udp\",\"ports\":[\"22\"]}]}",
+                         "\"sourceRanges\":[\"10.0.0.0/8\",\"0.0.0.0/0\"],\"sourceTags\":[\"aTag\"],\"allowed\":[" +
+                         "{\"IPProtocol\":\"tcp\",\"ports\":[\"22\"]}," +
+                         "{\"IPProtocol\":\"udp\",\"ports\":[\"22\"]}" +
+                         "]}",
                          MediaType.APPLICATION_JSON))
                  .build();
 

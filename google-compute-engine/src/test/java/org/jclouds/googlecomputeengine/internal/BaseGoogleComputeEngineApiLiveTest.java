@@ -16,20 +16,6 @@
  */
 package org.jclouds.googlecomputeengine.internal;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.jclouds.util.Predicates2.retry;
-import static org.testng.Assert.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
-
-import java.net.URI;
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.jclouds.apis.BaseApiLiveTest;
-import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
-import org.jclouds.googlecomputeengine.config.UserProject;
-import org.jclouds.googlecomputeengine.domain.Operation;
-
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.util.concurrent.Atomics;
@@ -38,7 +24,20 @@ import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
+import org.jclouds.apis.BaseApiLiveTest;
+import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
+import org.jclouds.googlecomputeengine.config.UserProject;
+import org.jclouds.googlecomputeengine.domain.Operation;
 
+import java.net.URI;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.jclouds.oauth.v2.OAuthTestUtils.setCredentialFromPemFile;
+import static org.jclouds.util.Predicates2.retry;
+import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 /**
  * @author David Alves
@@ -71,6 +70,13 @@ public class BaseGoogleComputeEngineApiLiveTest extends BaseApiLiveTest<GoogleCo
 
    public BaseGoogleComputeEngineApiLiveTest() {
       provider = "google-compute-engine";
+   }
+
+   @Override
+   protected Properties setupProperties() {
+      Properties props = super.setupProperties();
+      setCredentialFromPemFile(props, provider + ".credential");
+      return props;
    }
 
    protected GoogleComputeEngineApi create(Properties props, Iterable<Module> modules) {

@@ -16,12 +16,8 @@
  */
 package org.jclouds.googlecomputeengine.features;
 
-import static com.google.common.collect.Iterables.getOnlyElement;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-
-import java.util.List;
-
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import org.jclouds.collect.PagedIterable;
 import org.jclouds.googlecomputeengine.domain.Firewall;
 import org.jclouds.googlecomputeengine.internal.BaseGoogleComputeEngineApiLiveTest;
@@ -30,8 +26,11 @@ import org.jclouds.googlecomputeengine.options.ListOptions;
 import org.jclouds.net.domain.IpProtocol;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
+import java.util.List;
+
+import static com.google.common.collect.Iterables.getOnlyElement;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 /**
  * @author David Alves
