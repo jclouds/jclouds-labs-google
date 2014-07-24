@@ -45,7 +45,7 @@ public class BucketAccessControls extends Resource {
    private BucketAccessControls(@Nullable String id, @Nullable URI selfLink, @Nullable String etag, String bucket,
             String entity, @Nullable String entityId, Role role, @Nullable String email, @Nullable String domain,
             @Nullable ProjectTeam projectTeam) {
-      super(Kind.BUCKET_ACCESS_CONTROL, id == null ? (bucket + "/" + entity) : id, selfLink, etag);
+      super(Kind.BUCKET_ACCESS_CONTROL, id, selfLink, etag);
 
       this.bucket = checkNotNull(bucket, "bucket");
       this.entity = checkNotNull(entity, "entity");

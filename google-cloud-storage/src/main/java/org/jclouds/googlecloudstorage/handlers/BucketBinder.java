@@ -31,7 +31,7 @@ public class BucketBinder implements MapBinder {
    private BindToJsonPayload jsonBinder;
 
    @Override
-   public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams) throws IllegalArgumentException {
+   public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams) {
       BucketTemplate postBucket = (BucketTemplate) postParams.get("template");      
       return bindToRequest(request, postBucket);      
    }
