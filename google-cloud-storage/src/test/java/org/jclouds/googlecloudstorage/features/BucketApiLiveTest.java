@@ -23,6 +23,7 @@ import static org.testng.Assert.assertTrue;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import org.jclouds.googlecloudstorage.domain.BucketAccessControls;
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.Location;
@@ -50,11 +51,11 @@ import com.google.common.collect.Lists;
 
 public class BucketApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
-   private static final String BUCKET_NAME = "jcloudstestbucket" + (int) (Math.random() * 10000);
+   private static final String BUCKET_NAME = "jcloudstestbucket" + UUID.randomUUID();
 
-   private static final String BUCKET_NAME_WITHOPTIONS = "jcloudtestbucketoptions" + (int) (Math.random() * 10000);
+   private static final String BUCKET_NAME_WITHOPTIONS = "jcloudtestbucketoptions" + UUID.randomUUID();
 
-   private static final String LOG_BUCKET_NAME = "jcloudslogbucket" + (int) (Math.random() * 10000);
+   private static final String LOG_BUCKET_NAME = "jcloudslogbucket" + UUID.randomUUID();
 
    private Long metageneration;
 
@@ -64,7 +65,6 @@ public class BucketApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
    @Test(groups = "live")
    public void testCreateBucket() {
-
       BucketTemplate logTemplate = new BucketTemplate().name(LOG_BUCKET_NAME);
       Bucket logResponse = api().createBucket(PROJECT_NUMBER, logTemplate);
       assertNotNull(logResponse);
@@ -215,7 +215,6 @@ public class BucketApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
    @Test(groups = "live", dependsOnMethods = { "testGetBucketWithOptions" })
    public void testDeleteBucketWithOptions() {
-
       DeleteBucketOptions options = new DeleteBucketOptions().ifMetagenerationMatch(metageneration)
                .ifMetagenerationNotMatch(metageneration + 1);
 
