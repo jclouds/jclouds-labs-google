@@ -46,29 +46,29 @@ public class BucketAccessControlsApiLiveTest extends BaseGoogleCloudStorageApiLi
    }
 
    @Test(groups = "live")
-   public void testCreateBucketacl() {
+   public void testCreateBucketAcl() {
       createBucket(BUCKET_NAME);
-      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
+      BucketAccessControls bucketAcl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
                .role(Role.READER).build();
-      BucketAccessControls response = api().createBucketAccessControls(BUCKET_NAME, bucketacl);
+      BucketAccessControls response = api().createBucketAccessControls(BUCKET_NAME, bucketAcl);
 
       assertNotNull(response);
       assertEquals(response.getId(), BUCKET_NAME + "/allUsers");
    }
 
-   @Test(groups = "live", dependsOnMethods = "testCreateBucketacl")
-   public void testUpdateBucketacl() {
-      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
+   @Test(groups = "live", dependsOnMethods = "testCreateBucketAcl")
+   public void testUpdateBucketAcl() {
+      BucketAccessControls bucketAcl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
                .role(Role.WRITER).build();
-      BucketAccessControls response = api().updateBucketAccessControls(BUCKET_NAME, "allUsers", bucketacl);
+      BucketAccessControls response = api().updateBucketAccessControls(BUCKET_NAME, "allUsers", bucketAcl);
 
       assertNotNull(response);
       assertEquals(response.getId(), BUCKET_NAME + "/allUsers");
       assertEquals(response.getRole(), Role.WRITER);
    }
 
-   @Test(groups = "live", dependsOnMethods = "testUpdateBucketacl")
-   public void testGetBucketacl() {
+   @Test(groups = "live", dependsOnMethods = "testUpdateBucketAcl")
+   public void testGetBucketAcl() {
       BucketAccessControls response = api().getBucketAccessControls(BUCKET_NAME, "allUsers");
 
       assertNotNull(response);
@@ -76,8 +76,8 @@ public class BucketAccessControlsApiLiveTest extends BaseGoogleCloudStorageApiLi
       assertEquals(response.getRole(), Role.WRITER);
    }
 
-   @Test(groups = "live", dependsOnMethods = "testUpdateBucketacl")
-   public void testListBucketacl() {
+   @Test(groups = "live", dependsOnMethods = "testUpdateBucketAcl")
+   public void testListBucketAcl() {
       ListBucketAccessControls response = api().listBucketAccessControls(BUCKET_NAME);
 
       assertNotNull(response);
@@ -85,24 +85,24 @@ public class BucketAccessControlsApiLiveTest extends BaseGoogleCloudStorageApiLi
       assertNotNull(response.getItems());
    }
 
-   @Test(groups = "live", dependsOnMethods = "testUpdateBucketacl")
-   public void testPatchBucketacl() {
-      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
+   @Test(groups = "live", dependsOnMethods = "testUpdateBucketAcl")
+   public void testPatchBucketAcl() {
+      BucketAccessControls bucketAcl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
                .role(Role.READER).build();
-      BucketAccessControls response = api().patchBucketAccessControls(BUCKET_NAME, "allUsers", bucketacl);
+      BucketAccessControls response = api().patchBucketAccessControls(BUCKET_NAME, "allUsers", bucketAcl);
 
       assertNotNull(response);
       assertEquals(response.getId(), BUCKET_NAME + "/allUsers");
       assertEquals(response.getRole(), Role.READER);
    }
 
-   @Test(groups = "live", dependsOnMethods = "testPatchBucketacl")
-   public void testDeleteBucketacl() {
+   @Test(groups = "live", dependsOnMethods = "testPatchBucketAcl")
+   public void testDeleteBucketAcl() {
       api().deleteBucketAccessControls(BUCKET_NAME, "allUsers");
       deleteBucket(BUCKET_NAME);
    }
 
-   @Test(groups = "live", dependsOnMethods = "testDeleteBucketacl", expectedExceptions = ResourceNotFoundException.class)
+   @Test(groups = "live", dependsOnMethods = "testDeleteBucketAcl", expectedExceptions = ResourceNotFoundException.class)
    public void testDeleteNotExistingBucketAccessControls() {
       api().deleteBucketAccessControls(BUCKET_NAME, "allUsers");
    }
