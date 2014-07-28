@@ -122,33 +122,6 @@ public class BucketAccessControlsApiExpectTest extends BaseGoogleCloudStorageApi
 
    }
 
-   // Test deleteBucketAccessControls
-   public void testDeleteBucketAclResponseIs2xx() throws Exception {
-      HttpRequest delete = HttpRequest.builder().method("DELETE")
-               .endpoint("https://www.googleapis.com/storage/v1/b/jcloudtestbucket/acl/allAuthenticatedUsers")
-               .addHeader("Accept", "application/json").addHeader("Authorization", "Bearer " + TOKEN).build();
-
-      HttpResponse deleteResponse = HttpResponse.builder().statusCode(204).build();
-
-      BucketAccessControlsApi api = requestsSendResponses(requestForScopes(STORAGE_FULLCONTROL_SCOPE), TOKEN_RESPONSE,
-               delete, deleteResponse).getBucketAccessControlsApi();
-
-      assertEquals(api.deleteBucketAccessControls(EXPECTED_TEST_BUCKET, "allAuthenticatedUsers"), deleteResponse);
-   }
-
-   public void testDeleteBucketAclResponseIs4xx() throws Exception {
-      HttpRequest delete = HttpRequest.builder().method("DELETE")
-               .endpoint("https://www.googleapis.com/storage/v1/b/jcloudtestbucket/acl/allAuthenticatedUsers")
-               .addHeader("Accept", "application/json").addHeader("Authorization", "Bearer " + TOKEN).build();
-
-      HttpResponse deleteResponse = HttpResponse.builder().statusCode(404).build();
-
-      BucketAccessControlsApi api = requestsSendResponses(requestForScopes(STORAGE_FULLCONTROL_SCOPE), TOKEN_RESPONSE,
-               delete, deleteResponse).getBucketAccessControlsApi();
-
-      assertNull(api.deleteBucketAccessControls(EXPECTED_TEST_BUCKET, "allAuthenticatedUsers"));
-   }
-
    // Test updateBucketAccessControls
    public void testUpdateBucketAclResponseIs2xx() throws Exception {
       HttpRequest update = HttpRequest

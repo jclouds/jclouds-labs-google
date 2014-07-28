@@ -122,33 +122,6 @@ public class DefaultObjectAccessControlsApiExpectTest extends BaseGoogleCloudSto
                new DefaultObjectAclInsertTest().expected());
    }
 
-   // Test deleteDefaultObjectAccessControls
-   public void testDeleteDefaultObjectAclResponseIs2xx() throws Exception {
-      HttpRequest delete = HttpRequest.builder().method("DELETE")
-               .endpoint("https://www.googleapis.com/storage/v1/b/jcloudtestbucket/defaultObjectAcl/allUsers")
-               .addHeader("Accept", "application/json").addHeader("Authorization", "Bearer " + TOKEN).build();
-
-      HttpResponse deleteResponse = HttpResponse.builder().statusCode(204).build();
-
-      DefaultObjectAccessControlsApi api = requestsSendResponses(requestForScopes(STORAGE_FULLCONTROL_SCOPE),
-               TOKEN_RESPONSE, delete, deleteResponse).getDefaultObjectAccessControlsApi();
-
-      assertEquals(api.deleteDefaultObjectAccessControls(EXPECTED_TEST_BUCKET, "allUsers"), deleteResponse);
-   }
-
-   public void testDeleteObjectAclResponseIs4xx() throws Exception {
-      HttpRequest delete = HttpRequest.builder().method("DELETE")
-               .endpoint("https://www.googleapis.com/storage/v1/b/jcloudtestbucket/defaultObjectAcl/allUsers")
-               .addHeader("Accept", "application/json").addHeader("Authorization", "Bearer " + TOKEN).build();
-
-      HttpResponse deleteResponse = HttpResponse.builder().statusCode(404).build();
-
-      DefaultObjectAccessControlsApi api = requestsSendResponses(requestForScopes(STORAGE_FULLCONTROL_SCOPE),
-               TOKEN_RESPONSE, delete, deleteResponse).getDefaultObjectAccessControlsApi();
-
-      assertNull(api.deleteDefaultObjectAccessControls(EXPECTED_TEST_BUCKET, "allUsers"));
-   }
-
    // Test updateDefaultObjectAccessControls
    public void testUpdateDefaultObjectAclWithNoOptionsResponseIs2xx() throws Exception {
       HttpRequest update = HttpRequest

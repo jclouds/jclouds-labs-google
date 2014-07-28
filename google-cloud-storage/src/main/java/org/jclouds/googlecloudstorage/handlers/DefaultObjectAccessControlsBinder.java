@@ -31,7 +31,7 @@ public class DefaultObjectAccessControlsBinder implements MapBinder {
    private BindToJsonPayload jsonBinder;
 
    @Override
-   public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams) {
+   public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams) throws IllegalArgumentException {
       DefaultObjectAccessControlsTemplate template = (DefaultObjectAccessControlsTemplate) postParams.get("template");
       return bindToRequest(request, template);
    }

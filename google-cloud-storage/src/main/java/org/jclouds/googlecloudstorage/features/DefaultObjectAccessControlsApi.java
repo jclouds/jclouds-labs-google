@@ -36,7 +36,6 @@ import org.jclouds.googlecloudstorage.domain.ListDefaultObjectAccessControls;
 import org.jclouds.googlecloudstorage.domain.DefaultObjectAccessControlsTemplate;
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.ObjectRole;
 import org.jclouds.googlecloudstorage.handlers.DefaultObjectAccessControlsBinder;
-import org.jclouds.http.HttpResponse;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.oauth.v2.config.OAuthScopes;
 import org.jclouds.oauth.v2.filters.OAuthAuthenticator;
@@ -50,7 +49,7 @@ import org.jclouds.rest.annotations.SkipEncoding;
 import org.jclouds.rest.binders.BindToJsonPayload;
 
 /**
- * Provides access to DefaultObjectAccessControl entities via their REST API.
+ * Provides access to DefaultObjectAccessControl entities via GCS REST API.
  *
  * @see <a href = " https://developers.google.com/storage/docs/json_api/v1/defaultObjectAccessControls"/>
  */
@@ -68,7 +67,7 @@ public interface DefaultObjectAccessControlsApi {
     *           The entity holding the permission. Can be user-userId, user-emailAddress, group-groupId,
     *           group-emailAddress, allUsers, or allAuthenticatedUsers
     *
-    * @return an DefaultObjectAccessControls resource
+    * @return an {@link DefaultObjectAccessControls } resource
     */
 
    @Named("DefaultObjectAccessControls:get")
@@ -87,8 +86,6 @@ public interface DefaultObjectAccessControlsApi {
     * @param bucketName
     *           Name of the bucket of that ACL to be created In the request body, supply a DefaultObjectAccessControls
     *           resource with the following properties
-    *
-    * @return If successful, this method returns a DefaultObjectAccessControls resource
     */
 
    @Named("DefaultObjectAccessControls:insert")
@@ -102,15 +99,13 @@ public interface DefaultObjectAccessControlsApi {
             @PayloadParam("template") DefaultObjectAccessControlsTemplate template);
 
    /**
-    * Permanently deletes the DefaultObjectAcessControl entry for the specified entity on the specified bucket.
+    * Permanently deletes the {@link DefaultObjectAccessControls } entry for the specified entity on the specified bucket.
     *
     * @param bucketName
     *           Name of the bucket which contains the object
     * @param entity
     *           The entity holding the permission. Can be user-userId, user-emailAddress, group-groupId,
     *           group-emailAddress, allUsers, or allAuthenticatedUsers
-    *
-    * @return If successful, this method returns an empty response body
     */
 
    @Named("DefaultObjectAccessControls:delete")
@@ -118,9 +113,7 @@ public interface DefaultObjectAccessControlsApi {
    @Consumes(MediaType.APPLICATION_JSON)
    @Path("/b/{bucket}/defaultObjectAcl/{entity}")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
-   @Fallback(NullOnNotFoundOr404.class)
-   @Nullable
-   HttpResponse deleteDefaultObjectAccessControls(@PathParam("bucket") String bucketName,
+   void deleteDefaultObjectAccessControls(@PathParam("bucket") String bucketName,
             @PathParam("entity") String entity);
 
    /**
@@ -133,7 +126,7 @@ public interface DefaultObjectAccessControlsApi {
     * @param generation
     *           If present, selects a specific revision of this object
     *
-    * @return ListObjectAccessControls resource
+    * @return (@ ListObjectAccessControls} 
     *
     */
 
@@ -155,7 +148,7 @@ public interface DefaultObjectAccessControlsApi {
     * @param generation
     *           If present, selects a specific revision of this object
     *
-    * @return DefaultObjectAccessControls resource
+    * @return D{@link DefaultObjectAccessControls } 
     *
     */
 
@@ -202,7 +195,7 @@ public interface DefaultObjectAccessControlsApi {
     * @param generation
     *           If present, selects a specific revision of this object
     *
-    * @return DefaultObjectAccessControls resource
+    * @return {@link DefaultObjectAccessControls} 
     *
     */
 
