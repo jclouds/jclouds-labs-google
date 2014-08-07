@@ -42,6 +42,10 @@ public final class GoogleComputeEngineConstants {
    public static final String STORAGE_READONLY_SCOPE = "https://www.googleapis.com/auth/devstorage.read_only";
 
    public static final String STORAGE_WRITEONLY_SCOPE = "https://www.googleapis.com/auth/devstorage.write_only";
+   
+   public static final String NDEV_CLOUD_MAN_SCOPE = "https://www.googleapis.com/auth/ndev.cloudman";
+   
+   public static final String NDEV_CLOUD_MAN_READONLY_SCOPE = "https://www.googleapis.com/auth/ndev.cloudman.readonly";
 
 
    /**
