@@ -57,7 +57,20 @@ public class BaseGoogleComputeEngineApiLiveTest extends BaseApiLiveTest<GoogleCo
 
    protected static final String GATEWAY_API_URL_SUFFIX = "/global/gateways/";
    protected static final String DEFAULT_GATEWAY_NAME = "default-internet-gateway";
+   
+   protected static final String BACKEND_SERVICE_API_URL_SUFFIX = "/global/backendServices/";
 
+   protected static final String URL_MAP_API_URL_SUFFIX = "/global/urlMaps/";
+
+   protected static final String HEALTH_CHECK_API_URL_SUFFIX = "/global/httpHealthChecks/";
+   
+   protected static final String RESOURCE_VIEW_API_URL_PREFIX = "https://www.googleapis.com/resourceviews/"
+                                                                + "v1beta1/projects/";
+   
+   protected static final String RESOURCE_VIEW_API_URL_SUFFIX = "/resourceViews/";
+   
+   protected static final String TARGET_HTTP_PROXY_API_URL_SUFFIX = "/global/targetHttpProxies/";
+   
    protected static final String GOOGLE_PROJECT = "google";
 
    protected Supplier<String> userProject;
@@ -131,9 +144,21 @@ public class BaseGoogleComputeEngineApiLiveTest extends BaseApiLiveTest<GoogleCo
    protected URI getNetworkUrl(String project, String network) {
       return URI.create(API_URL_PREFIX + project + NETWORK_API_URL_SUFFIX + network);
    }
-
+   
+   protected URI getHealthCheckUrl(String project, String healthCheck) {
+      return URI.create(API_URL_PREFIX + project + HEALTH_CHECK_API_URL_SUFFIX + healthCheck);
+   }
+   
+   protected URI getInstanceUrl(String project, String instanceName) {
+      return URI.create(API_URL_PREFIX + project + ZONE_API_URL_SUFFIX + DEFAULT_ZONE_NAME + "/instances/" + instanceName);
+   }
+   
    protected URI getGatewayUrl(String project, String gateway) {
       return URI.create(API_URL_PREFIX + project + GATEWAY_API_URL_SUFFIX + gateway);
+   }
+   
+   protected URI getTargetHttpProxyUrl(String project, String targetHttpProxy) {
+      return URI.create(API_URL_PREFIX + project + TARGET_HTTP_PROXY_API_URL_SUFFIX + targetHttpProxy);
    }
 
    protected URI getDefaultMachineTypeUrl(String project) {
@@ -148,6 +173,20 @@ public class BaseGoogleComputeEngineApiLiveTest extends BaseApiLiveTest<GoogleCo
    protected URI getDiskUrl(String project, String diskName) {
       return URI.create(API_URL_PREFIX + project + ZONE_API_URL_SUFFIX
               + DEFAULT_ZONE_NAME + "/disks/" + diskName);
+   }
+   
+   protected URI getBackendServiceUrl(String project, String backendService) {
+      return URI.create(API_URL_PREFIX + project + BACKEND_SERVICE_API_URL_SUFFIX
+                  + backendService);
+   }
+
+   protected URI getUrlMapUrl(String project, String urlMap) {
+      return URI.create(API_URL_PREFIX + project + URL_MAP_API_URL_SUFFIX + urlMap);
+   }
+   
+   protected URI getResourceViewInZoneUrl(String project, String resourceView) {
+      return URI.create(RESOURCE_VIEW_API_URL_PREFIX + project + ZONE_API_URL_SUFFIX
+                        + DEFAULT_ZONE_NAME + RESOURCE_VIEW_API_URL_SUFFIX + resourceView);
    }
 
    protected static Operation waitOperationDone(Predicate<AtomicReference<Operation>> operationDonePredicate,
