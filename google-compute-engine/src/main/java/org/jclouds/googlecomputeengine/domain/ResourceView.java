@@ -71,14 +71,17 @@ public final class ResourceView extends Resource {
       // TODO: change this when it is no longer beta because it is based on the
       // form of the self link
       String[] parts = this.selfLink.toString().split("/+");
-      assert parts[3].equals("v1beta1");
+      if (!parts[3].equals("v1beta1")) {
+    	  throw new RuntimeException("Expected version v1beta1 but got version" + parts[3]);
+      }
       if (parts[6].equals("zones")) {
          this.zone = Optional.<String>of(parts[7]);
          this.region = absent();
-      } else {
-         assert parts[6].equals("regions");
+      } else if (parts[6].equals("regions")) {
          this.zone = absent();
          this.region = Optional.<String>of(parts[7]);
+      } else {
+    	  throw new RuntimeException("Could not find zone or region");
       }
          
    }

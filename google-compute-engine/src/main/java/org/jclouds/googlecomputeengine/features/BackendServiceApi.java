@@ -168,6 +168,9 @@ public interface BackendServiceApi {
     * @return a BackendServiceGroupHealth resource denoting the health states of
     *         instances in the specified group.
     */
+   // The documentation does not reflect the fact that compute_scope is needed for this operation.
+   // Running getHealth with compute_readonly_scope will return with an error saying the 
+   // resource /projects/<project name> could not be found.
    @Named("BackendServices:getHealth")
    @POST
    @Produces(MediaType.APPLICATION_JSON)
