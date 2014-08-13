@@ -16,8 +16,8 @@
  */
 package org.jclouds.googlecomputeengine.options;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Objects.equal;
-import static com.google.common.base.Objects.toStringHelper;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.net.URI;
@@ -28,6 +28,7 @@ import org.jclouds.googlecomputeengine.domain.UrlMap.HostRule;
 import org.jclouds.googlecomputeengine.domain.UrlMap.PathMatcher;
 import org.jclouds.googlecomputeengine.domain.UrlMap.UrlMapTest;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSet;
 
@@ -194,7 +195,7 @@ public class UrlMapOptions extends ResourceOptions {
    **
    * {@inheritDoc}
    */
-   protected Objects.ToStringHelper string() {
+   protected MoreObjects.ToStringHelper string() {
      return toStringHelper(this)
              .omitNullValues()
              .add("hostRules", hostRules.build())

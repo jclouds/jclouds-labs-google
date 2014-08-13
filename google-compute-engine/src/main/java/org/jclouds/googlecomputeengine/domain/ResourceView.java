@@ -30,6 +30,7 @@ import java.util.Set;
 import org.jclouds.javax.annotation.Nullable;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
@@ -161,7 +162,7 @@ public final class ResourceView extends Resource {
    /**
     * {@inheritDoc}
     */
-   protected Objects.ToStringHelper string() {
+   protected MoreObjects.ToStringHelper string() {
       return super.string()
               .omitNullValues()
               .add("numMembers", numMembers.orNull())

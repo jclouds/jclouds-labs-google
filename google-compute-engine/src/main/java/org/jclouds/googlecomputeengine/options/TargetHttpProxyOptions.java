@@ -20,6 +20,7 @@ import static com.google.common.base.Objects.equal;
 
 import java.net.URI;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 /**
@@ -87,7 +88,7 @@ public final class TargetHttpProxyOptions extends ResourceOptions {
    /**
     * {@inheritDoc}
     */
-   protected Objects.ToStringHelper string() {
+   protected MoreObjects.ToStringHelper string() {
       return super.string()
               .omitNullValues()
               .add("urlMap", urlMap);
