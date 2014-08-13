@@ -16,9 +16,9 @@
  */
 package org.jclouds.googlecomputeengine.options;
 
-import static com.google.common.base.Objects.toStringHelper;
+import static com.google.common.base.MoreObjects.toStringHelper;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 public abstract class ResourceOptions {
 
@@ -52,7 +52,7 @@ public abstract class ResourceOptions {
    /**
     * {@inheritDoc}
     */
-   protected Objects.ToStringHelper string() {
+   protected MoreObjects.ToStringHelper string() {
       return toStringHelper(this)
               .omitNullValues()
               .add("name", name)

@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.jclouds.googlecomputeengine.domain.BackendService.Backend;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSet;
 
@@ -195,7 +196,7 @@ public class BackendServiceOptions extends ResourceOptions {
    /**
     * {@inheritDoc}
     */
-   protected Objects.ToStringHelper string() {
+   protected MoreObjects.ToStringHelper string() {
       return super.string()
               .omitNullValues()
               .add("backends", backends)

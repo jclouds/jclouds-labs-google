@@ -26,6 +26,7 @@ import java.util.Date;
 import org.jclouds.javax.annotation.Nullable;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 /**
@@ -79,7 +80,7 @@ public final class TargetHttpProxy extends Resource {
    /**
     * {@inheritDoc}
     */
-   protected Objects.ToStringHelper string() {
+   protected MoreObjects.ToStringHelper string() {
       return super.string()
               .omitNullValues()
               .add("urlMap", urlMap);
