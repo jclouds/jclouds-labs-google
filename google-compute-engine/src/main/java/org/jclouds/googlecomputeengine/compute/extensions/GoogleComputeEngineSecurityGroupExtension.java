@@ -157,7 +157,7 @@ public class GoogleComputeEngineSecurityGroupExtension implements SecurityGroupE
 
       NetworkAndAddressRange nAr = new NetworkAndAddressRange(name, DEFAULT_INTERNAL_NETWORK_RANGE, null);
 
-      Network nw = networkCreator.apply(nAr);
+      Network nw = networkCreator.getUnchecked(nAr);
 
       return groupConverter.apply(nw);
    }
@@ -220,8 +220,12 @@ public class GoogleComputeEngineSecurityGroupExtension implements SecurityGroupE
       }
       Firewall.Rule.Builder ruleBuilder = Firewall.Rule.builder();
       ruleBuilder.IpProtocol(ipPermission.getIpProtocol());
-      if (ipPermission.getToPort() > 0) {
-         ruleBuilder.addPortRange(ipPermission.getFromPort(), ipPermission.getToPort());
+      if (ipPermission.getFromPort() > 0) {
+         if (ipPermission.getFromPort() == ipPermission.getToPort()) {
+            ruleBuilder.addPort(ipPermission.getToPort());
+         } else {
+            ruleBuilder.addPortRange(ipPermission.getFromPort(), ipPermission.getToPort());
+         }
       }
       fwOptions.addAllowedRule(ruleBuilder.build());
 
