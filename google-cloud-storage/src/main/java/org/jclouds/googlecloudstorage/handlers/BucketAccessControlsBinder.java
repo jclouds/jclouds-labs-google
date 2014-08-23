@@ -31,7 +31,7 @@ public class BucketAccessControlsBinder implements MapBinder {
 
    @Override
    public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams) {
-      BucketAccessControls postBucket = (BucketAccessControls) postParams.get("BACLInsert");
+      BucketAccessControls postBucket = (BucketAccessControls) postParams.get("bucketAccessControls");
       return bindToRequest(request, postBucket);
    }
 
