@@ -23,12 +23,11 @@ import java.util.UUID;
 
 import org.jclouds.googlecloudstorage.domain.Bucket;
 import org.jclouds.googlecloudstorage.domain.BucketAccessControls;
-import org.jclouds.googlecloudstorage.domain.BucketTemplate;
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.Role;
 import org.jclouds.googlecloudstorage.domain.ListBucketAccessControls;
 import org.jclouds.googlecloudstorage.domain.Resource.Kind;
+import org.jclouds.googlecloudstorage.domain.templates.BucketTemplate;
 import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageApiLiveTest;
-import org.jclouds.rest.ResourceNotFoundException;
 import org.testng.annotations.Test;
 
 public class BucketAccessControlsApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
