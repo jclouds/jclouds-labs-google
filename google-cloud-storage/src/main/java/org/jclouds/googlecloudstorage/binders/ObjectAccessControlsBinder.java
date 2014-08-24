@@ -14,24 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.googlecloudstorage.handlers;
+package org.jclouds.googlecloudstorage.binders;
 
 import java.util.Map;
 
 import javax.inject.Inject;
-import org.jclouds.googlecloudstorage.domain.BucketAccessControls;
+
+import org.jclouds.googlecloudstorage.domain.templates.ObjectAccessControlsTemplate;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.rest.MapBinder;
 import org.jclouds.rest.binders.BindToJsonPayload;
 
-public class BucketAccessControlsBinder implements MapBinder {
+public class ObjectAccessControlsBinder implements MapBinder {
 
    @Inject
    private BindToJsonPayload jsonBinder;
 
    @Override
-   public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams) {
-      BucketAccessControls postBucket = (BucketAccessControls) postParams.get("BACLInsert");
+   public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams) throws IllegalArgumentException{
+      ObjectAccessControlsTemplate postBucket = (ObjectAccessControlsTemplate) postParams.get("template");
       return bindToRequest(request, postBucket);
    }
 
