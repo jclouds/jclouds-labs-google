@@ -66,6 +66,5 @@ public class UpdateBucketOptions extends BaseHttpRequestOptions {
       public UpdateBucketOptions predefinedAcl(PredefinedAcl predefinedAcl) {
          return new UpdateBucketOptions().predefinedAcl(predefinedAcl);
       }
-
    }
 }
