@@ -31,4 +31,10 @@ public final class DomainUtils {
       List<Byte> reversedList = Lists.reverse(hashByte);
       return Bytes.toArray(reversedList);
    }
+   
+   public static String  generateContentRange(Long lowerLimit, Long upperLimit, Long totalSize) {
+      return  "bytes " + lowerLimit + "-" + upperLimit + "/" + totalSize;
+   }
+   
+   
 }
