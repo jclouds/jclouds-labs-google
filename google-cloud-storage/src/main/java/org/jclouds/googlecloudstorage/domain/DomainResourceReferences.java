@@ -18,9 +18,9 @@ package org.jclouds.googlecloudstorage.domain;
 
 import com.google.common.base.CaseFormat;
 
-public final class DomainResourceRefferences {
+public final class DomainResourceReferences {
 
-   private DomainResourceRefferences() {
+   private DomainResourceReferences() {
    }
 
    public enum Role {
