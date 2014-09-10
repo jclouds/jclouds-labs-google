@@ -80,7 +80,6 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
    private Long metageneration;
    private Long generation;
    private HashCode hcMd5;
-   private HashCode hcCrc32c;
 
    private ObjectApi api() {
       return api.getObjectApi();
@@ -155,12 +154,6 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       hcMd5 = hf.newHasher().putBytes(testSource.read()).hash();
 
       assertEquals(gcsObject.getMd5HashCode(), hcMd5);
-
-      // crc32c validation
-      HashFunction hfCrc32c = Hashing.crc32c();
-      hcCrc32c = hfCrc32c.newHasher().putBytes(testSource.read()).hash();
-
-      assertEquals(gcsObject.getCrc32cHashcode(), hcCrc32c);
    }
 
    @Test(groups = "live", dependsOnMethods = "testSimpleUpload")
@@ -383,12 +376,9 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       // This would trigger server side validation of md5
       hcMd5 = byteSource.hash(Hashing.md5());
 
-      // This would trigger server side validation of crc32c
-      hcCrc32c = byteSource.hash(Hashing.crc32c());
-
       template.contentType("image/jpeg").addAcl(oacl).size(contentLength).name(MULTIPART_UPLOAD_OBJECT)
                .contentLanguage("en").contentDisposition("attachment").md5Hash(hcMd5)
-               .customMetadata("custommetakey1", "custommetavalue1").crc32c(hcCrc32c)
+               .customMetadata("custommetakey1", "custommetavalue1")
                .customMetadata(ImmutableMap.of("Adrian", "powderpuff"));
 
       GCSObject gcsObject = api().multipartUpload(BUCKET_NAME, template, payloadImpl.getPayload());
@@ -396,7 +386,6 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       assertThat(gcsObject.getBucket()).isEqualTo(BUCKET_NAME);
       assertThat(gcsObject.getName()).isEqualTo(MULTIPART_UPLOAD_OBJECT);
       assertThat(gcsObject.getMd5HashCode()).isEqualTo(hcMd5);
-      assertThat(gcsObject.getCrc32cHashcode()).isEqualTo(hcCrc32c);
 
       assertThat(gcsObject.getAllMetadata()).contains(entry("custommetakey1", "custommetavalue1"),
                entry("Adrian", "powderpuff")).doesNotContainKey("adrian");
