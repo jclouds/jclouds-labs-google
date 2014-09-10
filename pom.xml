@@ -55,6 +55,7 @@
 
   <modules>
     <module>oauth</module>
+    <module>google-cloud-storage</module>
     <module>google-compute-engine</module>
   </modules>
 
