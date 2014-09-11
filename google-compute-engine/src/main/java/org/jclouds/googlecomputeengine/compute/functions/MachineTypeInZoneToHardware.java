@@ -68,7 +68,6 @@ public class MachineTypeInZoneToHardware implements Function<MachineTypeInZone, 
               "location for %s",
               input.getMachineType().getZone());
 
-      // TODO Figure out a robust way to deal with machineTypes with imageSizeGb==0 rather than just blocking them.
       return new HardwareBuilder()
               .id(SlashEncodedIds.fromTwoIds(input.getMachineType().getZone(), input.getMachineType().getName()).slashEncode())
               .location(location)
@@ -80,9 +79,7 @@ public class MachineTypeInZoneToHardware implements Function<MachineTypeInZone, 
               .uri(input.getMachineType().getSelfLink())
               .userMetadata(ImmutableMap.of("imageSpaceGb", Integer.toString(input.getMachineType().getImageSpaceGb())))
               .volumes(collectVolumes(input.getMachineType()))
-              .supportsImage(input.getMachineType().getImageSpaceGb() > 0
-                      ? Predicates.<Image>alwaysTrue()
-                      : Predicates.<Image>alwaysFalse())
+              .supportsImage(Predicates.<Image>alwaysTrue())
               .build();
    }
 
