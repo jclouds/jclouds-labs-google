@@ -39,7 +39,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.base.Supplier;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 
@@ -77,7 +76,6 @@ public class MachineTypeInZoneToHardware implements Function<MachineTypeInZone, 
               .providerId(input.getMachineType().getId())
               .ram(input.getMachineType().getMemoryMb())
               .uri(input.getMachineType().getSelfLink())
-              .userMetadata(ImmutableMap.of("imageSpaceGb", Integer.toString(input.getMachineType().getImageSpaceGb())))
               .volumes(collectVolumes(input.getMachineType()))
               .supportsImage(Predicates.<Image>alwaysTrue())
               .build();
