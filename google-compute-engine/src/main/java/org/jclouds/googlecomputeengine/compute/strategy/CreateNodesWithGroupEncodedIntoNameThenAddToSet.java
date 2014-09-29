@@ -149,7 +149,7 @@ public class CreateNodesWithGroupEncodedIntoNameThenAddToSet extends
                                      FirewallTagNamingConvention naming) {
 
       String projectName = userProject.get();
-      FirewallApi firewallApi = api.getFirewallApiForProject(projectName);
+      FirewallApi firewallApi = api.getFirewallApi(projectName);
       Set<AtomicReference<Operation>> operations = Sets.newHashSet();
 
       for (Integer port : templateOptions.getInboundPorts()) {

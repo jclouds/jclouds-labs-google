@@ -59,7 +59,7 @@ public class FindNetworkOrCreateTest {
          }
       };
 
-      expect(api.getNetworkApiForProject(userProject.get())).andReturn(nwApi).atLeastOnce();
+      expect(api.getNetworkApi(userProject.get())).andReturn(nwApi).atLeastOnce();
 
       expect(nwApi.get("this-network")).andReturn(network);
 
@@ -103,8 +103,8 @@ public class FindNetworkOrCreateTest {
          }
       };
 
-      expect(api.getNetworkApiForProject(userProject.get())).andReturn(nwApi).atLeastOnce();
-      expect(api.getGlobalOperationApiForProject(userProject.get())).andReturn(globalApi).atLeastOnce();
+      expect(api.getNetworkApi(userProject.get())).andReturn(nwApi).atLeastOnce();
+      expect(api.getGlobalOperationApi(userProject.get())).andReturn(globalApi).atLeastOnce();
 
       expect(nwApi.createInIPv4Range("this-network", "0.0.0.0/0"))
               .andReturn(createOp);

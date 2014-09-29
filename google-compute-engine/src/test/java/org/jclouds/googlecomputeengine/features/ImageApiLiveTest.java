@@ -47,7 +47,7 @@ public class ImageApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
    private URI diskURI;
 
    private ImageApi api() {
-      return api.getImageApiForProject("centos-cloud");
+      return api.getImageApi("centos-cloud");
    }
 
    private ImageApi imageApi(){

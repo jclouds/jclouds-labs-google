@@ -38,11 +38,11 @@ public class RegionOperationApiLiveTest extends BaseGoogleComputeEngineApiLiveTe
    private Operation deleteOperation;
 
    private RegionOperationApi api() {
-      return api.getRegionOperationApiForProject(userProject.get());
+      return api.getRegionOperationApi(userProject.get());
    }
 
    private AddressApi addressApi() {
-      return api.getAddressApiForProject(userProject.get());
+      return api.getAddressApi(userProject.get());
    }
 
    @Test(groups = "live")

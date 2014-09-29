@@ -39,11 +39,11 @@ public class ZoneOperationApiLiveTest extends BaseGoogleComputeEngineApiLiveTest
    private Operation deleteOperation;
 
    private ZoneOperationApi api() {
-      return api.getZoneOperationApiForProject(userProject.get());
+      return api.getZoneOperationApi(userProject.get());
    }
 
    private DiskApi diskApi() {
-      return api.getDiskApiForProject(userProject.get());
+      return api.getDiskApi(userProject.get());
    }
 
    @Test(groups = "live")

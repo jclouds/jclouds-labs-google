@@ -17,7 +17,7 @@
 package org.jclouds.googlecomputeengine.internal;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.jclouds.oauth.v2.OAuthTestUtils.setCredentialFromPemFile;
+import static org.jclouds.oauth.v2.OAuthTestUtils.setCredential;
 import static org.jclouds.util.Predicates2.retry;
 import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
@@ -71,7 +71,6 @@ public class BaseGoogleComputeEngineApiLiveTest extends BaseApiLiveTest<GoogleCo
    protected Predicate<AtomicReference<Operation>> regionOperationDonePredicate;
    protected Predicate<AtomicReference<Operation>> zoneOperationDonePredicate;
 
-
    public BaseGoogleComputeEngineApiLiveTest() {
       provider = "google-compute-engine";
    }
@@ -79,7 +78,7 @@ public class BaseGoogleComputeEngineApiLiveTest extends BaseApiLiveTest<GoogleCo
     @Override
     protected Properties setupProperties() {
        Properties props = super.setupProperties();
-       setCredentialFromPemFile(props, provider + ".credential");
+       setCredential(props, provider + ".credential");
        return props;
     }
 

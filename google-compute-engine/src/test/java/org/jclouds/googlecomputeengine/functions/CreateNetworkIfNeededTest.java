@@ -59,8 +59,8 @@ public class CreateNetworkIfNeededTest {
          }
       };
 
-      expect(api.getNetworkApiForProject(userProject.get())).andReturn(nwApi).atLeastOnce();
-      expect(api.getGlobalOperationApiForProject(userProject.get())).andReturn(globalApi).atLeastOnce();
+      expect(api.getNetworkApi(userProject.get())).andReturn(nwApi).atLeastOnce();
+      expect(api.getGlobalOperationApi(userProject.get())).andReturn(globalApi).atLeastOnce();
 
       expect(nwApi.createInIPv4Range("this-network", "0.0.0.0/0"))
               .andReturn(createOp);
@@ -104,8 +104,8 @@ public class CreateNetworkIfNeededTest {
          }
       };
 
-      expect(api.getNetworkApiForProject(userProject.get())).andReturn(nwApi).atLeastOnce();
-      expect(api.getGlobalOperationApiForProject(userProject.get())).andReturn(globalApi).atLeastOnce();
+      expect(api.getNetworkApi(userProject.get())).andReturn(nwApi).atLeastOnce();
+      expect(api.getGlobalOperationApi(userProject.get())).andReturn(globalApi).atLeastOnce();
 
       expect(nwApi.createInIPv4RangeWithGateway("this-network", "0.0.0.0/0", "1.2.3.4"))
               .andReturn(createOp);

@@ -1,13 +1,18 @@
 /*
- * Licensed to jclouds, Inc. (jclouds) under one or more contributor license agreements.
- * See the NOTICE file distributed with this work for additional information regarding
- * copyright ownership.
- * jclouds licenses this file to you under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.  You may obtain a copy of the Licens at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.jclouds.googlecomputeengine.features;
 
@@ -29,9 +34,6 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertNull;
 
-/**
- * @author Andrea Turli
- */
 @Test(groups = "unit")
 public class ForwardingRuleApiExpectTest extends BaseGoogleComputeEngineApiExpectTest {
 
@@ -48,9 +50,9 @@ public class ForwardingRuleApiExpectTest extends BaseGoogleComputeEngineApiExpec
               .payload(payloadFromResource("/forwardingrule_get.json")).build();
 
       ForwardingRuleApi api = requestsSendResponses(requestForScopes(COMPUTE_READONLY_SCOPE),
-              TOKEN_RESPONSE, get, operationResponse).getForwardingRuleApiForProject("myproject");
+              TOKEN_RESPONSE, get, operationResponse).getForwardingRuleApi("myproject", "us-central1");
 
-      assertEquals(api.getInRegion("us-central1", "test-forwarding-rule"),
+      assertEquals(api.getInRegion("test-forwarding-rule"),
               new ParseForwardingRuleTest().expected());
    }
 
@@ -66,9 +68,9 @@ public class ForwardingRuleApiExpectTest extends BaseGoogleComputeEngineApiExpec
       HttpResponse operationResponse = HttpResponse.builder().statusCode(404).build();
 
       ForwardingRuleApi api = requestsSendResponses(requestForScopes(COMPUTE_READONLY_SCOPE),
-              TOKEN_RESPONSE, get, operationResponse).getForwardingRuleApiForProject("myproject");
+              TOKEN_RESPONSE, get, operationResponse).getForwardingRuleApi("myproject", "us-central1");
 
-      assertNull(api.getInRegion("us-central1", "test-forwarding-rule"));
+      assertNull(api.getInRegion("test-forwarding-rule"));
    }
 
    public void testInsertForwardingRuleResponseIs2xx() {
@@ -86,8 +88,8 @@ public class ForwardingRuleApiExpectTest extends BaseGoogleComputeEngineApiExpec
 
       ForwardingRuleApi api = requestsSendResponses(requestForScopes(COMPUTE_SCOPE),
               TOKEN_RESPONSE, insert,
-              insertForwardingRuleResponse).getForwardingRuleApiForProject("myproject");
-      assertEquals(api.createInRegion("us-central1", "test-forwarding-rule",
+              insertForwardingRuleResponse).getForwardingRuleApi("myproject", "us-central1");
+      assertEquals(api.createInRegion("test-forwarding-rule",
               URI.create("https://www.googleapis.com/compute/v1/projects/myproject/regions/europe-west1/" +
                       "targetPools/test-target-pool")), new ParseRegionOperationTest().expected());
    }
@@ -105,9 +107,9 @@ public class ForwardingRuleApiExpectTest extends BaseGoogleComputeEngineApiExpec
               .payload(payloadFromResource("/region_operation.json")).build();
 
       ForwardingRuleApi api = requestsSendResponses(requestForScopes(COMPUTE_SCOPE),
-              TOKEN_RESPONSE, delete, deleteResponse).getForwardingRuleApiForProject("myproject");
+              TOKEN_RESPONSE, delete, deleteResponse).getForwardingRuleApi("myproject", "us-central1");
 
-      assertEquals(api.deleteInRegion("us-central1", "test-forwarding-rule"),
+      assertEquals(api.deleteInRegion("test-forwarding-rule"),
               new ParseRegionOperationTest().expected());
    }
 
@@ -123,9 +125,9 @@ public class ForwardingRuleApiExpectTest extends BaseGoogleComputeEngineApiExpec
       HttpResponse deleteResponse = HttpResponse.builder().statusCode(404).build();
 
       ForwardingRuleApi api = requestsSendResponses(requestForScopes(COMPUTE_SCOPE),
-              TOKEN_RESPONSE, delete, deleteResponse).getForwardingRuleApiForProject("myproject");
+              TOKEN_RESPONSE, delete, deleteResponse).getForwardingRuleApi("myproject", "us-central1");
 
-      assertNull(api.deleteInRegion("us-central1", "test-targetPool"));
+      assertNull(api.deleteInRegion("test-targetPool"));
    }
 
    public void testListForwardingRulesResponseIs2xx() {
@@ -140,9 +142,9 @@ public class ForwardingRuleApiExpectTest extends BaseGoogleComputeEngineApiExpec
               .payload(payloadFromResource("/forwardingrule_list.json")).build();
 
       ForwardingRuleApi api = requestsSendResponses(requestForScopes(COMPUTE_READONLY_SCOPE),
-              TOKEN_RESPONSE, list, operationResponse).getForwardingRuleApiForProject("myproject");
+              TOKEN_RESPONSE, list, operationResponse).getForwardingRuleApi("myproject", "us-central1");
 
-      assertEquals(api.listFirstPageInRegion("us-central1").toString(),
+      assertEquals(api.listFirstPageInRegion().toString(),
               new ParseForwardingRuleListTest().expected().toString());
    }
 
@@ -157,9 +159,9 @@ public class ForwardingRuleApiExpectTest extends BaseGoogleComputeEngineApiExpec
       HttpResponse operationResponse = HttpResponse.builder().statusCode(404).build();
 
       ForwardingRuleApi api = requestsSendResponses(requestForScopes(COMPUTE_READONLY_SCOPE),
-              TOKEN_RESPONSE, list, operationResponse).getForwardingRuleApiForProject("myproject");
+              TOKEN_RESPONSE, list, operationResponse).getForwardingRuleApi("myproject", "us-central1");
 
-      assertTrue(api.listInRegion("us-central1").concat().isEmpty());
+      assertTrue(api.listInRegion().concat().isEmpty());
    }
 
 }

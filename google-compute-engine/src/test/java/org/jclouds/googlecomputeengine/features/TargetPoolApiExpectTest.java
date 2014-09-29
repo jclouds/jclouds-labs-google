@@ -1,13 +1,18 @@
 /*
- * Licensed to jclouds, Inc. (jclouds) under one or more contributor license agreements.
- * See the NOTICE file distributed with this work for additional information regarding
- * copyright ownership.
- * jclouds licenses this file to you under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.  You may obtain a copy of the Licens at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.jclouds.googlecomputeengine.features;
 
@@ -27,9 +32,6 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertNull;
 
-/**
- * @author Andrea Turli
- */
 @Test(groups = "unit")
 public class TargetPoolApiExpectTest extends BaseGoogleComputeEngineApiExpectTest {
 
@@ -45,9 +47,9 @@ public class TargetPoolApiExpectTest extends BaseGoogleComputeEngineApiExpectTes
               .payload(payloadFromResource("/targetpool_get.json")).build();
 
       TargetPoolApi api = requestsSendResponses(requestForScopes(COMPUTE_READONLY_SCOPE),
-              TOKEN_RESPONSE, get, operationResponse).getTargetPoolApiForProject("myproject");
+              TOKEN_RESPONSE, get, operationResponse).getTargetPoolApi("myproject", "us-central1");
 
-      assertEquals(api.getInRegion("us-central1", "test"),
+      assertEquals(api.getInRegion("test"),
               new ParseTargetPoolTest().expected());
    }
 
@@ -62,9 +64,9 @@ public class TargetPoolApiExpectTest extends BaseGoogleComputeEngineApiExpectTes
       HttpResponse operationResponse = HttpResponse.builder().statusCode(404).build();
 
       TargetPoolApi api = requestsSendResponses(requestForScopes(COMPUTE_READONLY_SCOPE),
-              TOKEN_RESPONSE, get, operationResponse).getTargetPoolApiForProject("myproject");
+              TOKEN_RESPONSE, get, operationResponse).getTargetPoolApi("myproject", "us-central1");
 
-      assertNull(api.getInRegion("us-central1", "test"));
+      assertNull(api.getInRegion("test"));
    }
 
    public void testInsertTargetPoolResponseIs2xx() {
@@ -82,8 +84,8 @@ public class TargetPoolApiExpectTest extends BaseGoogleComputeEngineApiExpectTes
 
       TargetPoolApi api = requestsSendResponses(requestForScopes(COMPUTE_SCOPE),
               TOKEN_RESPONSE, insert,
-              insertTargetPoolResponse).getTargetPoolApiForProject("myproject");
-      assertEquals(api.createInRegion("us-central1", "test"), new ParseRegionOperationTest().expected());
+              insertTargetPoolResponse).getTargetPoolApi("myproject", "us-central1");
+      assertEquals(api.createInRegion("test"), new ParseRegionOperationTest().expected());
    }
 
    public void testDeleteTargetPoolResponseIs2xx() {
@@ -98,9 +100,9 @@ public class TargetPoolApiExpectTest extends BaseGoogleComputeEngineApiExpectTes
               .payload(payloadFromResource("/region_operation.json")).build();
 
       TargetPoolApi api = requestsSendResponses(requestForScopes(COMPUTE_SCOPE),
-              TOKEN_RESPONSE, delete, deleteResponse).getTargetPoolApiForProject("myproject");
+              TOKEN_RESPONSE, delete, deleteResponse).getTargetPoolApi("myproject", "us-central1");
 
-      assertEquals(api.deleteInRegion("us-central1", "test-targetPool"),
+      assertEquals(api.deleteInRegion("test-targetPool"),
               new ParseRegionOperationTest().expected());
    }
 
@@ -115,9 +117,9 @@ public class TargetPoolApiExpectTest extends BaseGoogleComputeEngineApiExpectTes
       HttpResponse deleteResponse = HttpResponse.builder().statusCode(404).build();
 
       TargetPoolApi api = requestsSendResponses(requestForScopes(COMPUTE_SCOPE),
-              TOKEN_RESPONSE, delete, deleteResponse).getTargetPoolApiForProject("myproject");
+              TOKEN_RESPONSE, delete, deleteResponse).getTargetPoolApi("myproject", "us-central1");
 
-      assertNull(api.deleteInRegion("us-central1", "test-targetPool"));
+      assertNull(api.deleteInRegion("test-targetPool"));
    }
 
    public void testListTargetPoolsResponseIs2xx() {
@@ -132,9 +134,9 @@ public class TargetPoolApiExpectTest extends BaseGoogleComputeEngineApiExpectTes
               .payload(payloadFromResource("/targetpool_list.json")).build();
 
       TargetPoolApi api = requestsSendResponses(requestForScopes(COMPUTE_READONLY_SCOPE),
-              TOKEN_RESPONSE, list, operationResponse).getTargetPoolApiForProject("myproject");
+              TOKEN_RESPONSE, list, operationResponse).getTargetPoolApi("myproject", "us-central1");
 
-      assertEquals(api.listFirstPageInRegion("us-central1").toString(),
+      assertEquals(api.listFirstPageInRegion().toString(),
               new ParseTargetPoolListTest().expected().toString());
    }
 
@@ -149,9 +151,9 @@ public class TargetPoolApiExpectTest extends BaseGoogleComputeEngineApiExpectTes
       HttpResponse operationResponse = HttpResponse.builder().statusCode(404).build();
 
       TargetPoolApi api = requestsSendResponses(requestForScopes(COMPUTE_READONLY_SCOPE),
-              TOKEN_RESPONSE, list, operationResponse).getTargetPoolApiForProject("myproject");
+              TOKEN_RESPONSE, list, operationResponse).getTargetPoolApi("myproject", "us-central1");
 
-      assertTrue(api.listInRegion("us-central1").concat().isEmpty());
+      assertTrue(api.listInRegion().concat().isEmpty());
    }
 
    public void testAddInstanceResponseIs2xx() throws Exception {
@@ -168,9 +170,9 @@ public class TargetPoolApiExpectTest extends BaseGoogleComputeEngineApiExpectTes
               .payload(payloadFromResource("/region_operation.json")).build();
 
       TargetPoolApi api = requestsSendResponses(requestForScopes(COMPUTE_SCOPE),
-              TOKEN_RESPONSE, addInstance, operationResponse).getTargetPoolApiForProject("myproject");
+              TOKEN_RESPONSE, addInstance, operationResponse).getTargetPoolApi("myproject", "us-central1");
 
-      assertEquals(api.addInstance("us-central1", "test",
+      assertEquals(api.addInstance("test",
               "https://www.googleapis.com/compute/v1/projects/myproject/zones/europe-west1-a/instances/test"),
               new ParseRegionOperationTest().expected());
    }
@@ -188,9 +190,9 @@ public class TargetPoolApiExpectTest extends BaseGoogleComputeEngineApiExpectTes
       HttpResponse operationResponse = HttpResponse.builder().statusCode(404).build();
 
       TargetPoolApi api = requestsSendResponses(requestForScopes(COMPUTE_SCOPE),
-              TOKEN_RESPONSE, addInstance, operationResponse).getTargetPoolApiForProject("myproject");
+              TOKEN_RESPONSE, addInstance, operationResponse).getTargetPoolApi("myproject", "us-central1");
 
-      assertNull(api.addInstance("us-central1", "test", "https://www.googleapis" +
+      assertNull(api.addInstance("test", "https://www.googleapis" +
               ".com/compute/v1/projects/myproject/zones/europe-west1-a/instances/test"));
    }
 }

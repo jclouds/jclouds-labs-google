@@ -1,13 +1,18 @@
 /*
- * Licensed to jclouds, Inc. (jclouds) under one or more contributor license agreements.
- * See the NOTICE file distributed with this work for additional information regarding
- * copyright ownership.
- * jclouds licenses this file to you under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.  You may obtain a copy of the Licens at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.jclouds.googlecomputeengine.functions.internal;
 
@@ -26,9 +31,6 @@ import javax.inject.Singleton;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-/**
- * @author Andrea Turli
- */
 @Singleton
 public class ParseTargetPools extends ParseJson<ListPage<TargetPool>> {
 
@@ -55,8 +57,8 @@ public class ParseTargetPools extends ParseJson<ListPage<TargetPool>> {
 
             @Override
             public IterableWithMarker<TargetPool> apply(Object input) {
-               return api.getTargetPoolApiForProject(projectName)
-                       .listAtMarkerInRegion(regionName, input.toString(), options);
+               return api.getTargetPoolApi(projectName, regionName)
+                       .listAtMarkerInRegion(input.toString(), options);
             }
          };
       }

@@ -1,13 +1,18 @@
 /*
- * Licensed to jclouds, Inc. (jclouds) under one or more contributor license agreements.
- * See the NOTICE file distributed with this work for additional information regarding 
- * copyright ownership.  
- * jclouds licenses this file to you under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License.  You may obtain a copy of the Licens at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.jclouds.googlecomputeengine.features;
 
@@ -51,7 +56,6 @@ import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.COMPU
 /**
  * Provides access to TargetPools via their REST API.
  *
- * @author Andrea Turli
  * @see <a href="https://developers.google.com/compute/docs/reference/latest/#TargetPools"/>
  */
 @SkipEncoding({'/', '='})
@@ -61,18 +65,17 @@ public interface TargetPoolApi {
    /**
     * Returns the specified TargetPool resource.
     *
-    * @param region     the name of the region scoping this request.
     * @param targetPool the name of the TargetPool resource to return.
     * @return a TargetPool resource.
     */
    @Named("TargetPools:get")
    @GET
    @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/targetPools/{targetPool}")
+   @Path("/targetPools/{targetPool}")
    @OAuthScopes(COMPUTE_READONLY_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
-   TargetPool getInRegion(@PathParam("region") String region, @PathParam("targetPool") String targetPool);
+   TargetPool getInRegion(@PathParam("targetPool") String targetPool);
 
    /**
     * Creates a TargetPool resource in the specified project and region using the data included in the request.
@@ -85,11 +88,10 @@ public interface TargetPoolApi {
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/targetPools")
+   @Path("/targetPools")
    @OAuthScopes({COMPUTE_SCOPE})
    @MapBinder(BindToJsonPayload.class)
-   Operation createInRegion(@PathParam("region") String region,
-                            @PayloadParam("name") String targetPoolName);
+   Operation createInRegion(@PayloadParam("name") String targetPoolName);
 
    /**
     * Creates a TargetPool resource in the specified project and region using the data included in the request.
@@ -104,11 +106,10 @@ public interface TargetPoolApi {
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/targetPools")
+   @Path("/targetPools")
    @OAuthScopes({COMPUTE_SCOPE})
    @MapBinder(BindToJsonPayload.class)
-   Operation createInRegion(@PathParam("region") String region,
-                            @PayloadParam("name") String targetPoolName,
+   Operation createInRegion(@PayloadParam("name") String targetPoolName,
                             @PayloadParam("instances") List<URI> instances);
 
    /**
@@ -128,11 +129,10 @@ public interface TargetPoolApi {
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/targetPools")
+   @Path("/targetPools")
    @OAuthScopes({COMPUTE_SCOPE})
    @MapBinder(BindToJsonPayload.class)
-   Operation createInRegion(@PathParam("region") String region,
-                            @PayloadParam("name") String targetPoolName,
+   Operation createInRegion(@PayloadParam("name") String targetPoolName,
                             @PayloadParam("instances") List<URI> instances,
                             @PayloadParam("healthChecks") List<URI> healthChecks);
 
@@ -161,11 +161,10 @@ public interface TargetPoolApi {
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/targetPools")
+   @Path("/targetPools")
    @OAuthScopes({COMPUTE_SCOPE})
    @MapBinder(BindToJsonPayload.class)
-   Operation createInRegion(@PathParam("region") String region,
-                            @PayloadParam("name") String targetPoolName,
+   Operation createInRegion(@PayloadParam("name") String targetPoolName,
                             @PayloadParam("instances") List<URI> instances,
                             @PayloadParam("healthChecks") List<URI> healthChecks,
                             @PayloadParam("backupPool") String backupPool,
@@ -174,7 +173,6 @@ public interface TargetPoolApi {
    /**
     * Deletes the specified TargetPool resource.
     *
-    * @param region     the region the target pool is in.
     * @param targetPool name of the persistent target pool resource to delete.
     * @return an Operation resource. To check on the status of an operation, poll the Operations resource returned to
     *         you, and look for the status field.
@@ -182,43 +180,41 @@ public interface TargetPoolApi {
    @Named("TargetPools:delete")
    @DELETE
    @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/targetPools/{targetPool}")
+   @Path("/targetPools/{targetPool}")
    @OAuthScopes(COMPUTE_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
-   Operation deleteInRegion(@PathParam("region") String region, @PathParam("targetPool") String targetPool);
+   Operation deleteInRegion(@PathParam("targetPool") String targetPool);
 
    /**
-    * @see org.jclouds.googlecomputeengine.features.TargetPoolApi#listAtMarkerInRegion(String, String, org.jclouds.googlecomputeengine.options.ListOptions)
+    * @see org.jclouds.googlecomputeengine.features.TargetPoolApi#listAtMarkerInRegion(String, org.jclouds.googlecomputeengine.options.ListOptions)
     */
    @Named("TargetPools:list")
    @GET
    @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/targetPools")
+   @Path("/targetPools")
    @OAuthScopes(COMPUTE_READONLY_SCOPE)
    @ResponseParser(ParseTargetPools.class)
    @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
-   ListPage<TargetPool> listFirstPageInRegion(@PathParam("region") String region);
+   ListPage<TargetPool> listFirstPageInRegion();
 
    /**
-    * @see org.jclouds.googlecomputeengine.features.TargetPoolApi#listAtMarkerInRegion(String, String,
-    * org.jclouds.googlecomputeengine.options.ListOptions)
+    * @see org.jclouds.googlecomputeengine.features.TargetPoolApi#listAtMarkerInRegion(String, ListOptions)
     */
    @Named("TargetPools:list")
    @GET
    @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/targetPools")
+   @Path("/targetPools")
    @OAuthScopes(COMPUTE_READONLY_SCOPE)
    @ResponseParser(ParseTargetPools.class)
    @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
-   ListPage<TargetPool> listAtMarkerInRegion(@PathParam("region") String region, @QueryParam("pageToken") @Nullable String marker);
+   ListPage<TargetPool> listAtMarkerInRegion(@QueryParam("pageToken") @Nullable String marker);
 
    /**
     * Retrieves the listPage of target pool resources contained within the specified project and zone.
     * By default the listPage as a maximum size of 100, if no options are provided or ListOptions#getMaxResults() has
     * not been set.
     *
-    * @param region      the region to search in
     * @param marker      marks the beginning of the next list page
     * @param listOptions listing options
     * @return a page of the listPage
@@ -228,42 +224,41 @@ public interface TargetPoolApi {
    @Named("TargetPools:list")
    @GET
    @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/targetPools")
+   @Path("/targetPools")
    @OAuthScopes(COMPUTE_READONLY_SCOPE)
    @ResponseParser(ParseTargetPools.class)
    @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
-   ListPage<TargetPool> listAtMarkerInRegion(@PathParam("region") String region, @QueryParam("pageToken") @Nullable String marker, ListOptions listOptions);
+   ListPage<TargetPool> listAtMarkerInRegion(@QueryParam("pageToken") @Nullable String marker, ListOptions listOptions);
 
    /**
-    * @param region the region to list in
     * @return a Paged, Fluent Iterable that is able to fetch additional pages when required
     * @see org.jclouds.collect.PagedIterable
-    * @see org.jclouds.googlecomputeengine.features.TargetPoolApi#listAtMarkerInRegion(String, String, org.jclouds.googlecomputeengine.options.ListOptions)
+    * @see org.jclouds.googlecomputeengine.features.TargetPoolApi#listAtMarkerInRegion(String,
+    * org.jclouds.googlecomputeengine.options.ListOptions)
     */
    @Named("TargetPools:list")
    @GET
    @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/targetPools")
+   @Path("/targetPools")
    @OAuthScopes(COMPUTE_READONLY_SCOPE)
    @ResponseParser(ParseTargetPools.class)
    @Transform(ParseTargetPools.ToPagedIterable.class)
    @Fallback(EmptyPagedIterableOnNotFoundOr404.class)
-   PagedIterable<TargetPool> listInRegion(@PathParam("region") String region);
+   PagedIterable<TargetPool> listInRegion();
 
    @Named("TargetPools:list")
    @GET
    @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/targetPools")
+   @Path("/targetPools")
    @OAuthScopes(COMPUTE_READONLY_SCOPE)
    @ResponseParser(ParseTargetPools.class)
    @Transform(ParseTargetPools.ToPagedIterable.class)
    @Fallback(EmptyPagedIterableOnNotFoundOr404.class)
-   PagedIterable<TargetPool> listInRegion(@PathParam("region") String region, ListOptions options);
+   PagedIterable<TargetPool> listInRegion(ListOptions options);
 
    /**
     * Adds instance url to targetPool.
     *
-    * @param region the zone the target pool is in.
     * @param targetPool the name of the target pool.
     * @param instanceName the name for the instance to be added to targetPool.
     *
@@ -273,18 +268,17 @@ public interface TargetPoolApi {
    @Named("TargetPools:addInstance")
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/targetPools/{targetPool}/addInstance")
+   @Path("/targetPools/{targetPool}/addInstance")
    @OAuthScopes(COMPUTE_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @MapBinder(BindToJsonPayload.class)
    @Nullable
-   Operation addInstance(@PathParam("region") String region, @PathParam("targetPool") String targetPool,
+   Operation addInstance(@PathParam("targetPool") String targetPool,
                          @PayloadParam("instance") String instanceName);
 
    /**
     * Adds health check URL to targetPool.
     *
-    * @param region the zone the target pool is in.
     * @param targetPool the name of the target pool.
     * @param healthCheck the name for the healthCheck to be added to targetPool.
     *
@@ -294,18 +288,17 @@ public interface TargetPoolApi {
    @Named("TargetPools:addHealthCheck")
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/targetPools/{targetPool}/addHealthCheck")
+   @Path("/targetPools/{targetPool}/addHealthCheck")
    @OAuthScopes(COMPUTE_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @MapBinder(BindToJsonPayload.class)
    @Nullable
-   Operation addHealthCheck(@PathParam("region") String region, @PathParam("targetPool") String targetPool,
+   Operation addHealthCheck(@PathParam("targetPool") String targetPool,
                          @PayloadParam("healthCheck") String healthCheck);
 
    /**
     * Removes instance URL from targetPool.
     *
-    * @param region the zone the target pool is in.
     * @param targetPool the name of the target pool.
     * @param instanceName the name for the instance to be removed from targetPool.
     *
@@ -315,18 +308,17 @@ public interface TargetPoolApi {
    @Named("TargetPools:removeInstance")
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/targetPools/{targetPool}/removeInstance")
+   @Path("/targetPools/{targetPool}/removeInstance")
    @OAuthScopes(COMPUTE_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @MapBinder(BindToJsonPayload.class)
    @Nullable
-   Operation removeInstance(@PathParam("region") String region, @PathParam("targetPool") String targetPool,
+   Operation removeInstance(@PathParam("targetPool") String targetPool,
                             @PayloadParam("instanceName") String instanceName);
 
    /**
     * Changes backup pool configurations.
     *
-    * @param region the zone the target pool is in.
     * @param targetPool the name of the target pool.
     * @param target the URL of target pool for which you want to use as backup.
     *
@@ -336,11 +328,11 @@ public interface TargetPoolApi {
    @Named("TargetPools:setBackup")
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/targetPools/{targetPool}/setBackup")
+   @Path("/targetPools/{targetPool}/setBackup")
    @OAuthScopes(COMPUTE_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @MapBinder(BindToJsonPayload.class)
    @Nullable
-   Operation setBackup(@PathParam("region") String region, @PathParam("targetPool") String targetPool,
+   Operation setBackup(@PathParam("targetPool") String targetPool,
                        @PayloadParam("target") String target);
 }

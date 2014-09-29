@@ -1,15 +1,19 @@
 /*
- * Licensed to jclouds, Inc. (jclouds) under one or more contributor license agreements.
- * See the NOTICE file distributed with this work for additional information regarding
- * copyright ownership.
- * jclouds licenses this file to you under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.  You may obtain a copy of the Licens at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 package org.jclouds.googlecomputeengine.features;
 
 import org.jclouds.Fallbacks.EmptyIterableWithMarkerOnNotFoundOr404;
@@ -52,28 +56,26 @@ import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.COMPU
 /**
  * Provides access to ForwardingRules via their REST API.
  *
- * @author Andrea Turli
  * @see <a href="https://developers.google.com/compute/docs/reference/latest/forwardingRules"/>
  */
 @SkipEncoding({'/', '='})
 @RequestFilters(OAuthAuthenticator.class)
+@Consumes(MediaType.APPLICATION_JSON)
 public interface ForwardingRuleApi {
 
    /**
     * Returns the specified ForwardingRule resource.
     *
-    * @param region     the name of the region scoping this request.
     * @param forwardingRule the name of the ForwardingRule resource to return.
     * @return a ForwardingRule resource.
     */
    @Named("ForwardingRules:get")
    @GET
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/forwardingRules/{forwardingRule}")
+   @Path("/forwardingRules/{forwardingRule}")
    @OAuthScopes(COMPUTE_READONLY_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
-   ForwardingRule getInRegion(@PathParam("region") String region, @PathParam("forwardingRule") String forwardingRule);
+   ForwardingRule getInRegion(@PathParam("forwardingRule") String forwardingRule);
 
    /**
     * Creates a ForwardingRule resource in the specified project and region using the data included in the request.
@@ -86,13 +88,11 @@ public interface ForwardingRuleApi {
     */
    @Named("ForwardingRules:insert")
    @POST
-   @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/forwardingRules")
+   @Path("/forwardingRules")
    @OAuthScopes({COMPUTE_SCOPE})
    @MapBinder(BindToJsonPayload.class)
-   Operation createInRegion(@PathParam("region") String region,
-                            @PayloadParam("name") String forwardingRuleName,
+   Operation createInRegion(@PayloadParam("name") String forwardingRuleName,
                             @PayloadParam("target") URI targetSelfLink);
 
    /**
@@ -108,13 +108,11 @@ public interface ForwardingRuleApi {
     */
    @Named("ForwardingRules:insert")
    @POST
-   @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/forwardingRules")
+   @Path("/forwardingRules")
    @OAuthScopes({COMPUTE_SCOPE})
    @MapBinder(BindToJsonPayload.class)
-   Operation createInRegion(@PathParam("region") String region,
-                            @PayloadParam("name") String forwardingRuleName,
+   Operation createInRegion(@PayloadParam("name") String forwardingRuleName,
                             @PayloadParam("target") URI targetSelfLink,
                             @PayloadParam("portRange") String portRange);
 
@@ -134,13 +132,11 @@ public interface ForwardingRuleApi {
     */
    @Named("ForwardingRules:insert")
    @POST
-   @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/forwardingRules")
+   @Path("/forwardingRules")
    @OAuthScopes({COMPUTE_SCOPE})
    @MapBinder(BindToJsonPayload.class)
-   Operation createInRegion(@PathParam("region") String region,
-                            @PayloadParam("name") String forwardingRuleName,
+   Operation createInRegion(@PayloadParam("name") String forwardingRuleName,
                             @PayloadParam("target") URI targetSelfLink,
                             @PayloadParam("portRange") String portRange,
                             @PayloadParam("IPAddress") String ipAddress,
@@ -149,51 +145,46 @@ public interface ForwardingRuleApi {
    /**
     * Deletes the specified TargetPool resource.
     *
-    * @param region     the region the forwarding rule is in.
     * @param forwardingRule name of the persistent forwarding rule resource to delete.
     * @return an Operation resource. To check on the status of an operation, poll the Operations resource returned to
     *         you, and look for the status field.
     */
    @Named("ForwardingRules:delete")
    @DELETE
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/forwardingRules/{forwardingRule}")
+   @Path("/forwardingRules/{forwardingRule}")
    @OAuthScopes(COMPUTE_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
-   Operation deleteInRegion(@PathParam("region") String region, @PathParam("forwardingRule") String forwardingRule);
+   Operation deleteInRegion(@PathParam("forwardingRule") String forwardingRule);
 
    /**
-    * @see ForwardingRuleApi#listAtMarkerInRegion(String, String, org.jclouds.googlecomputeengine.options.ListOptions)
+    * @see ForwardingRuleApi#listAtMarkerInRegion(String, org.jclouds.googlecomputeengine.options.ListOptions)
     */
    @Named("ForwardingRules:list")
    @GET
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/forwardingRules")
+   @Path("/forwardingRules")
    @OAuthScopes(COMPUTE_READONLY_SCOPE)
    @ResponseParser(ParseForwardingRules.class)
    @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
-   ListPage<ForwardingRule> listFirstPageInRegion(@PathParam("region") String region);
+   ListPage<ForwardingRule> listFirstPageInRegion();
 
    /**
-    * @see org.jclouds.googlecomputeengine.features.ForwardingRuleApi#listAtMarkerInRegion(String, String,
+    * @see org.jclouds.googlecomputeengine.features.ForwardingRuleApi#listAtMarkerInRegion(String,
     * org.jclouds.googlecomputeengine.options.ListOptions)
     */
    @Named("ForwardingRules:list")
    @GET
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/forwardingRules")
+   @Path("/forwardingRules")
    @OAuthScopes(COMPUTE_READONLY_SCOPE)
    @ResponseParser(ParseForwardingRules.class)
    @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
-   ListPage<ForwardingRule> listAtMarkerInRegion(@PathParam("region") String region, @QueryParam("pageToken") @Nullable String marker);
+   ListPage<ForwardingRule> listAtMarkerInRegion(@QueryParam("pageToken") @Nullable String marker);
 
    /**
     * Retrieves the listPage of persistent forwarding rule resources contained within the specified project and zone.
     * By default the listPage as a maximum size of 100, if no options are provided or ListOptions#getMaxResults() has
     * not been set.
     *
-    * @param region      the region to search in
     * @param marker      marks the beginning of the next list page
     * @param listOptions listing options
     * @return a page of the listPage
@@ -202,43 +193,38 @@ public interface ForwardingRuleApi {
     */
    @Named("ForwardingRules:list")
    @GET
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/forwardingRules")
+   @Path("/forwardingRules")
    @OAuthScopes(COMPUTE_READONLY_SCOPE)
    @ResponseParser(ParseForwardingRules.class)
    @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
-   ListPage<ForwardingRule> listAtMarkerInRegion(@PathParam("region") String region, @QueryParam("pageToken") @Nullable String marker, ListOptions listOptions);
+   ListPage<ForwardingRule> listAtMarkerInRegion(@QueryParam("pageToken") @Nullable String marker, ListOptions listOptions);
 
    /**
-    * @param region the region to list in
     * @return a Paged, Fluent Iterable that is able to fetch additional pages when required
     * @see org.jclouds.collect.PagedIterable
-    * @see org.jclouds.googlecomputeengine.features.ForwardingRuleApi#listAtMarkerInRegion(String, String, org.jclouds.googlecomputeengine.options.ListOptions)
+    * @see org.jclouds.googlecomputeengine.features.ForwardingRuleApi#listAtMarkerInRegion(String, org.jclouds.googlecomputeengine.options.ListOptions)
     */
    @Named("ForwardingRules:list")
    @GET
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/forwardingRules")
+   @Path("/forwardingRules")
    @OAuthScopes(COMPUTE_READONLY_SCOPE)
    @ResponseParser(ParseForwardingRules.class)
    @Transform(ParseForwardingRules.ToPagedIterable.class)
    @Fallback(EmptyPagedIterableOnNotFoundOr404.class)
-   PagedIterable<ForwardingRule> listInRegion(@PathParam("region") String region);
+   PagedIterable<ForwardingRule> listInRegion();
 
    @Named("ForwardingRules:list")
    @GET
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/forwardingRules")
+   @Path("/forwardingRules")
    @OAuthScopes(COMPUTE_READONLY_SCOPE)
    @ResponseParser(ParseForwardingRules.class)
    @Transform(ParseForwardingRules.ToPagedIterable.class)
    @Fallback(EmptyPagedIterableOnNotFoundOr404.class)
-   PagedIterable<ForwardingRule> listInRegion(@PathParam("region") String region, ListOptions options);
+   PagedIterable<ForwardingRule> listInRegion(ListOptions options);
 
    /**
     * Changes target url for forwarding rule.
     *
-    * @param region the zone the forwarding rule is in.
     * @param forwardingRule the name of the ForwardingRule resource in which target is to be set.
     * @param target The URL of the target resource to receive traffic from this forwarding rule.
     *               It must live in the same region as this forwarding rule.
@@ -248,12 +234,11 @@ public interface ForwardingRuleApi {
     */
    @Named("ForwardingRules:setTarget")
    @POST
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/forwardingRules/{forwardingRule}/setTarget")
+   @Path("/forwardingRules/{forwardingRule}/setTarget")
    @OAuthScopes(COMPUTE_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @MapBinder(BindToJsonPayload.class)
    @Nullable
-   Operation setTarget(@PathParam("region") String region, @PathParam("forwardingRule") String forwardingRule,
+   Operation setTarget(@PathParam("forwardingRule") String forwardingRule,
                        @PayloadParam("target") String target);
 }

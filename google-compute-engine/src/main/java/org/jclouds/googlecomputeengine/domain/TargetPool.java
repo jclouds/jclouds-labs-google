@@ -17,7 +17,7 @@
 package org.jclouds.googlecomputeengine.domain;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 
@@ -33,7 +33,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * Represents an TargetPool resource.
  *
- * @author Andrea Turli
  * @see <a href="https://developers.google.com/compute/docs/reference/latest/targetPools#resource"/>
  */
 @Beta
@@ -141,7 +140,8 @@ public final class TargetPool extends Resource {
    /**
     * {@inheritDoc}
     */
-   protected Objects.ToStringHelper string() {
+   @Override
+   protected MoreObjects.ToStringHelper string() {
       return super.string()
               .omitNullValues()
               .add("region", region)
