@@ -16,7 +16,6 @@
  */
 package org.jclouds.googlecloudstorage.fallback;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
 
 import org.jclouds.Fallback;
@@ -25,7 +24,7 @@ public final class GCSFallbacks {
 
    public static final class NullOnBucketAlreadyExists implements Fallback<Object> {
       public Object createOrPropagate(Throwable t) throws Exception {
-         if (checkNotNull(t, "throwable") instanceof IllegalStateException) {
+         if (t instanceof IllegalStateException) {
             return null;
          }
          throw propagate(t);

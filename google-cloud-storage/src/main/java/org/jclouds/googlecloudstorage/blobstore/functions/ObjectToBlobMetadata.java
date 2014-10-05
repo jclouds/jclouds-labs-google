@@ -39,8 +39,9 @@ public class ObjectToBlobMetadata implements Function<GCSObject, MutableBlobMeta
    }
 
    public MutableBlobMetadata apply(GCSObject from) {
-      if (from == null)
+      if (from == null){
          return null;
+      }         
       MutableBlobMetadata to = new MutableBlobMetadataImpl();
 
       if (from.getMd5HashCode() != null)

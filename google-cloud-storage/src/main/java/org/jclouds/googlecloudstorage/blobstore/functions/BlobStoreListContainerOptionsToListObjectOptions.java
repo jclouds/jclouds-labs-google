@@ -35,8 +35,9 @@ public class BlobStoreListContainerOptionsToListObjectOptions implements
       }
       if (from.getDir() != null) {
          String path = from.getDir();
-         if (!path.endsWith("/"))
+         if (!path.endsWith("/")){
             path += "/";
+         }            
          httpOptions = httpOptions.prefix(path);
       }
       if (from.getMarker() != null) {

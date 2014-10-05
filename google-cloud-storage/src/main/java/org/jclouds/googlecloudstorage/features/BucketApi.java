@@ -68,7 +68,7 @@ import org.jclouds.rest.binders.BindToJsonPayload;
 public interface BucketApi {
 
    /**
-    * Check the existence of a bucket
+    * Checks the existence of a bucket
     *
     * @param bucketName
     *           Name of the bucket
