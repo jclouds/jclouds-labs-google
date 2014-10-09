@@ -154,9 +154,6 @@ public class ForwardingRuleOptions extends ResourceOptions {
               && equal(this.target, that.target);
    }
    
-   /**
-    * {@inheritDoc}
-    */
    protected MoreObjects.ToStringHelper string() {
       return super.string()
               .omitNullValues()

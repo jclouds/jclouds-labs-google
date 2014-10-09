@@ -43,8 +43,6 @@ public class ParseTargetHttpProxyListTest extends BaseGoogleComputeEngineParseTe
    public ListPage<TargetHttpProxy> expected() {
       return ListPage.<TargetHttpProxy>builder()
               .kind(Resource.Kind.TARGET_HTTP_PROXY_LIST)
-              .id("projects/myproject/targetHttpProxies")
-              .selfLink(URI.create("https://www.googleapis.com/compute/v1/projects/myproject/global/targetHttpProxies"))
               .items(ImmutableSet.of(
                       new ParseTargetHttpProxyTest().expected()
                       , TargetHttpProxy.builder()

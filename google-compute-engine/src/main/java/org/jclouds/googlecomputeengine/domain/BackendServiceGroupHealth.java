@@ -85,9 +85,6 @@ public class BackendServiceGroupHealth {
               && equal(this.healthStatuses, that.healthStatuses);
    }
    
-   /**
-    * {@inheritDoc}
-    */
    public MoreObjects.ToStringHelper string() {
       return toStringHelper(this).omitNullValues()
                                  .add("healthStatuses", healthStatuses);
@@ -193,9 +190,6 @@ public class BackendServiceGroupHealth {
                  && equal(this.healthState, that.healthState);
       }
       
-      /**
-       * {@inheritDoc}
-       */
       public MoreObjects.ToStringHelper string() {
          return toStringHelper(this).omitNullValues()
                                     .add("ipAddress", ipAddress.orNull())

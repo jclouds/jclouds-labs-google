@@ -137,9 +137,6 @@ public final class BackendService extends Resource {
               && equal(this.protocol, that.protocol);
    }
 
-   /**
-    * {@inheritDoc}
-    */
    protected MoreObjects.ToStringHelper string() {
       return super.string()
               .omitNullValues()
@@ -369,9 +366,6 @@ public final class BackendService extends Resource {
                  && equal(this.capacityScaler, that.capacityScaler);
       }
 
-      /**
-       * {@inheritDoc}
-       */
       public MoreObjects.ToStringHelper string() {
          return toStringHelper(this)
                .omitNullValues()

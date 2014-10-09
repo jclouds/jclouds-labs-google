@@ -24,8 +24,6 @@ import org.jclouds.googlecomputeengine.GoogleComputeEngineApiMetadata;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.http.HttpResponse;
 
-import org.jclouds.googlecomputeengine.internal.BaseGoogleComputeEngineExpectTest;
-
 import com.google.common.base.Function;
 import com.google.inject.Module;
 

@@ -191,10 +191,6 @@ public class UrlMapOptions extends ResourceOptions {
               && equal(this.defaultService, that.defaultService);
    }
    
-   /**
-   **
-   * {@inheritDoc}
-   */
    protected MoreObjects.ToStringHelper string() {
      return toStringHelper(this)
              .omitNullValues()

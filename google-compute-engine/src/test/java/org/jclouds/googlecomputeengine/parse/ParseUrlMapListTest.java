@@ -43,8 +43,6 @@ public class ParseUrlMapListTest extends BaseGoogleComputeEngineParseTest<ListPa
    public ListPage<UrlMap> expected() {
       return ListPage.<UrlMap>builder()
             .kind(Resource.Kind.URL_MAP_LIST)
-            .id("projects/myproject/global/urlMaps")
-            .selfLink(URI.create("https://www.googleapis.com/compute/v1/projects/myproject/global/urlMaps"))
             .items(ImmutableSet.of(new ParseUrlMapTest().expected(),
                                    UrlMap.builder()
                                          .id("13741966667737398120")

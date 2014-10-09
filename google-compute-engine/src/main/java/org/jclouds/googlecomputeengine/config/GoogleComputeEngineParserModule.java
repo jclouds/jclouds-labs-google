@@ -83,31 +83,31 @@ public class GoogleComputeEngineParserModule extends AbstractModule {
    @Singleton
    public Map<Type, Object> provideCustomAdapterBindings() {
       return new ImmutableMap.Builder<Type, Object>()
-              .put(Metadata.class, new MetadataTypeAdapter())
-              .put(Operation.class, new OperationTypeAdapter())
-              .put(Header.class, new HeaderTypeAdapter())
-              .put(ClaimSet.class, new ClaimSetTypeAdapter())
-              .put(Project.class, new ProjectTypeAdapter())
-              .put(Instance.class, new InstanceTypeAdapter())
-              .put(InstanceTemplate.class, new InstanceTemplateTypeAdapter())
-              .put(FirewallOptions.class, new FirewallOptionsTypeAdapter())
-              .put(RouteOptions.class, new RouteOptionsTypeAdapter())
-              .put(Rule.class, new RuleTypeAdapter())
-              .put(BackendServiceOptions.class, new BackendServiceOptionsTypeAdapter())
-              .put(BackendService.Backend.class, new BackendTypeAdapter())
-              .put(UrlMapOptions.class, new UrlMapOptionsTypeAdapter())
-              .put(UrlMap.HostRule.class, new HostRuleTypeAdapter())
-              .put(UrlMap.PathMatcher.class, new PathMatcherTypeAdapter())
-              .put(UrlMap.UrlMapTest.class, new TestTypeAdapter())
-              .put(UrlMap.PathRule.class, new PathRuleTypeAdapter())
-              .put(UrlMapValidateResult.class, new UrlMapValidateResultTypeAdapter())
-              .put(ResourceViewOptions.class, new ResourceViewOptionsTypeAdapter())
-              .put(ResourceView.class, new ResourceViewTypeAdapter())
-              .put(new TypeLiteral<ListPage<ResourceView>>() {}.getType(),
-                   new ListPageResourceViewTypeAdapter())
-              .put(new TypeLiteral<ListPage<URI>>() {}.getType(),
-                   new ListPageResourceViewMemberTypeAdapter())
-              .build();
+            .put(BackendService.Backend.class, new BackendTypeAdapter())
+            .put(BackendServiceOptions.class, new BackendServiceOptionsTypeAdapter())
+            .put(ClaimSet.class, new ClaimSetTypeAdapter())
+            .put(FirewallOptions.class, new FirewallOptionsTypeAdapter())
+            .put(Header.class, new HeaderTypeAdapter())
+            .put(Instance.class, new InstanceTypeAdapter())
+            .put(InstanceTemplate.class, new InstanceTemplateTypeAdapter())
+            .put(Metadata.class, new MetadataTypeAdapter())
+            .put(Operation.class, new OperationTypeAdapter())
+            .put(Project.class, new ProjectTypeAdapter())
+            .put(ResourceView.class, new ResourceViewTypeAdapter())
+            .put(ResourceViewOptions.class, new ResourceViewOptionsTypeAdapter())
+            .put(RouteOptions.class, new RouteOptionsTypeAdapter())
+            .put(Rule.class, new RuleTypeAdapter())
+            .put(UrlMap.HostRule.class, new HostRuleTypeAdapter())
+            .put(UrlMap.PathMatcher.class, new PathMatcherTypeAdapter())
+            .put(UrlMap.PathRule.class, new PathRuleTypeAdapter())
+            .put(UrlMap.UrlMapTest.class, new TestTypeAdapter())
+            .put(UrlMapOptions.class, new UrlMapOptionsTypeAdapter())
+            .put(UrlMapValidateResult.class, new UrlMapValidateResultTypeAdapter())
+            .put(new TypeLiteral<ListPage<ResourceView>>() {}.getType(),
+                 new ListPageResourceViewTypeAdapter())
+            .put(new TypeLiteral<ListPage<URI>>() {}.getType(),
+                 new ListPageResourceViewMemberTypeAdapter())
+            .build();
    }
 
    /**
@@ -458,7 +458,7 @@ public class GoogleComputeEngineParserModule extends AbstractModule {
    
    @Singleton
    private static class ListPageResourceViewTypeAdapter implements
-   JsonDeserializer<ListPage<ResourceView>> {
+                        JsonDeserializer<ListPage<ResourceView>> {
 
       @Override
       public ListPage<ResourceView> deserialize(JsonElement json, Type typeOfT,
@@ -468,9 +468,7 @@ public class GoogleComputeEngineParserModule extends AbstractModule {
          // Currently the list function for resource views does not return either
          // of these so set them to "" so no exceptions are thrown.
          ListPage.Builder<ResourceView> builder = ListPage.builder();
-         builder.id("")
-                .selfLink(URI.create(""))
-                .kind(Kind.RESOURCE_VIEW_LIST);
+         builder.kind(Kind.RESOURCE_VIEW_LIST);
          if (listPageObject.has("nextPageToken")) {
             builder.nextPageToken(listPageObject.get("nextPageToken").getAsString());
          }
@@ -485,7 +483,7 @@ public class GoogleComputeEngineParserModule extends AbstractModule {
    
    @Singleton
    private static class ListPageResourceViewMemberTypeAdapter implements
-   JsonDeserializer<ListPage<URI>> {
+                        JsonDeserializer<ListPage<URI>> {
 
       @Override
       public ListPage<URI> deserialize(JsonElement json, Type typeOfT,
@@ -495,9 +493,7 @@ public class GoogleComputeEngineParserModule extends AbstractModule {
          // Currently the list function for resource views does not return either
          // of these so set them to "" so no exceptions are thrown.
          ListPage.Builder<URI> builder = ListPage.builder();
-         builder.id("")
-                .selfLink(URI.create(""))
-                .kind(Kind.RESOURCE_VIEW_MEMBER_LIST);
+         builder.kind(Kind.RESOURCE_VIEW_MEMBER_LIST);
          if (listPageObject.has("nextPageToken")) {
             builder.nextPageToken(listPageObject.get("nextPageToken").getAsString());
          }

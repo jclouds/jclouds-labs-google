@@ -77,9 +77,6 @@ public final class TargetHttpProxy extends Resource {
               && equal(this.urlMap, that.urlMap);
    }
 
-   /**
-    * {@inheritDoc}
-    */
    protected MoreObjects.ToStringHelper string() {
       return super.string()
               .omitNullValues()

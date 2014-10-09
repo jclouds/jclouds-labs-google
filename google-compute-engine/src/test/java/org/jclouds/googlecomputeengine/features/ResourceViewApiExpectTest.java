@@ -16,8 +16,8 @@
  */
 package org.jclouds.googlecomputeengine.features;
 
-import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.NDEV_CLOUD_MAN_READONLY_SCOPE;
-import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.NDEV_CLOUD_MAN_SCOPE;
+import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.CLOUDMAN_READONLY_SCOPE;
+import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.CLOUDMAN_SCOPE;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertNull;
@@ -63,7 +63,7 @@ public class ResourceViewApiExpectTest extends BaseGoogleComputeEngineApiExpectT
 
       HttpResponse response = createResponse("/resource_view_get_zone.json");
 
-      ResourceViewApi api = requestsSendResponses(requestForScopes(NDEV_CLOUD_MAN_READONLY_SCOPE),
+      ResourceViewApi api = requestsSendResponses(requestForScopes(CLOUDMAN_READONLY_SCOPE),
               TOKEN_RESPONSE, request, response)
               .getResourceViewApiForProject("myproject");
 
@@ -78,7 +78,7 @@ public class ResourceViewApiExpectTest extends BaseGoogleComputeEngineApiExpectT
 
       HttpResponse response = HttpResponse.builder().statusCode(404).build();
 
-      ResourceViewApi api = requestsSendResponses(requestForScopes(NDEV_CLOUD_MAN_READONLY_SCOPE),
+      ResourceViewApi api = requestsSendResponses(requestForScopes(CLOUDMAN_READONLY_SCOPE),
               TOKEN_RESPONSE, request, response)
               .getResourceViewApiForProject("myproject");
 
@@ -94,7 +94,7 @@ public class ResourceViewApiExpectTest extends BaseGoogleComputeEngineApiExpectT
 
       HttpResponse response = createResponse("/resource_view_get_zone.json");
 
-      ResourceViewApi api = requestsSendResponses(requestForScopes(NDEV_CLOUD_MAN_SCOPE),
+      ResourceViewApi api = requestsSendResponses(requestForScopes(CLOUDMAN_SCOPE),
               TOKEN_RESPONSE, request, response)
               .getResourceViewApiForProject("myproject");
 
@@ -110,7 +110,7 @@ public class ResourceViewApiExpectTest extends BaseGoogleComputeEngineApiExpectT
 
       HttpResponse response = createResponse("/resource_view_resources_list.json");
 
-      ResourceViewApi api = requestsSendResponses(requestForScopes(NDEV_CLOUD_MAN_READONLY_SCOPE),
+      ResourceViewApi api = requestsSendResponses(requestForScopes(CLOUDMAN_READONLY_SCOPE),
               TOKEN_RESPONSE, request, response)
               .getResourceViewApiForProject("myproject");
 
@@ -126,7 +126,7 @@ public class ResourceViewApiExpectTest extends BaseGoogleComputeEngineApiExpectT
 
       HttpResponse response = HttpResponse.builder().statusCode(404).build();
 
-      ResourceViewApi api = requestsSendResponses(requestForScopes(NDEV_CLOUD_MAN_READONLY_SCOPE),
+      ResourceViewApi api = requestsSendResponses(requestForScopes(CLOUDMAN_READONLY_SCOPE),
               TOKEN_RESPONSE, request, response)
               .getResourceViewApiForProject("myproject");
 
@@ -171,7 +171,7 @@ public class ResourceViewApiExpectTest extends BaseGoogleComputeEngineApiExpectT
 
       HttpResponse response = createResponse("/resource_view_list_zone.json");
 
-      ResourceViewApi api = requestsSendResponses(requestForScopes(NDEV_CLOUD_MAN_READONLY_SCOPE),
+      ResourceViewApi api = requestsSendResponses(requestForScopes(CLOUDMAN_READONLY_SCOPE),
               TOKEN_RESPONSE, request, response)
               .getResourceViewApiForProject("myproject");
 
@@ -186,7 +186,7 @@ public class ResourceViewApiExpectTest extends BaseGoogleComputeEngineApiExpectT
 
       HttpResponse response = HttpResponse.builder().statusCode(404).build();
 
-      ResourceViewApi api = requestsSendResponses(requestForScopes(NDEV_CLOUD_MAN_READONLY_SCOPE),
+      ResourceViewApi api = requestsSendResponses(requestForScopes(CLOUDMAN_READONLY_SCOPE),
               TOKEN_RESPONSE, request, response)
               .getResourceViewApiForProject("myproject");
 
@@ -203,7 +203,7 @@ public class ResourceViewApiExpectTest extends BaseGoogleComputeEngineApiExpectT
 
       HttpResponse response = createResponse("/resource_view_get_region.json");
 
-      ResourceViewApi api = requestsSendResponses(requestForScopes(NDEV_CLOUD_MAN_READONLY_SCOPE),
+      ResourceViewApi api = requestsSendResponses(requestForScopes(CLOUDMAN_READONLY_SCOPE),
               TOKEN_RESPONSE, request, response)
               .getResourceViewApiForProject("myproject");
 
@@ -218,7 +218,7 @@ public class ResourceViewApiExpectTest extends BaseGoogleComputeEngineApiExpectT
 
       HttpResponse response = HttpResponse.builder().statusCode(404).build();
 
-      ResourceViewApi api = requestsSendResponses(requestForScopes(NDEV_CLOUD_MAN_READONLY_SCOPE),
+      ResourceViewApi api = requestsSendResponses(requestForScopes(CLOUDMAN_READONLY_SCOPE),
               TOKEN_RESPONSE, request, response)
               .getResourceViewApiForProject("myproject");
 
@@ -234,7 +234,7 @@ public class ResourceViewApiExpectTest extends BaseGoogleComputeEngineApiExpectT
 
       HttpResponse response = createResponse("/resource_view_get_region.json");
 
-      ResourceViewApi api = requestsSendResponses(requestForScopes(NDEV_CLOUD_MAN_SCOPE),
+      ResourceViewApi api = requestsSendResponses(requestForScopes(CLOUDMAN_SCOPE),
               TOKEN_RESPONSE, request, response)
               .getResourceViewApiForProject("myproject");
 
@@ -250,7 +250,7 @@ public class ResourceViewApiExpectTest extends BaseGoogleComputeEngineApiExpectT
 
       HttpResponse response = createResponse("/resource_view_resources_list.json");
 
-      ResourceViewApi api = requestsSendResponses(requestForScopes(NDEV_CLOUD_MAN_READONLY_SCOPE),
+      ResourceViewApi api = requestsSendResponses(requestForScopes(CLOUDMAN_READONLY_SCOPE),
               TOKEN_RESPONSE, request, response)
               .getResourceViewApiForProject("myproject");
 
@@ -266,7 +266,7 @@ public class ResourceViewApiExpectTest extends BaseGoogleComputeEngineApiExpectT
 
       HttpResponse response = HttpResponse.builder().statusCode(404).build();
 
-      ResourceViewApi api = requestsSendResponses(requestForScopes(NDEV_CLOUD_MAN_READONLY_SCOPE),
+      ResourceViewApi api = requestsSendResponses(requestForScopes(CLOUDMAN_READONLY_SCOPE),
               TOKEN_RESPONSE, request, response)
               .getResourceViewApiForProject("myproject");
 
@@ -311,7 +311,7 @@ public class ResourceViewApiExpectTest extends BaseGoogleComputeEngineApiExpectT
 
       HttpResponse response = createResponse("/resource_view_list_region.json");
 
-      ResourceViewApi api = requestsSendResponses(requestForScopes(NDEV_CLOUD_MAN_READONLY_SCOPE),
+      ResourceViewApi api = requestsSendResponses(requestForScopes(CLOUDMAN_READONLY_SCOPE),
               TOKEN_RESPONSE, request, response)
               .getResourceViewApiForProject("myproject");
 
@@ -326,7 +326,7 @@ public class ResourceViewApiExpectTest extends BaseGoogleComputeEngineApiExpectT
 
       HttpResponse response = HttpResponse.builder().statusCode(404).build();
 
-      ResourceViewApi api = requestsSendResponses(requestForScopes(NDEV_CLOUD_MAN_READONLY_SCOPE),
+      ResourceViewApi api = requestsSendResponses(requestForScopes(CLOUDMAN_READONLY_SCOPE),
               TOKEN_RESPONSE, request, response)
               .getResourceViewApiForProject("myproject");
 

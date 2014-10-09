@@ -49,9 +49,6 @@ public abstract class ResourceOptions {
       return description;
    }
    
-   /**
-    * {@inheritDoc}
-    */
    protected MoreObjects.ToStringHelper string() {
       return toStringHelper(this)
               .omitNullValues()

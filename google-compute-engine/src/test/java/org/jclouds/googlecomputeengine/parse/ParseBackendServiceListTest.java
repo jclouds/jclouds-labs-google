@@ -43,8 +43,6 @@ public class ParseBackendServiceListTest extends BaseGoogleComputeEngineParseTes
    public ListPage<BackendService> expected() {
       return ListPage.<BackendService>builder()
               .kind(Resource.Kind.BACKEND_SERVICE_LIST)
-              .id("projects/myproject/backendServices")
-              .selfLink(URI.create("https://www.googleapis.com/compute/v1/projects/myproject/global/backendServices"))
               .items(ImmutableSet.of(
                       new ParseBackendServiceTest().expected(),
                       BackendService.builder()

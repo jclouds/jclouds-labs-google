@@ -193,9 +193,6 @@ public class BackendServiceOptions extends ResourceOptions {
               && equal(this.protocol, that.protocol);
    }
    
-   /**
-    * {@inheritDoc}
-    */
    protected MoreObjects.ToStringHelper string() {
       return super.string()
               .omitNullValues()

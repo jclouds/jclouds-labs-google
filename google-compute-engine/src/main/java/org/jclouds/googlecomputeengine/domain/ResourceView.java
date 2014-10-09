@@ -159,9 +159,6 @@ public final class ResourceView extends Resource {
               && equal(this.region, that.region);
    }
 
-   /**
-    * {@inheritDoc}
-    */
    protected MoreObjects.ToStringHelper string() {
       return super.string()
               .omitNullValues()

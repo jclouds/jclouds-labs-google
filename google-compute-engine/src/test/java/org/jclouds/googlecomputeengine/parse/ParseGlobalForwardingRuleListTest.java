@@ -16,8 +16,6 @@
  */
 package org.jclouds.googlecomputeengine.parse;
 
-import java.net.URI;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
@@ -40,8 +38,6 @@ public class ParseGlobalForwardingRuleListTest extends BaseGoogleComputeEnginePa
    public ListPage<ForwardingRule> expected() {
       return ListPage.<ForwardingRule>builder()
               .kind(Resource.Kind.FORWARDING_RULE_LIST)
-              .id("projects/myproject/global/forwardingRules")
-              .selfLink(URI.create("https://www.googleapis.com/compute/v1/projects/myproject/global/forwardingRules"))
               .items(ImmutableSet.of(new ParseGlobalForwardingRuleTest().expected()))
               .build();
 

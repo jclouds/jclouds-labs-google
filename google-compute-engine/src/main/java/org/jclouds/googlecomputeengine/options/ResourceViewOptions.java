@@ -131,9 +131,6 @@ public class ResourceViewOptions extends ResourceOptions {
               && equal(this.region, that.region);
    }
    
-   /**
-    * {@inheritDoc}
-    */
    protected MoreObjects.ToStringHelper string() {
       return super.string()
               .omitNullValues()

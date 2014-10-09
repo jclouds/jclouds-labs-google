@@ -43,8 +43,6 @@ public class ParseResourceViewListZoneTest extends BaseGoogleComputeEngineParseT
    public ListPage<ResourceView> expected() {
       return ListPage.<ResourceView>builder()
               .kind(Resource.Kind.RESOURCE_VIEW_LIST)
-              .id("")
-              .selfLink(URI.create(""))
               .items(ImmutableSet.of(
                       new ParseResourceViewZoneTest().expected()
                       , ResourceView.builder()

@@ -107,10 +107,6 @@ public class UrlMapValidateResult {
               && equal(this.testFailures, that.testFailures);
    }
    
-   /**
-    **
-    * {@inheritDoc}
-    */
    protected MoreObjects.ToStringHelper string() {
       return toStringHelper(this)
               .omitNullValues()
@@ -206,7 +202,7 @@ public class UrlMapValidateResult {
       }
    }
 
-   public final static class TestFailure {
+   public static final class TestFailure {
       
       private final String host;
       private final String path;
@@ -274,10 +270,6 @@ public class UrlMapValidateResult {
                  && equal(this.actualService, that.actualService);
       }
       
-      /**
-       **
-       * {@inheritDoc}
-       */
       protected MoreObjects.ToStringHelper string() {
          return toStringHelper(this)
                  .omitNullValues()

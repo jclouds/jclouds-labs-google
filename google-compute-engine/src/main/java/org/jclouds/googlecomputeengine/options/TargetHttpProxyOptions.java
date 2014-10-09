@@ -85,9 +85,6 @@ public final class TargetHttpProxyOptions extends ResourceOptions {
               && equal(this.urlMap, that.urlMap);
    }
 
-   /**
-    * {@inheritDoc}
-    */
    protected MoreObjects.ToStringHelper string() {
       return super.string()
               .omitNullValues()

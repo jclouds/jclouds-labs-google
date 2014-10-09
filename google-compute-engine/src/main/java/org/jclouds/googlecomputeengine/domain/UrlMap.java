@@ -50,7 +50,7 @@ public final class UrlMap extends Resource {
    private final Optional<String> fingerprint;
 
    @ConstructorProperties({
-           "id", "creationTimestamp", "selfLink", "name", "description", "hostRules","pathMatchers",
+           "id", "creationTimestamp", "selfLink", "name", "description", "hostRules", "pathMatchers",
            "tests", "defaultService", "fingerprint"
    })
    protected UrlMap(String id, Date creationTimestamp, URI selfLink, String name,
@@ -126,9 +126,6 @@ public final class UrlMap extends Resource {
               && equal(this.defaultService, that.defaultService);
    }
 
-   /**
-    * {@inheritDoc}
-    */
    protected MoreObjects.ToStringHelper string() {
       return super.string()
               .omitNullValues()
@@ -313,9 +310,6 @@ public final class UrlMap extends Resource {
                  && equal(this.pathMatcher, that.pathMatcher);
       }
 
-      /**
-       * {@inheritDoc}
-       */
       public MoreObjects.ToStringHelper string() {
          return toStringHelper(this)
                  .omitNullValues()
@@ -464,9 +458,6 @@ public final class UrlMap extends Resource {
                  && equal(this.pathRules, that.pathRules);
       }
 
-      /**
-       * {@inheritDoc}
-       */
       public MoreObjects.ToStringHelper string() {
          return toStringHelper(this)
                  .omitNullValues()
@@ -606,9 +597,6 @@ public final class UrlMap extends Resource {
                  && equal(this.service, that.service);
       }
 
-      /**
-       * {@inheritDoc}
-       */
       public MoreObjects.ToStringHelper string() {
          return toStringHelper(this)
                  .omitNullValues()
@@ -744,9 +732,6 @@ public final class UrlMap extends Resource {
                  && equal(this.service, that.service);
       }
 
-      /**
-       * {@inheritDoc}
-       */
       public MoreObjects.ToStringHelper string() {
          return toStringHelper(this)
                  .omitNullValues()

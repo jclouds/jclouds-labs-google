@@ -16,8 +16,8 @@
  */
 package org.jclouds.googlecomputeengine.features;
 
-import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.NDEV_CLOUD_MAN_READONLY_SCOPE;
-import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.NDEV_CLOUD_MAN_SCOPE;
+import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.CLOUDMAN_READONLY_SCOPE;
+import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.CLOUDMAN_SCOPE;
 
 import java.net.URI;
 import java.util.Set;
@@ -82,7 +82,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:get")
    @GET
    @Path("/zones/{zone}/resourceViews/{resourceView}")
-   @OAuthScopes(NDEV_CLOUD_MAN_READONLY_SCOPE)
+   @OAuthScopes(CLOUDMAN_READONLY_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
    ResourceView getInZone(@PathParam("zone") String zone,
@@ -98,7 +98,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:get")
    @GET
    @Path("/regions/{region}/resourceViews/{resourceView}")
-   @OAuthScopes(NDEV_CLOUD_MAN_READONLY_SCOPE)
+   @OAuthScopes(CLOUDMAN_READONLY_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
    ResourceView getInRegion(@PathParam("region") String region,
@@ -115,7 +115,7 @@ public interface ResourceViewApi {
    @POST
    @Produces(MediaType.APPLICATION_JSON)
    @Path("/zones/{zone}/resourceViews")
-   @OAuthScopes(NDEV_CLOUD_MAN_SCOPE)
+   @OAuthScopes(CLOUDMAN_SCOPE)
    @MapBinder(BindToJsonPayload.class)
    ResourceView createInZone(@PathParam("zone") String zone,
                              @PayloadParam("name") String name);
@@ -132,7 +132,7 @@ public interface ResourceViewApi {
    @POST
    @Produces(MediaType.APPLICATION_JSON)
    @Path("/zones/{zone}/resourceViews")
-   @OAuthScopes(NDEV_CLOUD_MAN_SCOPE)
+   @OAuthScopes(CLOUDMAN_SCOPE)
    @MapBinder(PayloadBinder.class)
    ResourceView createInZone(@PathParam("zone") String zone,
                              @PayloadParam("name") String name,
@@ -149,7 +149,7 @@ public interface ResourceViewApi {
    @POST
    @Produces(MediaType.APPLICATION_JSON)
    @Path("/regions/{region}/resourceViews")
-   @OAuthScopes(NDEV_CLOUD_MAN_SCOPE)
+   @OAuthScopes(CLOUDMAN_SCOPE)
    @MapBinder(BindToJsonPayload.class)
    ResourceView createInRegion(@PathParam("region") String region,
                                @PayloadParam("name") String name);
@@ -166,7 +166,7 @@ public interface ResourceViewApi {
    @POST
    @Produces(MediaType.APPLICATION_JSON)
    @Path("/regions/{region}/resourceViews")
-   @OAuthScopes(NDEV_CLOUD_MAN_SCOPE)
+   @OAuthScopes(CLOUDMAN_SCOPE)
    @MapBinder(PayloadBinder.class)
    ResourceView createInRegion(@PathParam("region") String region,
                                @PayloadParam("name") String name,
@@ -183,7 +183,7 @@ public interface ResourceViewApi {
    @POST
    @Produces(MediaType.APPLICATION_JSON)
    @Path("/zones/{zone}/resourceViews/{resourceView}/addResources")
-   @OAuthScopes(NDEV_CLOUD_MAN_SCOPE)
+   @OAuthScopes(CLOUDMAN_SCOPE)
    @MapBinder(BindToJsonPayload.class)
    void addResourcesInZone(@PathParam("zone") String zone,
                            @PathParam("resourceView") String resourceViewName,
@@ -200,7 +200,7 @@ public interface ResourceViewApi {
    @POST
    @Produces(MediaType.APPLICATION_JSON)
    @Path("/regions/{region}/resourceViews/{resourceView}/addResources")
-   @OAuthScopes(NDEV_CLOUD_MAN_SCOPE)
+   @OAuthScopes(CLOUDMAN_SCOPE)
    @MapBinder(BindToJsonPayload.class)
    void addResourcesInRegion(@PathParam("region") String region,
                              @PathParam("resourceView") String resourceViewName,
@@ -217,7 +217,7 @@ public interface ResourceViewApi {
    @POST
    @Produces(MediaType.APPLICATION_JSON)
    @Path("/zones/{zone}/resourceViews/{resourceView}/removeResources")
-   @OAuthScopes(NDEV_CLOUD_MAN_SCOPE)
+   @OAuthScopes(CLOUDMAN_SCOPE)
    @MapBinder(BindToJsonPayload.class)
    void removeResourcesInZone(@PathParam("zone") String zone,
                               @PathParam("resourceView") String resourceViewName,
@@ -234,7 +234,7 @@ public interface ResourceViewApi {
    @POST
    @Produces(MediaType.APPLICATION_JSON)
    @Path("/regions/{region}/resourceViews/{resourceView}/removeResources")
-   @OAuthScopes(NDEV_CLOUD_MAN_SCOPE)
+   @OAuthScopes(CLOUDMAN_SCOPE)
    @MapBinder(BindToJsonPayload.class)
    void removeResourcesInRegion(@PathParam("region") String region,
                                 @PathParam("resourceView") String resourceViewName,
@@ -246,7 +246,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:listResources")
    @POST
    @Path("/zones/{zone}/resourceViews/{resourceView}/resources")
-   @OAuthScopes(NDEV_CLOUD_MAN_READONLY_SCOPE)
+   @OAuthScopes(CLOUDMAN_READONLY_SCOPE)
    @ResponseParser(ParseZoneResourceViewMembers.class)
    @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
    ListPage<URI> listResourcesFirstPageInZone(@PathParam("zone") String zone,
@@ -258,7 +258,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:listResources")
    @POST
    @Path("/zones/{zone}/resourceViews/{resourceView}/resources")
-   @OAuthScopes(NDEV_CLOUD_MAN_READONLY_SCOPE)
+   @OAuthScopes(CLOUDMAN_READONLY_SCOPE)
    @ResponseParser(ParseZoneResourceViewMembers.class)
    @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
    ListPage<URI> listResourcesAtMarkerInZone(@PathParam("zone") String zone,
@@ -281,7 +281,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:listResources")
    @POST
    @Path("/zones/{zone}/resourceViews/{resourceView}/resources")
-   @OAuthScopes(NDEV_CLOUD_MAN_READONLY_SCOPE)
+   @OAuthScopes(CLOUDMAN_READONLY_SCOPE)
    @ResponseParser(ParseZoneResourceViewMembers.class)
    @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
    ListPage<URI> listResourcesAtMarkerInZone(@PathParam("zone") String zone,
@@ -301,7 +301,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:listResources")
    @POST
    @Path("/zones/{zone}/resourceViews/{resourceView}/resources")
-   @OAuthScopes(NDEV_CLOUD_MAN_READONLY_SCOPE)
+   @OAuthScopes(CLOUDMAN_READONLY_SCOPE)
    @ResponseParser(ParseZoneResourceViewMembers.class)
    @Transform(ParseZoneResourceViewMembers.ToPagedIterable.class)
    @Fallback(EmptyPagedIterableOnNotFoundOr404.class)
@@ -321,7 +321,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:listResources")
    @POST
    @Path("/zones/{zone}/resourceViews/{resourceView}/resources")
-   @OAuthScopes(NDEV_CLOUD_MAN_READONLY_SCOPE)
+   @OAuthScopes(CLOUDMAN_READONLY_SCOPE)
    @ResponseParser(ParseZoneResourceViewMembers.class)
    @Transform(ParseZoneResourceViewMembers.ToPagedIterable.class)
    @Fallback(EmptyPagedIterableOnNotFoundOr404.class)
@@ -335,7 +335,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:listResources")
    @POST
    @Path("/regions/{region}/resourceViews/{resourceView}/resources")
-   @OAuthScopes(NDEV_CLOUD_MAN_READONLY_SCOPE)
+   @OAuthScopes(CLOUDMAN_READONLY_SCOPE)
    @ResponseParser(ParseRegionResourceViewMembers.class)
    @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
    ListPage<URI> listResourcesFirstPageInRegion(@PathParam("region") String zone,
@@ -347,7 +347,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:listResources")
    @POST
    @Path("/regions/{region}/resourceViews/{resourceView}/resources")
-   @OAuthScopes(NDEV_CLOUD_MAN_READONLY_SCOPE)
+   @OAuthScopes(CLOUDMAN_READONLY_SCOPE)
    @ResponseParser(ParseRegionResourceViewMembers.class)
    @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
    ListPage<URI> listResourcesAtMarkerInRegion(@PathParam("region") String region,
@@ -370,7 +370,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:listResources")
    @POST
    @Path("/regions/{region}/resourceViews/{resourceView}/resources")
-   @OAuthScopes(NDEV_CLOUD_MAN_READONLY_SCOPE)
+   @OAuthScopes(CLOUDMAN_READONLY_SCOPE)
    @ResponseParser(ParseRegionResourceViewMembers.class)
    @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
    ListPage<URI> listResourcesAtMarkerInRegion(@PathParam("region") String region,
@@ -390,7 +390,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:listResources")
    @POST
    @Path("/regions/{region}/resourceViews/{resourceView}/resources")
-   @OAuthScopes(NDEV_CLOUD_MAN_READONLY_SCOPE)
+   @OAuthScopes(CLOUDMAN_READONLY_SCOPE)
    @ResponseParser(ParseRegionResourceViewMembers.class)
    @Transform(ParseRegionResourceViewMembers.ToPagedIterable.class)
    @Fallback(EmptyPagedIterableOnNotFoundOr404.class)
@@ -410,7 +410,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:listResources")
    @POST
    @Path("/regions/{region}/resourceViews/{resourceView}/resources")
-   @OAuthScopes(NDEV_CLOUD_MAN_READONLY_SCOPE)
+   @OAuthScopes(CLOUDMAN_READONLY_SCOPE)
    @ResponseParser(ParseRegionResourceViewMembers.class)
    @Transform(ParseRegionResourceViewMembers.ToPagedIterable.class)
    @Fallback(EmptyPagedIterableOnNotFoundOr404.class)
@@ -429,7 +429,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:delete")
    @DELETE
    @Path("/zones/{zone}/resourceViews/{resourceView}")
-   @OAuthScopes(NDEV_CLOUD_MAN_SCOPE)
+   @OAuthScopes(CLOUDMAN_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
    void deleteInZone(@PathParam("zone") String zone,
@@ -446,7 +446,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:delete")
    @DELETE
    @Path("/regions/{region}/resourceViews/{resourceView}")
-   @OAuthScopes(NDEV_CLOUD_MAN_SCOPE)
+   @OAuthScopes(CLOUDMAN_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
    void deleteInRegion(@PathParam("region") String zone,
@@ -458,7 +458,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:list")
    @GET
    @Path("/zones/{zone}/resourceViews")
-   @OAuthScopes(NDEV_CLOUD_MAN_READONLY_SCOPE)
+   @OAuthScopes(CLOUDMAN_READONLY_SCOPE)
    @ResponseParser(ParseZoneResourceViews.class)
    @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
    ListPage<ResourceView> listFirstPageInZone(@PathParam("zone") String zone);
@@ -469,7 +469,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:list")
    @GET
    @Path("/zones/{zone}/resourceViews")
-   @OAuthScopes(NDEV_CLOUD_MAN_READONLY_SCOPE)
+   @OAuthScopes(CLOUDMAN_READONLY_SCOPE)
    @ResponseParser(ParseZoneResourceViews.class)
    @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
    ListPage<ResourceView> listAtMarkerInZone(@PathParam("zone") String zone,
@@ -490,7 +490,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:list")
    @GET
    @Path("/zones/{zone}/resourceViews")
-   @OAuthScopes(NDEV_CLOUD_MAN_READONLY_SCOPE)
+   @OAuthScopes(CLOUDMAN_READONLY_SCOPE)
    @ResponseParser(ParseZoneResourceViews.class)
    @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
    ListPage<ResourceView> listAtMarkerInZone(@PathParam("zone") String zone,
@@ -508,7 +508,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:list")
    @GET
    @Path("/zones/{zone}/resourceViews")
-   @OAuthScopes(NDEV_CLOUD_MAN_READONLY_SCOPE)
+   @OAuthScopes(CLOUDMAN_READONLY_SCOPE)
    @ResponseParser(ParseZoneResourceViews.class)
    @Transform(ParseZoneResourceViews.ToPagedIterable.class)
    @Fallback(EmptyPagedIterableOnNotFoundOr404.class)
@@ -525,7 +525,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:list")
    @GET
    @Path("/zones/{zone}/resourceViews")
-   @OAuthScopes(NDEV_CLOUD_MAN_READONLY_SCOPE)
+   @OAuthScopes(CLOUDMAN_READONLY_SCOPE)
    @ResponseParser(ParseZoneResourceViews.class)
    @Transform(ParseZoneResourceViews.ToPagedIterable.class)
    @Fallback(EmptyPagedIterableOnNotFoundOr404.class)
@@ -538,7 +538,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:list")
    @GET
    @Path("/regions/{region}/resourceViews")
-   @OAuthScopes(NDEV_CLOUD_MAN_READONLY_SCOPE)
+   @OAuthScopes(CLOUDMAN_READONLY_SCOPE)
    @ResponseParser(ParseRegionResourceViews.class)
    @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
    ListPage<ResourceView> listFirstPageInRegion(@PathParam("region") String region);
@@ -549,7 +549,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:list")
    @GET
    @Path("/regions/{region}/resourceViews")
-   @OAuthScopes(NDEV_CLOUD_MAN_READONLY_SCOPE)
+   @OAuthScopes(CLOUDMAN_READONLY_SCOPE)
    @ResponseParser(ParseRegionResourceViews.class)
    @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
    ListPage<ResourceView> listAtMarkerInRegion(@PathParam("region") String region,
@@ -570,7 +570,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:list")
    @GET
    @Path("/regions/{region}/resourceViews")
-   @OAuthScopes(NDEV_CLOUD_MAN_READONLY_SCOPE)
+   @OAuthScopes(CLOUDMAN_READONLY_SCOPE)
    @ResponseParser(ParseRegionResourceViews.class)
    @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
    ListPage<ResourceView> listAtMarkerInRegion(@PathParam("region") String region,
@@ -588,7 +588,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:list")
    @GET
    @Path("/regions/{region}/resourceViews")
-   @OAuthScopes(NDEV_CLOUD_MAN_READONLY_SCOPE)
+   @OAuthScopes(CLOUDMAN_READONLY_SCOPE)
    @ResponseParser(ParseZoneResourceViews.class)
    @Transform(ParseRegionResourceViews.ToPagedIterable.class)
    @Fallback(EmptyPagedIterableOnNotFoundOr404.class)
@@ -605,7 +605,7 @@ public interface ResourceViewApi {
    @Named("ResourceViews:list")
    @GET
    @Path("/regions/{region}/resourceViews")
-   @OAuthScopes(NDEV_CLOUD_MAN_READONLY_SCOPE)
+   @OAuthScopes(CLOUDMAN_READONLY_SCOPE)
    @ResponseParser(ParseZoneResourceViews.class)
    @Transform(ParseRegionResourceViews.ToPagedIterable.class)
    @Fallback(EmptyPagedIterableOnNotFoundOr404.class)

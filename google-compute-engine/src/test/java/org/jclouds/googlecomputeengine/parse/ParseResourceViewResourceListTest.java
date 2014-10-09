@@ -42,8 +42,6 @@ public class ParseResourceViewResourceListTest extends BaseGoogleComputeEnginePa
       String base = "https://googleapis.com/compute/projects/myproject/zones/us-central1-a/instances/";
       return ListPage.<URI>builder()
               .kind(Resource.Kind.RESOURCE_VIEW_MEMBER_LIST)
-              .id("")
-              .selfLink(URI.create(""))
               .items(ImmutableSet.<URI>of(URI.create(base + "jclouds-test-1"),
                                           URI.create(base + "jclouds-test-2"))
               ).build();
