@@ -29,6 +29,7 @@ import javax.inject.Singleton;
 
 import org.jclouds.domain.Credentials;
 import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
+import org.jclouds.googlecomputeengine.ResourceViewEndpoint;
 import org.jclouds.googlecomputeengine.domain.Operation;
 import org.jclouds.googlecomputeengine.domain.Project;
 import org.jclouds.googlecomputeengine.domain.SlashEncodedIds;
@@ -171,6 +172,18 @@ public class GoogleComputeEngineHttpApiModule extends HttpApiModule<GoogleComput
          public URI apply(String input) {
             return Uris.uriBuilder(endpoint.get()).appendPath("/projects/").appendPath(userProject.get())
                     .appendPath("/regions/").appendPath(input).build();
+         }
+      };
+   }
+   
+   @Provides
+   @Singleton
+   @ResourceViewEndpoint
+   public Supplier<URI> provideResourceViewUrl() {
+      return new Supplier<URI>() {
+         @Override
+         public URI get() {
+            return URI.create("https://www.googleapis.com/resourceviews/v1beta1");
          }
       };
    }

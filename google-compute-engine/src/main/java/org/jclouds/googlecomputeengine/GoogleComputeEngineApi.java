@@ -22,8 +22,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
 import org.jclouds.googlecomputeengine.features.AddressApi;
+import org.jclouds.googlecomputeengine.features.BackendServiceApi;
 import org.jclouds.googlecomputeengine.features.DiskApi;
 import org.jclouds.googlecomputeengine.features.FirewallApi;
+import org.jclouds.googlecomputeengine.features.ForwardingRuleApi;
 import org.jclouds.googlecomputeengine.features.GlobalOperationApi;
 import org.jclouds.googlecomputeengine.features.ImageApi;
 import org.jclouds.googlecomputeengine.features.InstanceApi;
@@ -32,8 +34,11 @@ import org.jclouds.googlecomputeengine.features.NetworkApi;
 import org.jclouds.googlecomputeengine.features.ProjectApi;
 import org.jclouds.googlecomputeengine.features.RegionApi;
 import org.jclouds.googlecomputeengine.features.RegionOperationApi;
+import org.jclouds.googlecomputeengine.features.ResourceViewApi;
 import org.jclouds.googlecomputeengine.features.RouteApi;
 import org.jclouds.googlecomputeengine.features.SnapshotApi;
+import org.jclouds.googlecomputeengine.features.TargetHttpProxyApi;
+import org.jclouds.googlecomputeengine.features.UrlMapApi;
 import org.jclouds.googlecomputeengine.features.ZoneApi;
 import org.jclouds.googlecomputeengine.features.ZoneOperationApi;
 import org.jclouds.rest.annotations.Delegate;
@@ -60,6 +65,15 @@ public interface GoogleComputeEngineApi extends Closeable {
    AddressApi getAddressApiForProject(@PathParam("project") String projectName);
 
    /**
+    * Provides access to BackendServices features
+    *
+    * @param projectName the name of the project
+    */
+   @Delegate
+   @Path("/projects/{project}")
+   BackendServiceApi getBackendServiceApiForProject(@PathParam("project") String projectName);
+   
+   /**
     * Provides access to Disk features
     *
     * @param projectName the name of the project
@@ -77,6 +91,15 @@ public interface GoogleComputeEngineApi extends Closeable {
    @Path("/projects/{project}")
    FirewallApi getFirewallApiForProject(@PathParam("project") String projectName);
 
+   /**
+    * Provides access to GlobalForwardingRule features
+    *
+    * @param projectName the name of the project
+    */
+   @Delegate
+   @Path("/projects/{project}")
+   ForwardingRuleApi getForwardingRuleApiForProject(@PathParam("project") String projectName);
+   
    /**
     * Provides access to Global Operation features
     *
@@ -145,6 +168,15 @@ public interface GoogleComputeEngineApi extends Closeable {
    @Delegate
    @Path("/projects/{project}")
    RegionOperationApi getRegionOperationApiForProject(@PathParam("project") String projectName);
+   
+   /**
+    * Provides access to Resource View features
+    *
+    * @param projectName the name of the project
+    */
+   @Delegate
+   @Path("/projects/{project}")
+   ResourceViewApi getResourceViewApiForProject(@PathParam("project") String projectName);
 
    /**
     * Provides access to Route features
@@ -163,6 +195,24 @@ public interface GoogleComputeEngineApi extends Closeable {
    @Delegate
    @Path("/projects/{project}")
    SnapshotApi getSnapshotApiForProject(@PathParam("project") String projectName);
+   
+   /**
+    * Provides access to TargetHttpProxy features
+    *
+    * @param projectName the name of the project
+    */
+   @Delegate
+   @Path("/projects/{project}")
+   TargetHttpProxyApi getTargetHttpProxyApiForProject(@PathParam("project") String projectName);
+
+   /**
+    * Provides access to UrlMap features
+    *
+    * @param projectName the name of the project
+    */
+   @Delegate
+   @Path("/projects/{project}")
+   UrlMapApi getUrlMapApiForProject(@PathParam("project") String projectName);
 
    /**
     * Provides access to Zone features

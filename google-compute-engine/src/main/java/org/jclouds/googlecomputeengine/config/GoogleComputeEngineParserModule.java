@@ -16,8 +16,6 @@
  */
 package org.jclouds.googlecomputeengine.config;
 
-import static org.jclouds.googlecomputeengine.domain.Firewall.Rule;
-
 import java.beans.ConstructorProperties;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -27,15 +25,31 @@ import java.util.Set;
 
 import javax.inject.Singleton;
 
+import org.jclouds.googlecomputeengine.domain.BackendService;
+import org.jclouds.googlecomputeengine.domain.BackendService.Backend;
 import org.jclouds.googlecomputeengine.domain.Firewall;
+import org.jclouds.googlecomputeengine.domain.Firewall.Rule;
 import org.jclouds.googlecomputeengine.domain.Instance;
 import org.jclouds.googlecomputeengine.domain.InstanceTemplate;
+import org.jclouds.googlecomputeengine.domain.ListPage;
 import org.jclouds.googlecomputeengine.domain.Metadata;
 import org.jclouds.googlecomputeengine.domain.Operation;
 import org.jclouds.googlecomputeengine.domain.Project;
 import org.jclouds.googlecomputeengine.domain.Quota;
+import org.jclouds.googlecomputeengine.domain.Resource.Kind;
+import org.jclouds.googlecomputeengine.domain.ResourceView;
+import org.jclouds.googlecomputeengine.domain.UrlMap;
+import org.jclouds.googlecomputeengine.domain.UrlMap.HostRule;
+import org.jclouds.googlecomputeengine.domain.UrlMap.PathMatcher;
+import org.jclouds.googlecomputeengine.domain.UrlMap.PathRule;
+import org.jclouds.googlecomputeengine.domain.UrlMap.UrlMapTest;
+import org.jclouds.googlecomputeengine.domain.UrlMapValidateResult;
+import org.jclouds.googlecomputeengine.domain.UrlMapValidateResult.TestFailure;
+import org.jclouds.googlecomputeengine.options.BackendServiceOptions;
 import org.jclouds.googlecomputeengine.options.FirewallOptions;
+import org.jclouds.googlecomputeengine.options.ResourceViewOptions;
 import org.jclouds.googlecomputeengine.options.RouteOptions;
+import org.jclouds.googlecomputeengine.options.UrlMapOptions;
 import org.jclouds.json.config.GsonModule;
 import org.jclouds.net.domain.IpProtocol;
 import org.jclouds.oauth.v2.domain.ClaimSet;
@@ -56,6 +70,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.TypeLiteral;
 
 public class GoogleComputeEngineParserModule extends AbstractModule {
 
@@ -68,17 +83,31 @@ public class GoogleComputeEngineParserModule extends AbstractModule {
    @Singleton
    public Map<Type, Object> provideCustomAdapterBindings() {
       return new ImmutableMap.Builder<Type, Object>()
-              .put(Metadata.class, new MetadataTypeAdapter())
-              .put(Operation.class, new OperationTypeAdapter())
-              .put(Header.class, new HeaderTypeAdapter())
-              .put(ClaimSet.class, new ClaimSetTypeAdapter())
-              .put(Project.class, new ProjectTypeAdapter())
-              .put(Instance.class, new InstanceTypeAdapter())
-              .put(InstanceTemplate.class, new InstanceTemplateTypeAdapter())
-              .put(FirewallOptions.class, new FirewallOptionsTypeAdapter())
-              .put(RouteOptions.class, new RouteOptionsTypeAdapter())
-              .put(Rule.class, new RuleTypeAdapter())
-              .build();
+            .put(BackendService.Backend.class, new BackendTypeAdapter())
+            .put(BackendServiceOptions.class, new BackendServiceOptionsTypeAdapter())
+            .put(ClaimSet.class, new ClaimSetTypeAdapter())
+            .put(FirewallOptions.class, new FirewallOptionsTypeAdapter())
+            .put(Header.class, new HeaderTypeAdapter())
+            .put(Instance.class, new InstanceTypeAdapter())
+            .put(InstanceTemplate.class, new InstanceTemplateTypeAdapter())
+            .put(Metadata.class, new MetadataTypeAdapter())
+            .put(Operation.class, new OperationTypeAdapter())
+            .put(Project.class, new ProjectTypeAdapter())
+            .put(ResourceView.class, new ResourceViewTypeAdapter())
+            .put(ResourceViewOptions.class, new ResourceViewOptionsTypeAdapter())
+            .put(RouteOptions.class, new RouteOptionsTypeAdapter())
+            .put(Rule.class, new RuleTypeAdapter())
+            .put(UrlMap.HostRule.class, new HostRuleTypeAdapter())
+            .put(UrlMap.PathMatcher.class, new PathMatcherTypeAdapter())
+            .put(UrlMap.PathRule.class, new PathRuleTypeAdapter())
+            .put(UrlMap.UrlMapTest.class, new TestTypeAdapter())
+            .put(UrlMapOptions.class, new UrlMapOptionsTypeAdapter())
+            .put(UrlMapValidateResult.class, new UrlMapValidateResultTypeAdapter())
+            .put(new TypeLiteral<ListPage<ResourceView>>() {}.getType(),
+                 new ListPageResourceViewTypeAdapter())
+            .put(new TypeLiteral<ListPage<URI>>() {}.getType(),
+                 new ListPageResourceViewMemberTypeAdapter())
+            .build();
    }
 
    /**
@@ -363,15 +392,6 @@ public class GoogleComputeEngineParserModule extends AbstractModule {
       }
    }
 
-   private static JsonArray buildArrayOfStrings(Set<String> strings) {
-      JsonArray array = new JsonArray();
-      for (String string : strings) {
-         array.add(new JsonPrimitive(string));
-      }
-      return array;
-   }
-
-
    private static class RuleTypeAdapter implements JsonDeserializer<Firewall.Rule>, JsonSerializer<Firewall.Rule> {
 
       @Override
@@ -409,5 +429,376 @@ public class GoogleComputeEngineParserModule extends AbstractModule {
          }
          return ruleObject;
       }
+   }
+
+   /**
+    * Turns a ResourceViewOptions object into json so that it can be sent to
+    * Compute Engine in a web request.
+    *
+    */
+   @Singleton
+   private static class ResourceViewOptionsTypeAdapter implements JsonSerializer<ResourceViewOptions> {
+
+      @Override
+      public JsonElement serialize(ResourceViewOptions resourceViewOptions,
+                                   Type typeOfSrc, JsonSerializationContext context) {
+         JsonObject resourceView = new JsonObject();
+         if (resourceViewOptions.getName() != null) {
+            resourceView.addProperty("name", resourceViewOptions.getName());
+         }
+         if (resourceViewOptions.getDescription() != null) {
+            resourceView.addProperty("description", resourceViewOptions.getDescription());
+         }
+         if (!resourceViewOptions.getMembers().isEmpty()) {
+            resourceView.add("members", buildArrayOfStringsFromURI(resourceViewOptions.getMembers()));
+         }
+         return resourceView;
+      }
+   }
+   
+   @Singleton
+   private static class ListPageResourceViewTypeAdapter implements
+                        JsonDeserializer<ListPage<ResourceView>> {
+
+      @Override
+      public ListPage<ResourceView> deserialize(JsonElement json, Type typeOfT,
+            JsonDeserializationContext context) throws JsonParseException {
+         JsonObject listPageObject = json.getAsJsonObject();
+         // ListPage is a subclass of resource so it requires an id and a selfLink.
+         // Currently the list function for resource views does not return either
+         // of these so set them to "" so no exceptions are thrown.
+         ListPage.Builder<ResourceView> builder = ListPage.builder();
+         builder.kind(Kind.RESOURCE_VIEW_LIST);
+         if (listPageObject.has("nextPageToken")) {
+            builder.nextPageToken(listPageObject.get("nextPageToken").getAsString());
+         }
+         if (listPageObject.has("resourceViews")) {
+            for (JsonElement resourceView : listPageObject.getAsJsonArray("resourceViews")) {
+               builder.addItem((ResourceView) context.deserialize(resourceView, ResourceView.class));
+            }
+         }
+         return builder.build();
+      }
+   }
+   
+   @Singleton
+   private static class ListPageResourceViewMemberTypeAdapter implements
+                        JsonDeserializer<ListPage<URI>> {
+
+      @Override
+      public ListPage<URI> deserialize(JsonElement json, Type typeOfT,
+            JsonDeserializationContext context) throws JsonParseException {
+         JsonObject listPageObject = json.getAsJsonObject();
+         // ListPage is a subclass of resource so it requires an id and a selfLink.
+         // Currently the list function for resource views does not return either
+         // of these so set them to "" so no exceptions are thrown.
+         ListPage.Builder<URI> builder = ListPage.builder();
+         builder.kind(Kind.RESOURCE_VIEW_MEMBER_LIST);
+         if (listPageObject.has("nextPageToken")) {
+            builder.nextPageToken(listPageObject.get("nextPageToken").getAsString());
+         }
+         if (listPageObject.has("members")) {
+            for (JsonElement uri : listPageObject.getAsJsonArray("members")) {
+               // remove quotes from member URIs because otherwise it throws an exception
+               builder.addItem(getUri(uri.getAsString()));
+            }
+         }
+         return builder.build();
+      }
+   }
+   
+   @Singleton
+   private static class ResourceViewTypeAdapter implements JsonDeserializer<ResourceView> {
+
+      @Override
+      public ResourceView deserialize(JsonElement json, Type typeOfT,
+            JsonDeserializationContext context) throws JsonParseException {
+         JsonObject resourceViewObject = json.getAsJsonObject();
+         ResourceView.Builder builder = ResourceView.builder();
+         // Meant to get the actual json object when resource: object is returned by insert
+         if (resourceViewObject.has("resource")) {
+            resourceViewObject = resourceViewObject.get("resource").getAsJsonObject();
+         }
+         if (resourceViewObject.has("id")) {
+            builder.id(resourceViewObject.get("id").getAsString());
+         }
+         if (resourceViewObject.has("description")) {
+            builder.description(resourceViewObject.get("description").getAsString());
+         }
+         if (resourceViewObject.has("name")) {
+            builder.name(resourceViewObject.get("name").getAsString());
+         }
+         if (resourceViewObject.has("numMembers")) {
+            builder.numMembers(resourceViewObject.get("numMembers").getAsInt());
+         }
+         if (resourceViewObject.has("creationTime")) {
+            builder.creationTimestamp((Date) context.deserialize(resourceViewObject.get("creationTime"), Date.class));
+         }
+         if (resourceViewObject.has("members")) {
+            for (JsonElement member : resourceViewObject.getAsJsonArray("members")) {
+               // remove quotes from member URIs because otherwise it throws an exception
+               builder.addMember(getUri(member.getAsString()));
+            }
+         }
+         if (resourceViewObject.has("lastModified")) {
+            builder.lastModified((Date) context.deserialize(resourceViewObject.get("lastModified"), Date.class));
+         }
+         if (resourceViewObject.has("selfLink")) {
+            // remove quotes from member URIs because otherwise it throws an exception
+            builder.selfLink(getUri(resourceViewObject.get("selfLink").getAsString()));
+         }
+         if (resourceViewObject.has("labels")) {
+            for (JsonElement labelElement : resourceViewObject.getAsJsonArray("labels")) {
+               JsonObject label = labelElement.getAsJsonObject();
+               builder.addLabel(label.get("key").getAsString(), label.get("value").getAsString());
+            }
+         }
+         return builder.build();
+      }
+   }
+
+   @Singleton
+   private static class BackendServiceOptionsTypeAdapter implements JsonSerializer<BackendServiceOptions> {
+
+      @Override
+      public JsonElement serialize(BackendServiceOptions src, Type typeOfSrc, JsonSerializationContext context) {
+         JsonObject backendService = new JsonObject();
+         if (src.getName() != null) {
+            backendService.addProperty("name", src.getName());
+         }
+         if (!src.getBackends().isEmpty()) {
+            JsonArray backends = new JsonArray();
+            for (Backend backend : src.getBackends()) {
+               backends.add(context.serialize(backend, BackendService.Backend.class));
+            }
+            backendService.add("backends", backends);
+         }
+         if (!src.getHealthChecks().isEmpty()) {
+            backendService.add("healthChecks", buildArrayOfStringsFromURI(src.getHealthChecks()));
+         }
+         if (src.getTimeoutSec() != null) {
+            backendService.addProperty("timeoutSec", src.getTimeoutSec());
+         }
+         if (src.getPort() != null) {
+            backendService.addProperty("port", src.getPort());
+         }
+         if (src.getProtocol() != null) {
+            backendService.addProperty("protocol", src.getProtocol());
+         }
+         if (src.getFingerprint() != null) {
+            backendService.addProperty("fingerprint", src.getFingerprint());
+         }
+         
+         return backendService;
+      }
+   }
+   
+   @Singleton
+   private static class BackendTypeAdapter implements JsonSerializer<BackendService.Backend> {
+
+      @Override
+      public JsonElement serialize(BackendService.Backend src, Type typeOfSrc, JsonSerializationContext context) {
+         JsonObject backendObject = new JsonObject();
+         backendObject.addProperty("group", src.getGroup().toASCIIString());
+         if (src.getDescription().isPresent()) {
+            backendObject.addProperty("description", src.getDescription().get());
+         }
+         if (src.getBalancingMode().isPresent()) {
+            backendObject.addProperty("balancingMode", src.getBalancingMode().get());
+         }
+         if (src.getMaxUtilization().isPresent()) {
+            backendObject.addProperty("maxUtilization", src.getMaxUtilization().get());
+         }
+         if (src.getMaxRate().isPresent()) {
+            backendObject.addProperty("maxRate", src.getMaxRate().get());
+         }
+         if (src.getMaxRatePerInstance().isPresent()) {
+            backendObject.addProperty("maxRatePerInstance", src.getMaxRatePerInstance().get());
+         }
+         if (src.getCapacityScaler().isPresent()) {
+            backendObject.addProperty("capacityScaler", src.getCapacityScaler().get());
+         }
+         return backendObject;
+      }
+   }
+
+   @Singleton
+   private static class UrlMapOptionsTypeAdapter implements JsonSerializer<UrlMapOptions> {
+
+      @Override
+      public JsonElement serialize(UrlMapOptions src, Type typeOfSrc,
+            JsonSerializationContext context) {
+         JsonObject urlMap = new JsonObject();
+         if (src.getName() != null) {
+            urlMap.addProperty("name", src.getName());
+         }
+         if (src.getDescription() != null) {
+            urlMap.addProperty("description", src.getDescription());
+         }
+         if (!src.getHostRules().isEmpty()) {
+            JsonArray hostRules = new JsonArray();
+            for (HostRule hostRule : src.getHostRules()) {
+               hostRules.add(context.serialize(hostRule, UrlMap.HostRule.class));
+            }
+            urlMap.add("hostRules", hostRules);
+         }
+         if (!src.getPathMatchers().isEmpty()) {
+            JsonArray pathMatchers = new JsonArray();
+            for (PathMatcher pathMatcher : src.getPathMatchers()) {
+               pathMatchers.add(context.serialize(pathMatcher, UrlMap.PathMatcher.class));
+            }
+            urlMap.add("pathMatchers", pathMatchers);
+         }
+         if (!src.getTests().isEmpty()) {
+            JsonArray tests = new JsonArray();
+            for (UrlMapTest urlMapTest : src.getTests()) {
+               tests.add(context.serialize(urlMapTest, UrlMap.UrlMapTest.class));
+            }
+            urlMap.add("tests", tests);
+         }
+         if (src.getDefaultService() != null) {
+            urlMap.addProperty("defaultService", src.getDefaultService().toASCIIString());
+         }
+         if (src.getFingerprint() != null) {
+            urlMap.addProperty("fingerprint", src.getFingerprint());
+         }
+         
+         return urlMap;
+      }
+   }
+   
+   @Singleton
+   private static class HostRuleTypeAdapter implements JsonSerializer<HostRule> {
+
+      @Override
+      public JsonElement serialize(HostRule src, Type typeOfSrc,
+            JsonSerializationContext context) {
+         JsonObject hostRuleObject = new JsonObject();
+         if (src.getDescription().isPresent()) {
+            hostRuleObject.addProperty("description", src.getDescription().get());
+         }
+         if (!src.getHosts().isEmpty()) {
+            hostRuleObject.add("hosts", buildArrayOfStrings(src.getHosts()));
+         }
+         if (src.getPathMatcher() != null) {
+            hostRuleObject.addProperty("pathMatcher", src.getPathMatcher());
+         }
+         return hostRuleObject;
+      }
+   }
+   
+   @Singleton
+   private static class PathMatcherTypeAdapter implements JsonSerializer<PathMatcher> {
+
+      @Override
+      public JsonElement serialize(PathMatcher src, Type typeOfSrc,
+            JsonSerializationContext context) {
+         JsonObject pathMatcherObject = new JsonObject();
+         if (src.getName() != null) {
+            pathMatcherObject.addProperty("name", src.getName());
+         }
+         if (src.getDescription().isPresent()) {
+            pathMatcherObject.addProperty("description", src.getDescription().get());
+         }
+         if (src.getDefaultService() != null) {
+            pathMatcherObject.addProperty("defaultService", src.getDefaultService().toASCIIString());
+         }
+         if (!src.getPathRules().isEmpty()) {
+            JsonArray pathRules = new JsonArray();
+            for (PathRule pathRule : src.getPathRules()) {
+               pathRules.add(context.serialize(pathRule, UrlMap.PathRule.class));
+            }
+            pathMatcherObject.add("pathRules", pathRules);
+         }
+         return pathMatcherObject;
+      }
+   }
+   
+   @Singleton
+   private static class TestTypeAdapter implements JsonSerializer<UrlMapTest> {
+
+      @Override
+      public JsonElement serialize(UrlMapTest src, Type typeOfSrc,
+            JsonSerializationContext context) {
+         JsonObject testObject = new JsonObject();
+         if (src.getDescription().isPresent()) {
+            testObject.addProperty("description", src.getDescription().get());
+         }
+         if (src.getHost() != null) {
+            testObject.addProperty("host", src.getHost());
+         }
+         if (src.getPath() != null) {
+            testObject.addProperty("path", src.getPath());
+         }
+         if (src.getService() != null) {
+            testObject.addProperty("service", src.getService().toASCIIString());
+         }
+         return testObject;
+      }
+   }
+   
+   @Singleton
+   private static class PathRuleTypeAdapter implements JsonSerializer<PathRule> {
+
+      @Override
+      public JsonElement serialize(PathRule src, Type typeOfSrc,
+            JsonSerializationContext context) {
+         JsonObject pathRuleObject = new JsonObject();
+         if (src.getService() != null) {
+            pathRuleObject.addProperty("service", src.getService().toASCIIString());
+         }
+         if (!src.getPaths().isEmpty()) {
+            pathRuleObject.add("paths", buildArrayOfStrings(src.getPaths()));
+         }
+         return pathRuleObject;
+      }
+   }
+   
+   // Needed because the result is returned as a nested object
+   @Singleton
+   private static class UrlMapValidateResultTypeAdapter implements JsonDeserializer<UrlMapValidateResult> {
+
+      @Override
+      public UrlMapValidateResult deserialize(JsonElement json, Type typeOfT,
+            JsonDeserializationContext context) throws JsonParseException {
+         JsonObject validateResult = json.getAsJsonObject();
+         validateResult = validateResult.get("result").getAsJsonObject();
+         UrlMapValidateResult.Builder builder = UrlMapValidateResult.builder();
+         builder.loadSucceeded(validateResult.get("loadSucceeded").getAsBoolean());
+         if (validateResult.has("loadErrors")) {
+            for (JsonElement string : validateResult.getAsJsonArray("loadErrors")) {
+               builder.addLoadError(string.getAsString());
+            }
+         }
+         if (validateResult.has("testPassed")) {
+            builder.testPassed(validateResult.get("testPassed").getAsBoolean());
+         }
+         if (validateResult.has("testFailures")) {
+            for (JsonElement testFailure : validateResult.getAsJsonArray("testFailures")) {
+               builder.addTestFailure((TestFailure) context.deserialize(testFailure, TestFailure.class));
+            }
+         }
+         return builder.build();
+      }
+   }
+   
+   private static JsonArray buildArrayOfStrings(Set<String> strings) {
+      JsonArray array = new JsonArray();
+      for (String string : strings) {
+         array.add(new JsonPrimitive(string));
+      }
+      return array;
+   }
+   
+   private static JsonArray buildArrayOfStringsFromURI(Set<URI> uris) {
+      JsonArray array = new JsonArray();
+      for (URI uri : uris) {
+         array.add(new JsonPrimitive(uri.toString()));
+      }
+      return array;
+   }
+   
+   private static URI getUri(String uri) {
+      return URI.create(uri.replace("\"", ""));
    }
 }
