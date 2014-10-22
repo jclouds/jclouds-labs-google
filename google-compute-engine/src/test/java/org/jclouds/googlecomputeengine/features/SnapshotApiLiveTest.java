@@ -66,7 +66,7 @@ public class SnapshotApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
    public void testListSnapshot() {
 
       PagedIterable<Snapshot> snapshots = api().list(new ListOptions.Builder()
-              .filter("name eq " + SNAPSHOT_NAME));
+              .filter("name eq " + SNAPSHOT_NAME)).toPagedIterable();
 
       List<Snapshot> snapshotsAsList = Lists.newArrayList(snapshots.concat());
 

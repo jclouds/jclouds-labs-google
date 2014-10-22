@@ -69,7 +69,7 @@ public class RegionOperationApiLiveTest extends BaseGoogleComputeEngineApiLiveTe
    public void testListOperationsWithFiltersAndPagination() {
       PagedIterable<Operation> operations = api().listInRegion(DEFAULT_REGION_NAME, new ListOptions.Builder()
 //              .filter("operationType eq insert")
-              .maxResults(1));
+              .maxResults(1)).toPagedIterable();
 
       // make sure that in spite of having only one result per page we get at least two results
       final AtomicInteger counter = new AtomicInteger();

@@ -20,11 +20,11 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.googlecomputeengine.domain.Instance;
-import org.jclouds.googlecomputeengine.domain.ListPage;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.domain.Resource;
 import org.jclouds.googlecomputeengine.internal.BaseGoogleComputeEngineParseTest;
 
-public class ParseInstanceListTest extends BaseGoogleComputeEngineParseTest<ListPage<Instance>> {
+public class ParseInstanceListTest extends BaseGoogleComputeEngineParseTest<PageWithMarker<Instance>> {
 
    @Override
    public String resource() {
@@ -33,8 +33,8 @@ public class ParseInstanceListTest extends BaseGoogleComputeEngineParseTest<List
 
    @Override
    @Consumes(MediaType.APPLICATION_JSON)
-   public ListPage<Instance> expected() {
-      return ListPage.<Instance>builder()
+   public PageWithMarker<Instance> expected() {
+      return PageWithMarker.<Instance>builder()
               .kind(Resource.Kind.INSTANCE_LIST)
               .addItem(new ParseInstanceTest().expected())
               .build();

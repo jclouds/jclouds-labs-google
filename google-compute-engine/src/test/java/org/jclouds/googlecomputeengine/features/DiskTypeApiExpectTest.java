@@ -97,7 +97,7 @@ public class DiskTypeApiExpectTest extends BaseGoogleComputeEngineApiExpectTest 
               TOKEN_RESPONSE, LIST_DISK_TYPES_REQUEST, LIST_DISK_TYPES_RESPONSE).getDiskTypeApiForProject
               ("myproject");
 
-      assertEquals(diskTypeApi.listFirstPageInZone("us-central1-a").toString(),
+      assertEquals(diskTypeApi.listInZone("us-central1-a").first().get().toString(),
               new ParseDiskTypeListTest().expected().toString());
    }
 

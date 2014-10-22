@@ -23,7 +23,7 @@ import javax.inject.Singleton;
 
 import org.jclouds.collect.IterableWithMarker;
 import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
-import org.jclouds.googlecomputeengine.domain.ListPage;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.domain.Snapshot;
 import org.jclouds.googlecomputeengine.options.ListOptions;
 import org.jclouds.http.functions.ParseJson;
@@ -33,12 +33,19 @@ import com.google.common.base.Function;
 import com.google.inject.TypeLiteral;
 
 @Singleton
-public class ParseSnapshots extends ParseJson<ListPage<Snapshot>> {
+public class ParseSnapshots extends BasePageParser<Snapshot, ParseSnapshots> {
 
    @Inject
-   public ParseSnapshots(Json json) {
-      super(json, new TypeLiteral<ListPage<Snapshot>>() {
-      });
+   ParseSnapshots(ToPage toPage, ToPagedIterable toPagedIterable) {
+      super(toPage, toPagedIterable);
+   }
+
+   public static class ToPage extends ParseJson<PageWithMarker<Snapshot>> {
+      @Inject
+      ToPage(Json json, TypeLiteral<PageWithMarker<Snapshot>> type) {
+         super(json, new TypeLiteral<PageWithMarker<Snapshot>>() {
+         });
+      }
    }
 
    public static class ToPagedIterable extends BaseToPagedIterable<Snapshot, ToPagedIterable> {
@@ -46,19 +53,19 @@ public class ParseSnapshots extends ParseJson<ListPage<Snapshot>> {
       private final GoogleComputeEngineApi api;
 
       @Inject
-      protected ToPagedIterable(GoogleComputeEngineApi api) {
+      ToPagedIterable(GoogleComputeEngineApi api) {
          this.api = checkNotNull(api, "api");
       }
 
       @Override
       protected Function<Object, IterableWithMarker<Snapshot>> fetchNextPage(final String projectName,
-                                                                         final ListOptions options) {
+            final ListOptions options) {
          return new Function<Object, IterableWithMarker<Snapshot>>() {
 
             @Override
             public IterableWithMarker<Snapshot> apply(Object input) {
-               return api.getSnapshotApiForProject(projectName)
-                       .listAtMarker(input.toString(), options);
+               options.pageToken(input.toString());
+               return api.getSnapshotApiForProject(projectName).list(options);
             }
          };
       }

@@ -27,13 +27,12 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import org.jclouds.Fallbacks.EmptyIterableWithMarkerOnNotFoundOr404;
 import org.jclouds.Fallbacks.EmptyPagedIterableOnNotFoundOr404;
 import org.jclouds.Fallbacks.NullOnNotFoundOr404;
 import org.jclouds.collect.PagedIterable;
+import org.jclouds.googlecomputeengine.GoogleComputeEngineFallbacks.EmptyListPageOnNotFoundOr404;
 import org.jclouds.googlecomputeengine.domain.Address;
 import org.jclouds.googlecomputeengine.domain.ListPage;
 import org.jclouds.googlecomputeengine.domain.Operation;
@@ -112,64 +111,18 @@ public interface AddressApi {
    Operation deleteInRegion(@PathParam("region") String region, @PathParam("address") String addressName);
 
    /**
-    * @see org.jclouds.googlecomputeengine.features.AddressApi#listAtMarkerInRegion(String, String, org.jclouds.googlecomputeengine.options.ListOptions)
-    */
-   @Named("Addresss:list")
-   @GET
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/addresses")
-   @OAuthScopes(COMPUTE_READONLY_SCOPE)
-   @ResponseParser(ParseAddresses.class)
-   @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
-   ListPage<Address> listFirstPageInRegion(@PathParam("region") String region);
-
-   /**
-    * @see org.jclouds.googlecomputeengine.features.AddressApi#listAtMarkerInRegion(String, String, org.jclouds.googlecomputeengine.options.ListOptions)
-    */
-   @Named("Addresss:list")
-   @GET
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/addresses")
-   @OAuthScopes(COMPUTE_READONLY_SCOPE)
-   @ResponseParser(ParseAddresses.class)
-   @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
-   ListPage<Address> listAtMarkerInRegion(@PathParam("region") String region, @QueryParam("pageToken") @Nullable String marker);
-
-   /**
-    * Retrieves the listPage of address resources contained within the specified project and region.
-    * By default the listPage as a maximum size of 100, if no options are provided or ListOptions#getMaxResults() has
-    * not been set.
-    *
-    * @param region        the region to search in
-    * @param marker      marks the beginning of the next list page
-    * @param listOptions listing options
-    * @return a page of the listPage
-    * @see org.jclouds.googlecomputeengine.options.ListOptions
-    * @see org.jclouds.googlecomputeengine.domain.ListPage
-    */
-   @Named("Addresss:list")
-   @GET
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/regions/{region}/addresses")
-   @OAuthScopes(COMPUTE_READONLY_SCOPE)
-   @ResponseParser(ParseAddresses.class)
-   @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
-   ListPage<Address> listAtMarkerInRegion(@PathParam("region") String region, @QueryParam("pageToken") @Nullable String marker, ListOptions listOptions);
-
-   /**
-    * A paged version of AddressApi#listPageInRegion(String)
+    * List all addresses in the given region.
     *
     * @param region the region to list in
     * @return a Paged, Fluent Iterable that is able to fetch additional pages when required
     * @see org.jclouds.collect.PagedIterable
-    * @see org.jclouds.googlecomputeengine.features.AddressApi#listAtMarkerInRegion(String, String, org.jclouds.googlecomputeengine.options.ListOptions)
     */
    @Named("Addresss:list")
    @GET
    @Consumes(MediaType.APPLICATION_JSON)
    @Path("/regions/{region}/addresses")
    @OAuthScopes(COMPUTE_READONLY_SCOPE)
-   @ResponseParser(ParseAddresses.class)
+   @ResponseParser(ParseAddresses.ToPage.class)
    @Transform(ParseAddresses.ToPagedIterable.class)
    @Fallback(EmptyPagedIterableOnNotFoundOr404.class)
    PagedIterable<Address> listInRegion(@PathParam("region") String region);
@@ -180,8 +133,7 @@ public interface AddressApi {
    @Path("/regions/{region}/addresses")
    @OAuthScopes(COMPUTE_READONLY_SCOPE)
    @ResponseParser(ParseAddresses.class)
-   @Transform(ParseAddresses.ToPagedIterable.class)
-   @Fallback(EmptyPagedIterableOnNotFoundOr404.class)
-   PagedIterable<Address> listInRegion(@PathParam("region") String region, ListOptions options);
+   @Fallback(EmptyListPageOnNotFoundOr404.class)
+   ListPage<Address> listInRegion(@PathParam("region") String region, ListOptions options);
 
 }

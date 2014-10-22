@@ -72,6 +72,7 @@ public class InstanceApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
       GoogleComputeEngineApi api = super.create(props, modules);
       URI imageUri = api.getImageApiForProject("centos-cloud")
                         .list(new ListOptions.Builder().filter("name eq centos.*"))
+                        .toPagedIterable()
                         .concat()
                         .filter(new Predicate<Image>() {
                            @Override
@@ -205,7 +206,7 @@ public class InstanceApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
    public void testListInstance() {
 
       PagedIterable<Instance> instances = api().listInZone(DEFAULT_ZONE_NAME, new ListOptions.Builder()
-              .filter("name eq " + INSTANCE_NAME));
+              .filter("name eq " + INSTANCE_NAME)).toPagedIterable();
 
       List<Instance> instancesAsList = Lists.newArrayList(instances.concat());
 

@@ -23,18 +23,16 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import org.jclouds.Fallbacks.EmptyIterableWithMarkerOnNotFoundOr404;
 import org.jclouds.Fallbacks.EmptyPagedIterableOnNotFoundOr404;
 import org.jclouds.Fallbacks.NullOnNotFoundOr404;
 import org.jclouds.collect.PagedIterable;
+import org.jclouds.googlecomputeengine.GoogleComputeEngineFallbacks.EmptyListPageOnNotFoundOr404;
 import org.jclouds.googlecomputeengine.domain.ListPage;
 import org.jclouds.googlecomputeengine.domain.MachineType;
 import org.jclouds.googlecomputeengine.functions.internal.ParseMachineTypes;
 import org.jclouds.googlecomputeengine.options.ListOptions;
-import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.oauth.v2.config.OAuthScopes;
 import org.jclouds.oauth.v2.filters.OAuthAuthenticationFilter;
 import org.jclouds.rest.annotations.Fallback;
@@ -68,76 +66,23 @@ public interface MachineTypeApi {
    MachineType getInZone(@PathParam("zone") String zone, @PathParam("machineType") String machineTypeName);
 
    /**
-    * @see MachineTypeApi#listAtMarkerInZone(String, String, org.jclouds.googlecomputeengine.options.ListOptions)
+    * List all machine types in the given zone.
     */
    @Named("MachineTypes:list")
    @GET
    @Path("/zones/{zone}/machineTypes")
    @OAuthScopes(COMPUTE_READONLY_SCOPE)
-   @ResponseParser(ParseMachineTypes.class)
-   @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
-   ListPage<MachineType> listFirstPageInZone(@PathParam("zone") String zone);
-
-   /**
-    * @see MachineTypeApi#listAtMarkerInZone(String, String, org.jclouds.googlecomputeengine.options.ListOptions)
-    */
-   @Named("MachineTypes:list")
-   @GET
-   @Path("/zones/{zone}/machineTypes")
-   @OAuthScopes(COMPUTE_READONLY_SCOPE)
-   @ResponseParser(ParseMachineTypes.class)
-   @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
-   ListPage<MachineType> listAtMarkerInZone(@PathParam("zone") String zone, @QueryParam("pageToken") @Nullable String marker);
-
-   /**
-    * Retrieves the list of machine type resources available to the specified project.
-    * By default the list as a maximum size of 100, if no options are provided or ListOptions#getMaxResults() has not
-    * been set.
-    *
-    * @param zone        The name of the zone to list in.
-    * @param marker      marks the beginning of the next list page
-    * @param listOptions listing options
-    * @return a page of the list
-    * @see ListOptions
-    * @see org.jclouds.googlecomputeengine.domain.ListPage
-    */
-   @Named("MachineTypes:list")
-   @GET
-   @Path("/zones/{zone}/machineTypes")
-   @OAuthScopes(COMPUTE_READONLY_SCOPE)
-   @ResponseParser(ParseMachineTypes.class)
-   @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
-   ListPage<MachineType> listAtMarkerInZone(@PathParam("zone") String zone,
-                                            @QueryParam("pageToken") @Nullable String marker,
-                                            ListOptions listOptions);
-
-   /**
-    * @see MachineTypeApi#listInZone(String, org.jclouds.googlecomputeengine.options.ListOptions)
-    */
-   @Named("MachineTypes:list")
-   @GET
-   @Path("/zones/{zone}/machineTypes")
-   @OAuthScopes(COMPUTE_READONLY_SCOPE)
-   @ResponseParser(ParseMachineTypes.class)
+   @ResponseParser(ParseMachineTypes.ToPage.class)
    @Transform(ParseMachineTypes.ToPagedIterable.class)
    @Fallback(EmptyPagedIterableOnNotFoundOr404.class)
    PagedIterable<MachineType> listInZone(@PathParam("zone") String zone);
 
-   /**
-    * A paged version of MachineTypeApi#listInZone(String)
-    *
-    * @param zone the zone to list in
-    * @return a Paged, Fluent Iterable that is able to fetch additional pages when required
-    * @see PagedIterable
-    * @see MachineTypeApi#listAtMarkerInZone(String, String, org.jclouds.googlecomputeengine.options.ListOptions)
-    */
    @Named("MachineTypes:list")
    @GET
    @Path("/zones/{zone}/machineTypes")
    @OAuthScopes(COMPUTE_READONLY_SCOPE)
    @ResponseParser(ParseMachineTypes.class)
-   @Transform(ParseMachineTypes.ToPagedIterable.class)
-   @Fallback(EmptyPagedIterableOnNotFoundOr404.class)
-   PagedIterable<MachineType> listInZone(@PathParam("zone") String zone, ListOptions listOptions);
+   @Fallback(EmptyListPageOnNotFoundOr404.class)
+   ListPage<MachineType> listInZone(@PathParam("zone") String zone, ListOptions listOptions);
 
 }

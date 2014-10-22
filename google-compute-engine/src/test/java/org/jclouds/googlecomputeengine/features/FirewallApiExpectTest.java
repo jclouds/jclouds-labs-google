@@ -278,7 +278,7 @@ public class FirewallApiExpectTest extends BaseGoogleComputeEngineApiExpectTest 
       FirewallApi api = requestsSendResponses(requestForScopes(COMPUTE_READONLY_SCOPE),
               TOKEN_RESPONSE, list, operationResponse).getFirewallApiForProject("myproject");
 
-      assertEquals(api.listFirstPage().toString(),
+      assertEquals(api.list().first().get().toString(),
               new ParseFirewallListTest().expected().toString());
    }
 

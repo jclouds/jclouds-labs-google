@@ -22,8 +22,8 @@ import javax.inject.Inject;
 
 import org.jclouds.collect.IterableWithMarker;
 import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
-import org.jclouds.googlecomputeengine.domain.ListPage;
 import org.jclouds.googlecomputeengine.domain.MachineType;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.options.ListOptions;
 import org.jclouds.http.functions.ParseJson;
 import org.jclouds.json.Json;
@@ -31,11 +31,19 @@ import org.jclouds.json.Json;
 import com.google.common.base.Function;
 import com.google.inject.TypeLiteral;
 
-public class ParseMachineTypes extends ParseJson<ListPage<MachineType>> {
+public class ParseMachineTypes extends BasePageParser<MachineType, ParseMachineTypes> {
 
    @Inject
-   public ParseMachineTypes(Json json) {
-      super(json, new TypeLiteral<ListPage<MachineType>>() {});
+   ParseMachineTypes(ToPage toPage, ToPagedIterable toPagedIterable) {
+      super(toPage, toPagedIterable);
+   }
+
+   public static class ToPage extends ParseJson<PageWithMarker<MachineType>> {
+      @Inject
+      ToPage(Json json, TypeLiteral<PageWithMarker<MachineType>> type) {
+         super(json, new TypeLiteral<PageWithMarker<MachineType>>() {
+         });
+      }
    }
 
    public static class ToPagedIterable extends BaseWithZoneToPagedIterable<MachineType, ToPagedIterable> {
@@ -43,20 +51,19 @@ public class ParseMachineTypes extends ParseJson<ListPage<MachineType>> {
       private final GoogleComputeEngineApi api;
 
       @Inject
-      protected ToPagedIterable(GoogleComputeEngineApi api) {
+      ToPagedIterable(GoogleComputeEngineApi api) {
          this.api = checkNotNull(api, "api");
       }
 
       @Override
       protected Function<Object, IterableWithMarker<MachineType>> fetchNextPage(final String project,
-                                                                                final String zone,
-                                                                                final ListOptions options) {
+            final String zone, final ListOptions options) {
          return new Function<Object, IterableWithMarker<MachineType>>() {
 
             @Override
             public IterableWithMarker<MachineType> apply(Object input) {
-               return api.getMachineTypeApiForProject(project)
-                       .listAtMarkerInZone(zone, input.toString(), options);
+               options.pageToken(input.toString());
+               return api.getMachineTypeApiForProject(project).listInZone(zone, options);
             }
          };
       }

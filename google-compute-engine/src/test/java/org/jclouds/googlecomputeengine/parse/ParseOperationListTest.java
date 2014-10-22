@@ -19,12 +19,12 @@ package org.jclouds.googlecomputeengine.parse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
-import org.jclouds.googlecomputeengine.domain.ListPage;
 import org.jclouds.googlecomputeengine.domain.Operation;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.domain.Resource;
 import org.jclouds.googlecomputeengine.internal.BaseGoogleComputeEngineParseTest;
 
-public class ParseOperationListTest extends BaseGoogleComputeEngineParseTest<ListPage<Operation>> {
+public class ParseOperationListTest extends BaseGoogleComputeEngineParseTest<PageWithMarker<Operation>> {
 
    @Override
    public String resource() {
@@ -33,8 +33,8 @@ public class ParseOperationListTest extends BaseGoogleComputeEngineParseTest<Lis
 
    @Override
    @Consumes(MediaType.APPLICATION_JSON)
-   public ListPage<Operation> expected() {
-      return ListPage.<Operation>builder()
+   public PageWithMarker<Operation> expected() {
+      return PageWithMarker.<Operation>builder()
               .kind(Resource.Kind.OPERATION_LIST)
               .addItem(new ParseOperationTest().expected())
               .build();

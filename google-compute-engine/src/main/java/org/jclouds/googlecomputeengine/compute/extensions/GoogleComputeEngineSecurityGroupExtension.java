@@ -119,8 +119,7 @@ public class GoogleComputeEngineSecurityGroupExtension implements SecurityGroupE
          return ImmutableSet.of();
       }
 
-      ImmutableSet.Builder builder = ImmutableSet.builder();
-
+      ImmutableSet.Builder<SecurityGroup> builder = ImmutableSet.builder();
 
       for (NetworkInterface nwInterface : instance.getNetworkInterfaces()) {
          String networkUrl = nwInterface.getNetwork().getPath();
@@ -171,7 +170,7 @@ public class GoogleComputeEngineSecurityGroupExtension implements SecurityGroupE
 
       ListOptions options = new ListOptions.Builder().filter("network eq .*/" + id);
 
-      FluentIterable<Firewall> fws = api.getFirewallApiForProject(userProject.get()).list(options).concat();
+      FluentIterable<Firewall> fws = api.getFirewallApiForProject(userProject.get()).list(options).toPagedIterable().concat();
 
       for (Firewall fw : fws) {
          AtomicReference<Operation> operation = Atomics.newReference(api.getFirewallApiForProject(userProject.get())
@@ -203,7 +202,8 @@ public class GoogleComputeEngineSecurityGroupExtension implements SecurityGroupE
 
       ListOptions options = new ListOptions.Builder().filter("network eq .*/" + group.getName());
 
-      if (api.getFirewallApiForProject(userProject.get()).list(options).concat().anyMatch(providesIpPermission(ipPermission))) {
+      FluentIterable<Firewall> fws = api.getFirewallApiForProject(userProject.get()).list(options).toPagedIterable().concat();
+      if (fws.anyMatch(providesIpPermission(ipPermission))) {
          // Permission already exists.
          return group;
       }
@@ -268,7 +268,7 @@ public class GoogleComputeEngineSecurityGroupExtension implements SecurityGroupE
 
       ListOptions options = new ListOptions.Builder().filter("network eq .*/" + group.getName());
 
-      FluentIterable<Firewall> fws = api.getFirewallApiForProject(userProject.get()).list(options).concat();
+      FluentIterable<Firewall> fws = api.getFirewallApiForProject(userProject.get()).list(options).toPagedIterable().concat();
 
       for (Firewall fw : fws) {
          if (equalsIpPermission(ipPermission).apply(fw)) {
@@ -328,7 +328,7 @@ public class GoogleComputeEngineSecurityGroupExtension implements SecurityGroupE
 
    private SecurityGroup groupForTagsInNetwork(Network nw, final Set <String> tags) {
       ListOptions opts = new Builder().filter("network eq .*/" + nw.getName());
-      Set<Firewall> fws = api.getFirewallApiForProject(userProject.get()).list(opts).concat()
+      Set<Firewall> fws = api.getFirewallApiForProject(userProject.get()).list(opts).toPagedIterable().concat()
               .filter(new Predicate<Firewall>() {
                  @Override
                  public boolean apply(final Firewall input) {

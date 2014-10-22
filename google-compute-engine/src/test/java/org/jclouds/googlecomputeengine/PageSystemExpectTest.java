@@ -72,8 +72,8 @@ public class PageSystemExpectTest extends BaseGoogleComputeEngineApiExpectTest {
               .builder()
               .method("GET")
               .endpoint("https://www.googleapis" +
-                      ".com/compute/v1/projects/myproject/global/images?pageToken" +
-                      "=CgVJTUFHRRIbZ29vZ2xlLmNlbnRvcy02LTItdjIwMTIwNjIx&maxResults=3")
+                      ".com/compute/v1/projects/myproject/global/images?maxResults=3&pageToken" +
+                      "=CgVJTUFHRRIbZ29vZ2xlLmNlbnRvcy02LTItdjIwMTIwNjIx")
               .addHeader("Accept", "application/json")
               .addHeader("Authorization", "Bearer " + TOKEN).build();
 
@@ -81,8 +81,8 @@ public class PageSystemExpectTest extends BaseGoogleComputeEngineApiExpectTest {
               .builder()
               .method("GET")
               .endpoint("https://www.googleapis" +
-                      ".com/compute/v1/projects/myproject/global/images?pageToken" +
-                      "=CgVJTUFHRRIbZ29vZ2xlLmdjZWwtMTAtMDQtdjIwMTIxMTA2&maxResults=3")
+                      ".com/compute/v1/projects/myproject/global/images?maxResults=3&pageToken" +
+                      "=CgVJTUFHRRIbZ29vZ2xlLmdjZWwtMTAtMDQtdjIwMTIxMTA2")
               .addHeader("Accept", "application/json")
               .addHeader("Authorization", "Bearer " + TOKEN).build();
 
@@ -100,13 +100,11 @@ public class PageSystemExpectTest extends BaseGoogleComputeEngineApiExpectTest {
               TOKEN_RESPONSE, list1, list1response, list2, list2Response, list3, list3Response)
               .getImageApiForProject("myproject");
 
-      PagedIterable<Image> images = imageApi.list(new ListOptions.Builder().maxResults(3));
+      PagedIterable<Image> images = imageApi.list(new ListOptions.Builder().maxResults(3)).toPagedIterable();
 
       int imageCounter = 0;
       for (IterableWithMarker<Image> page : images) {
-         for (Image image : page) {
-            imageCounter++;
-         }
+         imageCounter += page.size();
       }
       assertSame(imageCounter, 9);
    }

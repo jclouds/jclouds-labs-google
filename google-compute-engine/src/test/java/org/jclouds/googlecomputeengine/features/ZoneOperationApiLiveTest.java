@@ -68,7 +68,7 @@ public class ZoneOperationApiLiveTest extends BaseGoogleComputeEngineApiLiveTest
    public void testListOperationsWithFiltersAndPagination() {
       PagedIterable<Operation> operations = api().listInZone(DEFAULT_ZONE_NAME, new ListOptions.Builder()
 //              .filter("operationType eq insert")
-              .maxResults(1));
+              .maxResults(1)).toPagedIterable();
 
       // make sure that in spite of having only one result per page we get at least two results
       final AtomicInteger counter = new AtomicInteger();

@@ -22,7 +22,7 @@ import javax.inject.Inject;
 
 import org.jclouds.collect.IterableWithMarker;
 import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
-import org.jclouds.googlecomputeengine.domain.ListPage;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.domain.Zone;
 import org.jclouds.googlecomputeengine.options.ListOptions;
 import org.jclouds.http.functions.ParseJson;
@@ -31,12 +31,19 @@ import org.jclouds.json.Json;
 import com.google.common.base.Function;
 import com.google.inject.TypeLiteral;
 
-public class ParseZones extends ParseJson<ListPage<Zone>> {
+public class ParseZones extends BasePageParser<Zone, ParseZones> {
 
    @Inject
-   public ParseZones(Json json) {
-      super(json, new TypeLiteral<ListPage<Zone>>() {
-      });
+   ParseZones(ToPage toPage, ToPagedIterable toPagedIterable) {
+      super(toPage, toPagedIterable);
+   }
+
+   public static class ToPage extends ParseJson<PageWithMarker<Zone>> {
+      @Inject
+      ToPage(Json json, TypeLiteral<PageWithMarker<Zone>> type) {
+         super(json, new TypeLiteral<PageWithMarker<Zone>>() {
+         });
+      }
    }
 
    public static class ToPagedIterable extends BaseToPagedIterable<Zone, ToPagedIterable> {
@@ -44,18 +51,19 @@ public class ParseZones extends ParseJson<ListPage<Zone>> {
       private final GoogleComputeEngineApi api;
 
       @Inject
-      protected ToPagedIterable(GoogleComputeEngineApi api) {
+      ToPagedIterable(GoogleComputeEngineApi api) {
          this.api = checkNotNull(api, "api");
       }
 
       @Override
       protected Function<Object, IterableWithMarker<Zone>> fetchNextPage(final String projectName,
-                                                                         final ListOptions options) {
+            final ListOptions options) {
          return new Function<Object, IterableWithMarker<Zone>>() {
 
             @Override
             public IterableWithMarker<Zone> apply(Object input) {
-               return api.getZoneApiForProject(projectName).listAtMarker(input.toString(), options);
+               options.pageToken(input.toString());
+               return api.getZoneApiForProject(projectName).list(options);
             }
          };
       }

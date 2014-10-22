@@ -22,7 +22,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.date.internal.SimpleDateFormatDateService;
-import org.jclouds.googlecomputeengine.domain.ListPage;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.domain.Resource.Kind;
 import org.jclouds.googlecomputeengine.domain.Route;
 import org.jclouds.googlecomputeengine.internal.BaseGoogleComputeEngineParseTest;
@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 
 @Test(groups = "unit")
-public class ParseRouteListTest extends BaseGoogleComputeEngineParseTest<ListPage<Route>> {
+public class ParseRouteListTest extends BaseGoogleComputeEngineParseTest<PageWithMarker<Route>> {
 
    @Override
    public String resource() {
@@ -40,8 +40,8 @@ public class ParseRouteListTest extends BaseGoogleComputeEngineParseTest<ListPag
 
    @Override
    @Consumes(MediaType.APPLICATION_JSON)
-   public ListPage<Route> expected() {
-      return ListPage.<Route>builder()
+   public PageWithMarker<Route> expected() {
+      return PageWithMarker.<Route>builder()
               .kind(Kind.ROUTE_LIST)
               .items(ImmutableList.of(new ParseRouteTest().expected(),
                       Route.builder()

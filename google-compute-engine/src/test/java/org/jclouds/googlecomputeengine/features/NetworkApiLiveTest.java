@@ -60,7 +60,7 @@ public class NetworkApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
    public void testListNetwork() {
 
       PagedIterable<Network> networks = api().list(new ListOptions.Builder()
-              .filter("name eq " + NETWORK_NAME));
+              .filter("name eq " + NETWORK_NAME)).toPagedIterable();
 
       List<Network> networksAsList = Lists.newArrayList(networks.concat());
 

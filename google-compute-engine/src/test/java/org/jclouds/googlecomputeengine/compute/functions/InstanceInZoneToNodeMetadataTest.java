@@ -16,9 +16,8 @@
  */
 package org.jclouds.googlecomputeengine.compute.functions;
 
-import static org.easymock.EasyMock.createMock;
-import static org.testng.Assert.assertEquals;
 import static org.jclouds.compute.domain.Image.Status.AVAILABLE;
+import static org.testng.Assert.assertEquals;
 
 import java.net.URI;
 import java.util.Map;
@@ -39,7 +38,6 @@ import org.jclouds.date.internal.SimpleDateFormatDateService;
 import org.jclouds.domain.Location;
 import org.jclouds.domain.LocationBuilder;
 import org.jclouds.domain.LocationScope;
-import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
 import org.jclouds.googlecomputeengine.domain.Instance;
 import org.jclouds.googlecomputeengine.domain.InstanceInZone;
 import org.jclouds.googlecomputeengine.domain.Metadata;
@@ -232,13 +230,6 @@ public class InstanceInZoneToNodeMetadataTest {
          }
       };
 
-      Supplier<String> userProjectSupplier = new Supplier<String>() {
-         @Override
-         public String get() {
-            return "userProject";
-         }
-      };
-
       GroupNamingConvention.Factory namingConventionFactory =
          new GroupNamingConvention.Factory() {
             @Override
@@ -259,9 +250,7 @@ public class InstanceInZoneToNodeMetadataTest {
             imageSupplier,
             hardwareSupplier,
             locationSupplier,
-            new FirewallTagNamingConvention.Factory(namingConventionFactory),
-            createMock(GoogleComputeEngineApi.class),
-            userProjectSupplier);
+            new FirewallTagNamingConvention.Factory(namingConventionFactory));
    }
 
    @Test

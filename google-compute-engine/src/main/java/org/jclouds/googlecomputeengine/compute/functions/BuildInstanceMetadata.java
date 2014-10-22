@@ -33,7 +33,7 @@ import com.google.common.collect.ImmutableMap;
 public class BuildInstanceMetadata implements Function<TemplateOptions, ImmutableMap.Builder<String, String>> {
 
    @Override
-   public ImmutableMap.Builder apply(TemplateOptions input) {
+   public ImmutableMap.Builder<String, String> apply(TemplateOptions input) {
       ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
       if (input.getPublicKey() != null) {
          builder.put("sshKeys", format("%s:%s %s@localhost", checkNotNull(input.getLoginUser(),

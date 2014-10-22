@@ -60,7 +60,7 @@ public class DiskApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
    public void testListDisk() {
 
       PagedIterable<Disk> disks = api().listInZone(DEFAULT_ZONE_NAME, new ListOptions.Builder()
-              .filter("name eq " + DISK_NAME));
+              .filter("name eq " + DISK_NAME)).toPagedIterable();
 
       List<Disk> disksAsList = Lists.newArrayList(disks.concat());
 

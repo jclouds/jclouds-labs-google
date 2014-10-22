@@ -24,7 +24,7 @@ import javax.inject.Singleton;
 import org.jclouds.collect.IterableWithMarker;
 import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
 import org.jclouds.googlecomputeengine.domain.Disk;
-import org.jclouds.googlecomputeengine.domain.ListPage;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.options.ListOptions;
 import org.jclouds.http.functions.ParseJson;
 import org.jclouds.json.Json;
@@ -33,12 +33,19 @@ import com.google.common.base.Function;
 import com.google.inject.TypeLiteral;
 
 @Singleton
-public class ParseDisks extends ParseJson<ListPage<Disk>> {
+public class ParseDisks extends BasePageParser<Disk, ParseDisks> {
 
    @Inject
-   public ParseDisks(Json json) {
-      super(json, new TypeLiteral<ListPage<Disk>>() {
-      });
+   ParseDisks(ToPage toPage, ToPagedIterable toPagedIterable) {
+      super(toPage, toPagedIterable);
+   }
+   
+   public static class ToPage extends ParseJson<PageWithMarker<Disk>> {
+      @Inject
+      ToPage(Json json, TypeLiteral<PageWithMarker<Disk>> type) {
+         super(json, new TypeLiteral<PageWithMarker<Disk>>() {
+         });
+      }
    }
 
    public static class ToPagedIterable extends BaseWithZoneToPagedIterable<Disk, ToPagedIterable> {
@@ -46,20 +53,19 @@ public class ParseDisks extends ParseJson<ListPage<Disk>> {
       private final GoogleComputeEngineApi api;
 
       @Inject
-      protected ToPagedIterable(GoogleComputeEngineApi api) {
+      ToPagedIterable(GoogleComputeEngineApi api) {
          this.api = checkNotNull(api, "api");
       }
 
       @Override
       protected Function<Object, IterableWithMarker<Disk>> fetchNextPage(final String projectName,
-                                                                         final String zoneName,
-                                                                         final ListOptions options) {
+            final String zoneName, final ListOptions options) {
          return new Function<Object, IterableWithMarker<Disk>>() {
 
             @Override
             public IterableWithMarker<Disk> apply(Object input) {
-               return api.getDiskApiForProject(projectName)
-                       .listAtMarkerInZone(zoneName, input.toString(), options);
+               options.pageToken(input.toString());
+               return api.getDiskApiForProject(projectName).listInZone(zoneName, options);
             }
          };
       }

@@ -46,7 +46,7 @@ public class MachineTypeApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
    public void testListMachineType() {
 
       PagedIterable<MachineType> machineTypes = api().listInZone(DEFAULT_ZONE_NAME, new ListOptions.Builder()
-              .maxResults(1));
+              .maxResults(1)).toPagedIterable();
 
       Iterator<IterableWithMarker<MachineType>> pageIterator = machineTypes.iterator();
       assertTrue(pageIterator.hasNext());

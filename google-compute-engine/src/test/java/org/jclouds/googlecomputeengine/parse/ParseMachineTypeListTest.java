@@ -24,11 +24,11 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.date.internal.SimpleDateFormatDateService;
-import org.jclouds.googlecomputeengine.domain.ListPage;
 import org.jclouds.googlecomputeengine.domain.MachineType;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.internal.BaseGoogleComputeEngineParseTest;
 
-public class ParseMachineTypeListTest extends BaseGoogleComputeEngineParseTest<ListPage<MachineType>> {
+public class ParseMachineTypeListTest extends BaseGoogleComputeEngineParseTest<PageWithMarker<MachineType>> {
 
    @Override
    public String resource() {
@@ -37,9 +37,9 @@ public class ParseMachineTypeListTest extends BaseGoogleComputeEngineParseTest<L
 
    @Override
    @Consumes(MediaType.APPLICATION_JSON)
-   public ListPage<MachineType> expected() {
+   public PageWithMarker<MachineType> expected() {
       SimpleDateFormatDateService dateService = new SimpleDateFormatDateService();
-      return ListPage.<MachineType>builder()
+      return PageWithMarker.<MachineType>builder()
               .kind(MACHINE_TYPE_LIST)
               .addItem(MachineType.builder()
                       .id("4618642685664990776")

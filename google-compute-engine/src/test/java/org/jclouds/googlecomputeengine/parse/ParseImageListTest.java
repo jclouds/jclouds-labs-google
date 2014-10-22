@@ -24,13 +24,13 @@ import javax.ws.rs.core.MediaType;
 import org.jclouds.date.internal.SimpleDateFormatDateService;
 import org.jclouds.googlecomputeengine.domain.Deprecated;
 import org.jclouds.googlecomputeengine.domain.Image;
-import org.jclouds.googlecomputeengine.domain.ListPage;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.domain.Resource;
 import org.jclouds.googlecomputeengine.internal.BaseGoogleComputeEngineParseTest;
 import org.testng.annotations.Test;
 
 @Test(groups = "unit")
-public class ParseImageListTest extends BaseGoogleComputeEngineParseTest<ListPage<Image>> {
+public class ParseImageListTest extends BaseGoogleComputeEngineParseTest<PageWithMarker<Image>> {
 
    @Override
    public String resource() {
@@ -39,8 +39,8 @@ public class ParseImageListTest extends BaseGoogleComputeEngineParseTest<ListPag
 
    @Override
    @Consumes(MediaType.APPLICATION_JSON)
-   public ListPage<Image> expected() {
-      return ListPage.<Image>builder()
+   public PageWithMarker<Image> expected() {
+      return PageWithMarker.<Image>builder()
               .kind(Resource.Kind.IMAGE_LIST)
               .addItem(Image.builder()
                       .id("12941197498378735318")

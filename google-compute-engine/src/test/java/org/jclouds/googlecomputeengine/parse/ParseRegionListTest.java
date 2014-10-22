@@ -22,14 +22,14 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.date.internal.SimpleDateFormatDateService;
-import org.jclouds.googlecomputeengine.domain.ListPage;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.domain.Region;
 import org.jclouds.googlecomputeengine.domain.Resource;
 import org.jclouds.googlecomputeengine.internal.BaseGoogleComputeEngineParseTest;
 import org.testng.annotations.Test;
 
 @Test(groups = "unit")
-public class ParseRegionListTest extends BaseGoogleComputeEngineParseTest<ListPage<Region>> {
+public class ParseRegionListTest extends BaseGoogleComputeEngineParseTest<PageWithMarker<Region>> {
 
    @Override
    public String resource() {
@@ -38,8 +38,8 @@ public class ParseRegionListTest extends BaseGoogleComputeEngineParseTest<ListPa
 
    @Override
    @Consumes(MediaType.APPLICATION_JSON)
-   public ListPage<Region> expected() {
-      return ListPage.<Region>builder()
+   public PageWithMarker<Region> expected() {
+      return PageWithMarker.<Region>builder()
                      .kind(Resource.Kind.REGION_LIST)
                      .addItem(new ParseRegionTest().expected())
                      .addItem(Region.builder()

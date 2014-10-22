@@ -16,120 +16,59 @@
  */
 package org.jclouds.googlecomputeengine.domain;
 
-import static com.google.common.base.MoreObjects.toStringHelper;
-import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.jclouds.googlecomputeengine.domain.Resource.Kind;
 
-import java.beans.ConstructorProperties;
 import java.util.Iterator;
 
 import org.jclouds.collect.IterableWithMarker;
+import org.jclouds.collect.IterableWithMarkers;
+import org.jclouds.collect.PagedIterable;
+import org.jclouds.collect.PagedIterables;
+import org.jclouds.googlecomputeengine.domain.Resource.Kind;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 /**
- * The collection returned from any <code>listFirstPage()</code> method.
+ * A single page returned from a paginated collection that knows how to advance
+ * to the next page.
  */
 public class ListPage<T> extends IterableWithMarker<T> {
 
-   private final Kind kind;
-   private final String nextPageToken;
-   private final Iterable<T> items;
+   private final PageWithMarker<T> delegate;
+   private final Function<PageWithMarker<T>, PagedIterable<T>> advancingFunction;
 
-   @ConstructorProperties({ "kind", "nextPageToken", "items" })
-   protected ListPage(Kind kind, String nextPageToken, Iterable<T> items) {
-      this.kind = checkNotNull(kind, "kind");
-      this.nextPageToken = nextPageToken;
-      this.items = items != null ? ImmutableList.copyOf(items) : ImmutableList.<T>of();
+   public ListPage(PageWithMarker<T> delegate, Function<PageWithMarker<T>, PagedIterable<T>> advancingFunction) {
+      this.delegate = checkNotNull(delegate, "delegate");
+      this.advancingFunction = checkNotNull(advancingFunction, "advancingFunction");
    }
 
-   public Kind getKind() {
-      return kind;
-   }
-
-   @Override
-   public Optional<Object> nextMarker() {
-      return Optional.<Object>fromNullable(nextPageToken);
+   public PagedIterable<T> toPagedIterable() {
+      return advancingFunction.apply(delegate);
    }
 
    @Override
    public Iterator<T> iterator() {
-      return checkNotNull(items, "items").iterator();
+      return delegate.iterator();
    }
 
    @Override
-   public int hashCode() {
-      return Objects.hashCode(kind, items);
+   public Optional<Object> nextMarker() {
+      return delegate.nextMarker();
    }
 
-   @Override
-   public boolean equals(Object obj) {
-      if (this == obj)
-         return true;
-      if (obj == null || getClass() != obj.getClass())
-         return false;
-      ListPage<?> that = ListPage.class.cast(obj);
-      return equal(this.kind, that.kind) && equal(this.items, that.items);
-   }
+   public static class Empty<T> extends ListPage<T> {
 
-   protected MoreObjects.ToStringHelper string() {
-      return toStringHelper(this).omitNullValues().add("kind", kind).add("nextPageToken", nextPageToken)
-            .add("items", items);
-   }
-
-   @Override
-   public String toString() {
-      return string().toString();
-   }
-
-   public static <T> Builder<T> builder() {
-      return new Builder<T>();
-   }
-
-   public Builder<T> toBuilder() {
-      return new Builder<T>().fromPagedList(this);
-   }
-
-   public static final class Builder<T> {
-
-      private Kind kind;
-      private String nextPageToken;
-      private ImmutableList.Builder<T> items = ImmutableList.builder();
-
-      public Builder<T> kind(Kind kind) {
-         this.kind = kind;
-         return this;
+      public Empty(Kind kind) {
+         super(PageWithMarker.<T>builder().kind(kind).build(), new Function<PageWithMarker<T>, PagedIterable<T>>() {
+            @Override
+            public PagedIterable<T> apply(PageWithMarker<T> input) {
+               return PagedIterables.onlyPage(IterableWithMarkers.from(ImmutableSet.<T>of()));
+            }
+         });
       }
 
-      public Builder<T> addItem(T item) {
-         this.items.add(item);
-         return this;
-      }
-
-      public Builder<T> items(Iterable<T> items) {
-         this.items.addAll(items);
-         return this;
-      }
-
-      public Builder<T> nextPageToken(String nextPageToken) {
-         this.nextPageToken = nextPageToken;
-         return this;
-      }
-
-      public ListPage<T> build() {
-         return new ListPage<T>(kind, nextPageToken, items.build());
-      }
-
-      public Builder<T> fromPagedList(ListPage<T> in) {
-         return this
-                 .kind(in.getKind())
-                 .nextPageToken((String) in.nextMarker().orNull())
-                 .items(in);
-
-      }
    }
+   
 }

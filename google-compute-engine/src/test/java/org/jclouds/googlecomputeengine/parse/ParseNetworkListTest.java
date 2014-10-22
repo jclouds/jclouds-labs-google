@@ -19,12 +19,12 @@ package org.jclouds.googlecomputeengine.parse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
-import org.jclouds.googlecomputeengine.domain.ListPage;
 import org.jclouds.googlecomputeengine.domain.Network;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.domain.Resource;
 import org.jclouds.googlecomputeengine.internal.BaseGoogleComputeEngineParseTest;
 
-public class ParseNetworkListTest extends BaseGoogleComputeEngineParseTest<ListPage<Network>> {
+public class ParseNetworkListTest extends BaseGoogleComputeEngineParseTest<PageWithMarker<Network>> {
 
    @Override
    public String resource() {
@@ -33,8 +33,8 @@ public class ParseNetworkListTest extends BaseGoogleComputeEngineParseTest<ListP
 
    @Override
    @Consumes(MediaType.APPLICATION_JSON)
-   public ListPage<Network> expected() {
-      return ListPage.<Network>builder()
+   public PageWithMarker<Network> expected() {
+      return PageWithMarker.<Network>builder()
               .kind(Resource.Kind.NETWORK_LIST)
               .addItem(new ParseNetworkTest().expected())
               .build();

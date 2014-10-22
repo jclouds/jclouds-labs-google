@@ -22,7 +22,7 @@ import javax.inject.Inject;
 
 import org.jclouds.collect.IterableWithMarker;
 import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
-import org.jclouds.googlecomputeengine.domain.ListPage;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.domain.Route;
 import org.jclouds.googlecomputeengine.options.ListOptions;
 import org.jclouds.http.functions.ParseJson;
@@ -31,12 +31,19 @@ import org.jclouds.json.Json;
 import com.google.common.base.Function;
 import com.google.inject.TypeLiteral;
 
-public class ParseRoutes extends ParseJson<ListPage<Route>> {
+public class ParseRoutes extends BasePageParser<Route, ParseRoutes> {
 
    @Inject
-   public ParseRoutes(Json json) {
-      super(json, new TypeLiteral<ListPage<Route>>() {
-      });
+   ParseRoutes(ToPage toPage, ToPagedIterable toPagedIterable) {
+      super(toPage, toPagedIterable);
+   }
+
+   public static class ToPage extends ParseJson<PageWithMarker<Route>> {
+      @Inject
+      ToPage(Json json, TypeLiteral<PageWithMarker<Route>> type) {
+         super(json, new TypeLiteral<PageWithMarker<Route>>() {
+         });
+      }
    }
 
    public static class ToPagedIterable extends BaseToPagedIterable<Route, ToPagedIterable> {
@@ -44,18 +51,19 @@ public class ParseRoutes extends ParseJson<ListPage<Route>> {
       private final GoogleComputeEngineApi api;
 
       @Inject
-      protected ToPagedIterable(GoogleComputeEngineApi api) {
+      ToPagedIterable(GoogleComputeEngineApi api) {
          this.api = checkNotNull(api, "api");
       }
 
       @Override
       protected Function<Object, IterableWithMarker<Route>> fetchNextPage(final String projectName,
-                                                                          final ListOptions options) {
+            final ListOptions options) {
          return new Function<Object, IterableWithMarker<Route>>() {
 
             @Override
             public IterableWithMarker<Route> apply(Object input) {
-               return api.getRouteApiForProject(projectName).listAtMarker(input.toString(), options);
+               options.pageToken(input.toString());
+               return api.getRouteApiForProject(projectName).list(options);
             }
          };
       }

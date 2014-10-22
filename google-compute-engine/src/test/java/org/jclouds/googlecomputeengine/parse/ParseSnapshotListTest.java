@@ -22,14 +22,14 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.date.internal.SimpleDateFormatDateService;
-import org.jclouds.googlecomputeengine.domain.ListPage;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.domain.Resource.Kind;
 import org.jclouds.googlecomputeengine.domain.Snapshot;
 import org.jclouds.googlecomputeengine.internal.BaseGoogleComputeEngineParseTest;
 import org.testng.annotations.Test;
 
 @Test(groups = "unit")
-public class ParseSnapshotListTest extends BaseGoogleComputeEngineParseTest<ListPage<Snapshot>> {
+public class ParseSnapshotListTest extends BaseGoogleComputeEngineParseTest<PageWithMarker<Snapshot>> {
 
    @Override
    public String resource() {
@@ -38,8 +38,8 @@ public class ParseSnapshotListTest extends BaseGoogleComputeEngineParseTest<List
 
    @Override
    @Consumes(MediaType.APPLICATION_JSON)
-   public ListPage<Snapshot> expected() {
-      return ListPage.<Snapshot>builder()
+   public PageWithMarker<Snapshot> expected() {
+      return PageWithMarker.<Snapshot>builder()
               .kind(Kind.SNAPSHOT_LIST)
               .addItem(new ParseSnapshotTest().expected())
               .addItem(Snapshot.builder()

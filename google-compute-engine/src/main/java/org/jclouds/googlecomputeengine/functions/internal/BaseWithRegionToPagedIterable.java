@@ -22,7 +22,7 @@ import static com.google.common.collect.Iterables.tryFind;
 import org.jclouds.collect.IterableWithMarker;
 import org.jclouds.collect.PagedIterable;
 import org.jclouds.collect.PagedIterables;
-import org.jclouds.googlecomputeengine.domain.ListPage;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.options.ListOptions;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.rest.InvocationContext;
@@ -34,14 +34,14 @@ import com.google.common.base.Optional;
 
 @Beta
 public abstract class BaseWithRegionToPagedIterable<T, I extends BaseWithRegionToPagedIterable<T, I>> implements
-        Function<ListPage<T>, PagedIterable<T>>, InvocationContext<I> {
+        Function<PageWithMarker<T>, PagedIterable<T>>, InvocationContext<I> {
 
    private GeneratedHttpRequest request;
 
    @Override
-   public PagedIterable<T> apply(ListPage<T> input) {
+   public PagedIterable<T> apply(PageWithMarker<T> input) {
       if (input.nextMarker() == null)
-         return PagedIterables.of(input);
+         return PagedIterables.onlyPage(input);
 
       Optional <Object> project = tryFind(request.getCaller().get().getArgs(), instanceOf(String.class));
 

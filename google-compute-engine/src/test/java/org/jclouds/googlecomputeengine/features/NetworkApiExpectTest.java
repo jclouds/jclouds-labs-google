@@ -141,7 +141,7 @@ public class NetworkApiExpectTest extends BaseGoogleComputeEngineApiExpectTest {
       NetworkApi api = requestsSendResponses(requestForScopes(COMPUTE_READONLY_SCOPE),
               TOKEN_RESPONSE, list, operationResponse).getNetworkApiForProject("myproject");
 
-      assertEquals(api.listFirstPage().toString(),
+      assertEquals(api.list().first().get().toString(),
               new ParseNetworkListTest().expected().toString());
    }
 

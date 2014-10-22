@@ -223,7 +223,7 @@ public class InstanceApiExpectTest extends BaseGoogleComputeEngineApiExpectTest 
               requestForScopes(COMPUTE_READONLY_SCOPE), TOKEN_RESPONSE,
               LIST_INSTANCES_REQUEST, LIST_INSTANCES_RESPONSE).getInstanceApiForProject("myproject");
 
-      assertEquals(api.listFirstPageInZone("us-central1-a").toString(),
+      assertEquals(api.listInZone("us-central1-a").first().get().toString(),
               new ParseInstanceListTest().expected().toString());
    }
 

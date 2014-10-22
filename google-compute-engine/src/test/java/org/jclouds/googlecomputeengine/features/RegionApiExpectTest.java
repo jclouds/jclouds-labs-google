@@ -78,7 +78,7 @@ public class RegionApiExpectTest extends BaseGoogleComputeEngineApiExpectTest {
       RegionApi api = requestsSendResponses(requestForScopes(COMPUTE_READONLY_SCOPE),
               TOKEN_RESPONSE, LIST_REGIONS_REQ, LIST_REGIONS_RESPONSE).getRegionApiForProject("myproject");
 
-      assertEquals(api.listFirstPage().toString(),
+      assertEquals(api.list().first().get().toString(),
               new ParseRegionListTest().expected().toString());
    }
 

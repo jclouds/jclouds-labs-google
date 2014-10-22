@@ -23,14 +23,14 @@ import javax.ws.rs.core.MediaType;
 
 import org.jclouds.date.internal.SimpleDateFormatDateService;
 import org.jclouds.googlecomputeengine.domain.Firewall;
-import org.jclouds.googlecomputeengine.domain.ListPage;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.domain.Resource;
 import org.jclouds.googlecomputeengine.internal.BaseGoogleComputeEngineParseTest;
 import org.jclouds.net.domain.IpProtocol;
 import org.testng.annotations.Test;
 
 @Test(groups = "unit")
-public class ParseFirewallListTest extends BaseGoogleComputeEngineParseTest<ListPage<Firewall>> {
+public class ParseFirewallListTest extends BaseGoogleComputeEngineParseTest<PageWithMarker<Firewall>> {
 
    @Override
    public String resource() {
@@ -39,8 +39,8 @@ public class ParseFirewallListTest extends BaseGoogleComputeEngineParseTest<List
 
    @Override
    @Consumes(MediaType.APPLICATION_JSON)
-   public ListPage<Firewall> expected() {
-      return ListPage.<Firewall>builder()
+   public PageWithMarker<Firewall> expected() {
+      return PageWithMarker.<Firewall>builder()
               .kind(Resource.Kind.FIREWALL_LIST)
               .addItem(new ParseFirewallTest().expected())
               .addItem(Firewall.builder()

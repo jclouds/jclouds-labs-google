@@ -144,7 +144,7 @@ public class ImageApiExpectTest extends BaseGoogleComputeEngineApiExpectTest {
               TOKEN_RESPONSE, LIST_PROJECT_IMAGES_REQUEST, LIST_PROJECT_IMAGES_RESPONSE).getImageApiForProject
               ("myproject");
 
-      assertEquals(imageApi.listFirstPage().toString(),
+      assertEquals(imageApi.list().first().get().toString(),
               new ParseImageListTest().expected().toString());
    }
 
