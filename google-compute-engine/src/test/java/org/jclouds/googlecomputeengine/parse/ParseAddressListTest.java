@@ -23,13 +23,13 @@ import javax.ws.rs.core.MediaType;
 
 import org.jclouds.date.internal.SimpleDateFormatDateService;
 import org.jclouds.googlecomputeengine.domain.Address;
-import org.jclouds.googlecomputeengine.domain.ListPage;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.domain.Resource.Kind;
 import org.jclouds.googlecomputeengine.internal.BaseGoogleComputeEngineParseTest;
 import org.testng.annotations.Test;
 
 @Test(groups = "unit")
-public class ParseAddressListTest extends BaseGoogleComputeEngineParseTest<ListPage<Address>> {
+public class ParseAddressListTest extends BaseGoogleComputeEngineParseTest<PageWithMarker<Address>> {
 
    @Override
    public String resource() {
@@ -38,8 +38,8 @@ public class ParseAddressListTest extends BaseGoogleComputeEngineParseTest<ListP
 
    @Override
    @Consumes(MediaType.APPLICATION_JSON)
-   public ListPage<Address> expected() {
-      return ListPage.<Address>builder()
+   public PageWithMarker<Address> expected() {
+      return PageWithMarker.<Address>builder()
               .kind(Kind.ADDRESS_LIST)
               .addItem(new ParseAddressTest().expected())
               .addItem(Address.builder()

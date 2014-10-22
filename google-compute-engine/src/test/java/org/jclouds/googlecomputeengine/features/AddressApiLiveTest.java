@@ -55,7 +55,7 @@ public class AddressApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
    public void testListAddress() {
 
       PagedIterable<Address> addresss = api().listInRegion(DEFAULT_REGION_NAME, new ListOptions.Builder()
-              .filter("name eq " + ADDRESS_NAME));
+              .filter("name eq " + ADDRESS_NAME)).toPagedIterable();
 
       List<Address> addresssAsList = Lists.newArrayList(addresss.concat());
 

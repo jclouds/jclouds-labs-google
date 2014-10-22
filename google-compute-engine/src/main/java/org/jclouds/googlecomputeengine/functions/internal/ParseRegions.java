@@ -22,7 +22,7 @@ import javax.inject.Inject;
 
 import org.jclouds.collect.IterableWithMarker;
 import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
-import org.jclouds.googlecomputeengine.domain.ListPage;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.domain.Region;
 import org.jclouds.googlecomputeengine.options.ListOptions;
 import org.jclouds.http.functions.ParseJson;
@@ -31,12 +31,19 @@ import org.jclouds.json.Json;
 import com.google.common.base.Function;
 import com.google.inject.TypeLiteral;
 
-public class ParseRegions extends ParseJson<ListPage<Region>> {
+public class ParseRegions extends BasePageParser<Region, ParseRegions> {
 
    @Inject
-   public ParseRegions(Json json) {
-      super(json, new TypeLiteral<ListPage<Region>>() {
-      });
+   ParseRegions(ToPage toPage, ToPagedIterable toPagedIterable) {
+      super(toPage, toPagedIterable);
+   }
+
+   public static class ToPage extends ParseJson<PageWithMarker<Region>> {
+      @Inject
+      ToPage(Json json, TypeLiteral<PageWithMarker<Region>> type) {
+         super(json, new TypeLiteral<PageWithMarker<Region>>() {
+         });
+      }
    }
 
    public static class ToPagedIterable extends BaseToPagedIterable<Region, ToPagedIterable> {
@@ -44,18 +51,19 @@ public class ParseRegions extends ParseJson<ListPage<Region>> {
       private final GoogleComputeEngineApi api;
 
       @Inject
-      protected ToPagedIterable(GoogleComputeEngineApi api) {
+      ToPagedIterable(GoogleComputeEngineApi api) {
          this.api = checkNotNull(api, "api");
       }
 
       @Override
       protected Function<Object, IterableWithMarker<Region>> fetchNextPage(final String projectName,
-                                                                           final ListOptions options) {
+            final ListOptions options) {
          return new Function<Object, IterableWithMarker<Region>>() {
 
             @Override
             public IterableWithMarker<Region> apply(Object input) {
-               return api.getRegionApiForProject(projectName).listAtMarker(input.toString(), options);
+               options.pageToken(input.toString());
+               return api.getRegionApiForProject(projectName).list(options);
             }
          };
       }

@@ -71,7 +71,7 @@ public class RouteApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
    public void testListRoute() {
 
       PagedIterable<Route> routes = api().list(new ListOptions()
-              .filter("name eq " + ROUTE_NAME));
+              .filter("name eq " + ROUTE_NAME)).toPagedIterable();
 
       List<Route> routesAsList = Lists.newArrayList(routes.concat());
 

@@ -39,7 +39,6 @@ import com.google.common.collect.Sets;
 public class GoogleComputeEngineTemplateOptions extends TemplateOptions {
 
    private Optional<URI> network = Optional.absent();
-   private Optional<String> networkName = Optional.absent();
    private Set<Instance.ServiceAccount> serviceAccounts = Sets.newLinkedHashSet();
    private boolean enableNat = true;
    private Set<PersistentDisk> disks = Sets.newLinkedHashSet();

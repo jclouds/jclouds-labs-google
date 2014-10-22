@@ -23,7 +23,7 @@ import javax.inject.Inject;
 import org.jclouds.collect.IterableWithMarker;
 import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
 import org.jclouds.googlecomputeengine.domain.Image;
-import org.jclouds.googlecomputeengine.domain.ListPage;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.options.ListOptions;
 import org.jclouds.http.functions.ParseJson;
 import org.jclouds.json.Json;
@@ -31,12 +31,19 @@ import org.jclouds.json.Json;
 import com.google.common.base.Function;
 import com.google.inject.TypeLiteral;
 
-public class ParseImages extends ParseJson<ListPage<Image>> {
+public class ParseImages extends BasePageParser<Image, ParseImages> {
 
    @Inject
-   public ParseImages(Json json) {
-      super(json, new TypeLiteral<ListPage<Image>>() {
-      });
+   ParseImages(ToPage toPage, ToPagedIterable toPagedIterable) {
+      super(toPage, toPagedIterable);
+   }
+
+   public static class ToPage extends ParseJson<PageWithMarker<Image>> {
+      @Inject
+      ToPage(Json json, TypeLiteral<PageWithMarker<Image>> type) {
+         super(json, new TypeLiteral<PageWithMarker<Image>>() {
+         });
+      }
    }
 
    public static class ToPagedIterable extends BaseToPagedIterable<Image, ToPagedIterable> {
@@ -44,18 +51,19 @@ public class ParseImages extends ParseJson<ListPage<Image>> {
       private final GoogleComputeEngineApi api;
 
       @Inject
-      protected ToPagedIterable(GoogleComputeEngineApi api) {
+      ToPagedIterable(GoogleComputeEngineApi api) {
          this.api = checkNotNull(api, "api");
       }
 
       @Override
       protected Function<Object, IterableWithMarker<Image>> fetchNextPage(final String projectName,
-                                                                          final ListOptions options) {
+            final ListOptions options) {
          return new Function<Object, IterableWithMarker<Image>>() {
 
             @Override
             public IterableWithMarker<Image> apply(Object input) {
-               return api.getImageApiForProject(projectName).listAtMarker(input.toString(), options);
+               options.pageToken(input.toString());
+               return api.getImageApiForProject(projectName).list(options);
             }
          };
       }

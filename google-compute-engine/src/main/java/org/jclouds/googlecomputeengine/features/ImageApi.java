@@ -27,13 +27,12 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import org.jclouds.Fallbacks.EmptyIterableWithMarkerOnNotFoundOr404;
 import org.jclouds.Fallbacks.EmptyPagedIterableOnNotFoundOr404;
 import org.jclouds.Fallbacks.NullOnNotFoundOr404;
 import org.jclouds.collect.PagedIterable;
+import org.jclouds.googlecomputeengine.GoogleComputeEngineFallbacks.EmptyListPageOnNotFoundOr404;
 import org.jclouds.googlecomputeengine.domain.Image;
 import org.jclouds.googlecomputeengine.domain.ListPage;
 import org.jclouds.googlecomputeengine.domain.Operation;
@@ -92,82 +91,29 @@ public interface ImageApi {
    Operation delete(@PathParam("image") String imageName);
 
    /**
-    * @see ImageApi#listAtMarker(String, org.jclouds.googlecomputeengine.options.ListOptions)
-    */
-   @Named("Images:list")
-   @GET
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/global/images")
-   @OAuthScopes(COMPUTE_READONLY_SCOPE)
-   @ResponseParser(ParseImages.class)
-   @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
-   ListPage<Image> listFirstPage();
-
-   /**
-    * @see ImageApi#listAtMarker(String, org.jclouds.googlecomputeengine.options.ListOptions)
-    */
-   @Named("Images:list")
-   @GET
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/global/images")
-   @OAuthScopes(COMPUTE_READONLY_SCOPE)
-   @ResponseParser(ParseImages.class)
-   @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
-   ListPage<Image> listAtMarker(@QueryParam("pageToken") @Nullable String marker);
-
-   /**
-    * Retrieves the list of image resources available to the specified project.
-    * By default the list as a maximum size of 100, if no options are provided or ListOptions#getMaxResults() has not
-    * been set.
-    *
-    * @param marker      marks the beginning of the next list page
-    * @param listOptions listing options
-    * @return a page of the list
-    * @see ListOptions
-    * @see org.jclouds.googlecomputeengine.domain.ListPage
-    */
-   @Named("Images:list")
-   @GET
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/global/images")
-   @OAuthScopes(COMPUTE_READONLY_SCOPE)
-   @ResponseParser(ParseImages.class)
-   @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
-   ListPage<Image> listAtMarker(@QueryParam("pageToken") @Nullable String marker, ListOptions listOptions);
-
-   /**
-    * A paged version of ImageApi#list()
+    * List all images
     *
     * @return a Paged, Fluent Iterable that is able to fetch additional pages when required
     * @see PagedIterable
-    * @see ImageApi#listAtMarker(String, org.jclouds.googlecomputeengine.options.ListOptions)
     */
    @Named("Images:list")
    @GET
    @Consumes(MediaType.APPLICATION_JSON)
    @Path("/global/images")
    @OAuthScopes(COMPUTE_READONLY_SCOPE)
-   @ResponseParser(ParseImages.class)
+   @ResponseParser(ParseImages.ToPage.class)
    @Transform(ParseImages.ToPagedIterable.class)
    @Fallback(EmptyPagedIterableOnNotFoundOr404.class)
    PagedIterable<Image> list();
 
-   /**
-    * A paged version of ImageApi#list()
-    *
-    * @return a Paged, Fluent Iterable that is able to fetch additional pages when required
-    * @see PagedIterable
-    * @see ImageApi#listAtMarker(String, org.jclouds.googlecomputeengine.options.ListOptions)
-    */
    @Named("Images:list")
    @GET
    @Consumes(MediaType.APPLICATION_JSON)
    @Path("/global/images")
    @OAuthScopes(COMPUTE_READONLY_SCOPE)
    @ResponseParser(ParseImages.class)
-   @Transform(ParseImages.ToPagedIterable.class)
-   @Fallback(EmptyPagedIterableOnNotFoundOr404.class)
-   PagedIterable<Image> list(ListOptions options);
+   @Fallback(EmptyListPageOnNotFoundOr404.class)
+   ListPage<Image> list(ListOptions options);
 
    /**
     * Creates an image resource in the specified project from the provided persistent disk.

@@ -24,11 +24,11 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.date.internal.SimpleDateFormatDateService;
-import org.jclouds.googlecomputeengine.domain.ListPage;
 import org.jclouds.googlecomputeengine.domain.DiskType;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.internal.BaseGoogleComputeEngineParseTest;
 
-public class ParseDiskTypeListTest extends BaseGoogleComputeEngineParseTest<ListPage<DiskType>> {
+public class ParseDiskTypeListTest extends BaseGoogleComputeEngineParseTest<PageWithMarker<DiskType>> {
 
    @Override
    public String resource() {
@@ -37,9 +37,9 @@ public class ParseDiskTypeListTest extends BaseGoogleComputeEngineParseTest<List
 
    @Override
    @Consumes(MediaType.APPLICATION_JSON)
-   public ListPage<DiskType> expected() {
+   public PageWithMarker<DiskType> expected() {
       SimpleDateFormatDateService dateService = new SimpleDateFormatDateService();
-      return ListPage.<DiskType>builder()
+      return PageWithMarker.<DiskType>builder()
               .kind(DISK_TYPE_LIST)
               .addItem(DiskType.builder()
                       .creationTimestamp(dateService.iso8601DateParse("2014-06-02T11:07:28.530-07:00"))

@@ -47,7 +47,7 @@ public class DiskTypeApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
    public void testDiskType() {
 
       PagedIterable<DiskType> diskTypes = api().listInZone(DEFAULT_ZONE_NAME, new ListOptions.Builder()
-              .maxResults(1));
+              .maxResults(1)).toPagedIterable();
 
       Iterator<IterableWithMarker<DiskType>> pageIterator = diskTypes.iterator();
       assertTrue(pageIterator.hasNext());

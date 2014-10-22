@@ -46,7 +46,7 @@ public class ZoneApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
    public void testListZone() {
 
       PagedIterable<Zone> zones = api().list(new ListOptions.Builder()
-              .maxResults(1));
+              .maxResults(1)).toPagedIterable();
 
       Iterator<IterableWithMarker<Zone>> pageIterator = zones.iterator();
       assertTrue(pageIterator.hasNext());

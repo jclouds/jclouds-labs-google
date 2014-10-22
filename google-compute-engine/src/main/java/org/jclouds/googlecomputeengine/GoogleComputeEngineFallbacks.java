@@ -14,22 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.googlecomputeengine.functions.internal;
+package org.jclouds.googlecomputeengine;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static org.jclouds.Fallbacks.valOnNotFoundOr404;
 
-import javax.ws.rs.HttpMethod;
+import org.jclouds.Fallback;
+import org.jclouds.googlecomputeengine.domain.ListPage;
+import org.jclouds.googlecomputeengine.domain.Resource.Kind;
 
-/**
- * Indicates that the annotated method responds to HTTP PATCH requests
- *
- * @see javax.ws.rs.HttpMethod
- */
-@Target({ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
-@HttpMethod("PATCH")
-public @interface PATCH {
+public interface GoogleComputeEngineFallbacks {
+
+   public static final class EmptyListPageOnNotFoundOr404 implements Fallback<ListPage<Object>> {
+      public ListPage<Object> createOrPropagate(Throwable t) throws Exception {
+         // The Kind attribute is mandatory but dummy, as it will be never be used
+         return valOnNotFoundOr404(new ListPage.Empty<Object>(Kind.ADDRESS_LIST), checkNotNull(t, "throwable"));
+      }
+   }
+
 }

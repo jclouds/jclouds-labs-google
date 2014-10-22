@@ -23,13 +23,13 @@ import javax.ws.rs.core.MediaType;
 
 import org.jclouds.date.internal.SimpleDateFormatDateService;
 import org.jclouds.googlecomputeengine.domain.Disk;
-import org.jclouds.googlecomputeengine.domain.ListPage;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.domain.Resource;
 import org.jclouds.googlecomputeengine.internal.BaseGoogleComputeEngineParseTest;
 import org.testng.annotations.Test;
 
 @Test(groups = "unit")
-public class ParseDiskListTest extends BaseGoogleComputeEngineParseTest<ListPage<Disk>> {
+public class ParseDiskListTest extends BaseGoogleComputeEngineParseTest<PageWithMarker<Disk>> {
 
    @Override
    public String resource() {
@@ -38,8 +38,8 @@ public class ParseDiskListTest extends BaseGoogleComputeEngineParseTest<ListPage
 
    @Override
    @Consumes(MediaType.APPLICATION_JSON)
-   public ListPage<Disk> expected() {
-      return ListPage.<Disk>builder()
+   public PageWithMarker<Disk> expected() {
+      return PageWithMarker.<Disk>builder()
               .kind(Resource.Kind.DISK_LIST)
               .addItem(Disk.builder()
                       .id("13050421646334304115")

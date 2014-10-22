@@ -22,8 +22,8 @@ import javax.inject.Inject;
 
 import org.jclouds.collect.IterableWithMarker;
 import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
-import org.jclouds.googlecomputeengine.domain.ListPage;
 import org.jclouds.googlecomputeengine.domain.DiskType;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.options.ListOptions;
 import org.jclouds.http.functions.ParseJson;
 import org.jclouds.json.Json;
@@ -31,11 +31,19 @@ import org.jclouds.json.Json;
 import com.google.common.base.Function;
 import com.google.inject.TypeLiteral;
 
-public class ParseDiskTypes extends ParseJson<ListPage<DiskType>> {
+public class ParseDiskTypes extends BasePageParser<DiskType, ParseDiskTypes> {
 
    @Inject
-   public ParseDiskTypes(Json json) {
-      super(json, new TypeLiteral<ListPage<DiskType>>() {});
+   ParseDiskTypes(ToPage toPage, ToPagedIterable toPagedIterable) {
+      super(toPage, toPagedIterable);
+   }
+
+   public static class ToPage extends ParseJson<PageWithMarker<DiskType>> {
+      @Inject
+      ToPage(Json json, TypeLiteral<PageWithMarker<DiskType>> type) {
+         super(json, new TypeLiteral<PageWithMarker<DiskType>>() {
+         });
+      }
    }
 
    public static class ToPagedIterable extends BaseWithZoneToPagedIterable<DiskType, ToPagedIterable> {
@@ -43,7 +51,7 @@ public class ParseDiskTypes extends ParseJson<ListPage<DiskType>> {
       private final GoogleComputeEngineApi api;
 
       @Inject
-      protected ToPagedIterable(GoogleComputeEngineApi api) {
+      ToPagedIterable(GoogleComputeEngineApi api) {
          this.api = checkNotNull(api, "api");
       }
 
@@ -55,8 +63,8 @@ public class ParseDiskTypes extends ParseJson<ListPage<DiskType>> {
 
             @Override
             public IterableWithMarker<DiskType> apply(Object input) {
-               return api.getDiskTypeApiForProject(project)
-                       .listAtMarkerInZone(zone, input.toString(), options);
+               options.pageToken(input.toString());
+               return api.getDiskTypeApiForProject(project).listInZone(zone, options);
             }
          };
       }

@@ -81,7 +81,7 @@ public class ZoneApiExpectTest extends BaseGoogleComputeEngineApiExpectTest {
       ZoneApi api = requestsSendResponses(requestForScopes(COMPUTE_READONLY_SCOPE),
               TOKEN_RESPONSE, LIST_ZONES_REQ, LIST_ZONES_RESPONSE).getZoneApiForProject("myproject");
 
-      assertEquals(api.listFirstPage().toString(),
+      assertEquals(api.list().first().get().toString(),
               new ParseZoneListTest().expected().toString());
    }
 

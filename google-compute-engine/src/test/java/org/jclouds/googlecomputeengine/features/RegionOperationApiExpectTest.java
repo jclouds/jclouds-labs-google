@@ -25,8 +25,8 @@ import static org.testng.Assert.assertTrue;
 import java.net.URI;
 
 import org.jclouds.date.internal.SimpleDateFormatDateService;
-import org.jclouds.googlecomputeengine.domain.ListPage;
 import org.jclouds.googlecomputeengine.domain.Operation;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.domain.Resource;
 import org.jclouds.googlecomputeengine.internal.BaseGoogleComputeEngineApiExpectTest;
 import org.jclouds.googlecomputeengine.options.ListOptions;
@@ -74,8 +74,8 @@ public class RegionOperationApiExpectTest extends BaseGoogleComputeEngineApiExpe
               .build();
    }
 
-   private ListPage<Operation> expectedList() {
-      return ListPage.<Operation>builder()
+   private PageWithMarker<Operation> expectedList() {
+      return PageWithMarker.<Operation>builder()
               .kind(Resource.Kind.OPERATION_LIST)
               .addItem(expected())
               .build();
@@ -144,7 +144,7 @@ public class RegionOperationApiExpectTest extends BaseGoogleComputeEngineApiExpe
       RegionOperationApi regionOperationApi = requestsSendResponses(requestForScopes(COMPUTE_READONLY_SCOPE),
               TOKEN_RESPONSE, get, operationResponse).getRegionOperationApiForProject("myproject");
 
-      assertEquals(regionOperationApi.listFirstPageInRegion("us-central1").toString(),
+      assertEquals(regionOperationApi.listInRegion("us-central1").first().get().toString(),
               expectedList().toString());
    }
 
@@ -153,11 +153,10 @@ public class RegionOperationApiExpectTest extends BaseGoogleComputeEngineApiExpe
               .builder()
               .method("GET")
               .endpoint(OPERATIONS_URL_PREFIX +
-                      "?pageToken=CglPUEVSQVRJT04SOzU5MDQyMTQ4Nzg1Mi5vcG" +
-                      "VyYXRpb24tMTM1MjI0NDI1ODAzMC00Y2RkYmU2YTJkNmIwLWVkMzIyMzQz&" +
-                      "filter=" +
+                      "?filter=" +
                       "status%20eq%20done&" +
-                      "maxResults=3")
+                      "maxResults=3&pageToken=CglPUEVSQVRJT04SOzU5MDQyMTQ4Nzg1Mi5vcG" +
+                      "VyYXRpb24tMTM1MjI0NDI1ODAzMC00Y2RkYmU2YTJkNmIwLWVkMzIyMzQz")
               .addHeader("Accept", "application/json")
               .addHeader("Authorization", "Bearer " + TOKEN).build();
 
@@ -167,10 +166,17 @@ public class RegionOperationApiExpectTest extends BaseGoogleComputeEngineApiExpe
       RegionOperationApi regionOperationApi = requestsSendResponses(requestForScopes(COMPUTE_READONLY_SCOPE),
               TOKEN_RESPONSE, get, operationResponse).getRegionOperationApiForProject("myproject");
 
-      assertEquals(regionOperationApi.listAtMarkerInRegion("us-central1", "CglPUEVSQVRJT04SOzU5MDQyMTQ4Nzg1Mi5vcGVyYXRpb24tMTM1Mj" +
-              "I0NDI1ODAzMC00Y2RkYmU2YTJkNmIwLWVkMzIyMzQz",
-              new ListOptions.Builder().filter("status eq done").maxResults(3)).toString(),
-              expectedList().toString());
+      assertEquals(
+            regionOperationApi
+                  .listInRegion(
+                        "us-central1",
+                        new ListOptions.Builder()
+                              .filter("status eq done")
+                              .maxResults(3)
+                              .pageToken(
+                                    "CglPUEVSQVRJT04SOzU5MDQyMTQ4Nzg1Mi5vcGVyYXRpb24tMTM1Mj"
+                                          + "I0NDI1ODAzMC00Y2RkYmU2YTJkNmIwLWVkMzIyMzQz")).toPagedIterable().first()
+                  .get().toString(), expectedList().toString());
    }
 
    public void testListOperationWithPaginationOptionsResponseIs4xx() {

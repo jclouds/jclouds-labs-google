@@ -33,8 +33,6 @@ import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.compute.domain.NodeMetadataBuilder;
 import org.jclouds.compute.functions.GroupNamingConvention;
 import org.jclouds.domain.Location;
-import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
-import org.jclouds.googlecomputeengine.config.UserProject;
 import org.jclouds.googlecomputeengine.domain.Instance;
 import org.jclouds.googlecomputeengine.domain.InstanceInZone;
 import org.jclouds.googlecomputeengine.domain.SlashEncodedIds;
@@ -56,8 +54,6 @@ public class InstanceInZoneToNodeMetadata implements Function<InstanceInZone, No
    private final Supplier<Map<URI, ? extends Hardware>> hardwares;
    private final Supplier<Map<URI, ? extends Location>> locations;
    private final FirewallTagNamingConvention.Factory firewallTagNamingConvention;
-   private final GoogleComputeEngineApi api;
-   private final Supplier<String> userProject;
 
    @Inject
    public InstanceInZoneToNodeMetadata(Map<Instance.Status, NodeMetadata.Status> toPortableNodeStatus,
@@ -65,17 +61,13 @@ public class InstanceInZoneToNodeMetadata implements Function<InstanceInZone, No
                                  @Memoized Supplier<Map<URI, ? extends Image>> images,
                                  @Memoized Supplier<Map<URI, ? extends Hardware>> hardwares,
                                  @Memoized Supplier<Map<URI, ? extends Location>> locations,
-                                 FirewallTagNamingConvention.Factory firewallTagNamingConvention,
-                                 GoogleComputeEngineApi api,
-                                 @UserProject Supplier<String> userProject) {
+                                 FirewallTagNamingConvention.Factory firewallTagNamingConvention) {
       this.toPortableNodeStatus = toPortableNodeStatus;
       this.nodeNamingConvention = namingConvention.createWithoutPrefix();
       this.images = images;
       this.hardwares = hardwares;
       this.locations = locations;
       this.firewallTagNamingConvention = checkNotNull(firewallTagNamingConvention, "firewallTagNamingConvention");
-      this.api = checkNotNull(api, "api");
-      this.userProject = checkNotNull(userProject, "userProject");
    }
 
    @Override

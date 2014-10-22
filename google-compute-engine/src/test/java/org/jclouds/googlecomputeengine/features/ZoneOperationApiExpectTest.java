@@ -25,8 +25,8 @@ import static org.testng.Assert.assertTrue;
 import java.net.URI;
 
 import org.jclouds.date.internal.SimpleDateFormatDateService;
-import org.jclouds.googlecomputeengine.domain.ListPage;
 import org.jclouds.googlecomputeengine.domain.Operation;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.domain.Resource;
 import org.jclouds.googlecomputeengine.internal.BaseGoogleComputeEngineApiExpectTest;
 import org.jclouds.googlecomputeengine.options.ListOptions;
@@ -71,8 +71,8 @@ public class ZoneOperationApiExpectTest extends BaseGoogleComputeEngineApiExpect
               .build();
    }
 
-   private ListPage<Operation> expectedList() {
-      return ListPage.<Operation>builder()
+   private PageWithMarker<Operation> expectedList() {
+      return PageWithMarker.<Operation>builder()
               .kind(Resource.Kind.OPERATION_LIST)
               .addItem(expected())
               .build();
@@ -141,7 +141,7 @@ public class ZoneOperationApiExpectTest extends BaseGoogleComputeEngineApiExpect
       ZoneOperationApi zoneOperationApi = requestsSendResponses(requestForScopes(COMPUTE_READONLY_SCOPE),
               TOKEN_RESPONSE, get, operationResponse).getZoneOperationApiForProject("myproject");
 
-      assertEquals(zoneOperationApi.listFirstPageInZone("us-central1-a").toString(),
+      assertEquals(zoneOperationApi.listInZone("us-central1-a").first().get().toString(),
               expectedList().toString());
    }
 
@@ -164,11 +164,17 @@ public class ZoneOperationApiExpectTest extends BaseGoogleComputeEngineApiExpect
       ZoneOperationApi zoneOperationApi = requestsSendResponses(requestForScopes(COMPUTE_READONLY_SCOPE),
               TOKEN_RESPONSE, get, operationResponse).getZoneOperationApiForProject("myproject");
 
-      assertEquals(zoneOperationApi.listAtMarkerInZone("us-central1-a",
-              "CglPUEVSQVRJT04SOzU5MDQyMTQ4Nzg1Mi5vcGVyYXRpb24tMTM1Mj" +
-                      "I0NDI1ODAzMC00Y2RkYmU2YTJkNmIwLWVkMzIyMzQz",
-              new ListOptions.Builder().filter("status eq done").maxResults(3)).toString(),
-              expectedList().toString());
+      assertEquals(
+            zoneOperationApi.listInZone(
+                  "us-central1-a",
+                  new ListOptions.Builder().
+                  pageToken(
+                        "CglPUEVSQVRJT04SOzU5MDQyMTQ4Nzg1Mi5vcGVyYXRpb24tMTM1Mj"
+                              + "I0NDI1ODAzMC00Y2RkYmU2YTJkNmIwLWVkMzIyMzQz")
+                        .filter("status eq done")
+                        .maxResults(3)
+                        ).toPagedIterable().first().get().toString(), expectedList()
+                  .toString());
    }
 
    public void testListOperationWithPaginationOptionsResponseIs4xx() {

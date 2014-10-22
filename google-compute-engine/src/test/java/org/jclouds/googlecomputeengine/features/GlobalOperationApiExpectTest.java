@@ -109,7 +109,7 @@ public class GlobalOperationApiExpectTest extends BaseGoogleComputeEngineApiExpe
       GlobalOperationApi globalOperationApi = requestsSendResponses(requestForScopes(COMPUTE_READONLY_SCOPE),
               TOKEN_RESPONSE, get, operationResponse).getGlobalOperationApiForProject("myproject");
 
-      assertEquals(globalOperationApi.listFirstPage().toString(),
+      assertEquals(globalOperationApi.list().first().get().toString(),
               new ParseOperationListTest().expected().toString());
    }
 
@@ -132,10 +132,12 @@ public class GlobalOperationApiExpectTest extends BaseGoogleComputeEngineApiExpe
       GlobalOperationApi globalOperationApi = requestsSendResponses(requestForScopes(COMPUTE_READONLY_SCOPE),
               TOKEN_RESPONSE, get, operationResponse).getGlobalOperationApiForProject("myproject");
 
-      assertEquals(globalOperationApi.listAtMarker("CglPUEVSQVRJT04SOzU5MDQyMTQ4Nzg1Mi5vcGVyYXRpb24tMTM1Mj" +
-              "I0NDI1ODAzMC00Y2RkYmU2YTJkNmIwLWVkMzIyMzQz",
-              new ListOptions.Builder().filter("status eq done").maxResults(3)).toString(),
-              new ParseOperationListTest().expected().toString());
+      assertEquals(globalOperationApi
+            .list(new ListOptions.Builder()
+                  .pageToken(
+                        "CglPUEVSQVRJT04SOzU5MDQyMTQ4Nzg1Mi5vcGVyYXRpb24tMTM1Mj"
+                              + "I0NDI1ODAzMC00Y2RkYmU2YTJkNmIwLWVkMzIyMzQz").filter("status eq done").maxResults(3))
+            .toPagedIterable().first().get().toString(), new ParseOperationListTest().expected().toString());
    }
 
    public void testListOperationWithPaginationOptionsResponseIs4xx() {

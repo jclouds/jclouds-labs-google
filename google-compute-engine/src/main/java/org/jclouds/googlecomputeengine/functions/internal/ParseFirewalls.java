@@ -23,7 +23,7 @@ import javax.inject.Inject;
 import org.jclouds.collect.IterableWithMarker;
 import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
 import org.jclouds.googlecomputeengine.domain.Firewall;
-import org.jclouds.googlecomputeengine.domain.ListPage;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.options.ListOptions;
 import org.jclouds.http.functions.ParseJson;
 import org.jclouds.json.Json;
@@ -31,12 +31,19 @@ import org.jclouds.json.Json;
 import com.google.common.base.Function;
 import com.google.inject.TypeLiteral;
 
-public class ParseFirewalls extends ParseJson<ListPage<Firewall>> {
+public class ParseFirewalls extends BasePageParser<Firewall, ParseFirewalls> {
 
    @Inject
-   public ParseFirewalls(Json json) {
-      super(json, new TypeLiteral<ListPage<Firewall>>() {
-      });
+   ParseFirewalls(ToPage toPage, ToPagedIterable toPagedIterable) {
+      super(toPage, toPagedIterable);
+   }
+
+   public static class ToPage extends ParseJson<PageWithMarker<Firewall>> {
+      @Inject
+      ToPage(Json json, TypeLiteral<PageWithMarker<Firewall>> type) {
+         super(json, new TypeLiteral<PageWithMarker<Firewall>>() {
+         });
+      }
    }
 
    public static class ToPagedIterable extends BaseToPagedIterable<Firewall, ToPagedIterable> {
@@ -44,18 +51,19 @@ public class ParseFirewalls extends ParseJson<ListPage<Firewall>> {
       private final GoogleComputeEngineApi api;
 
       @Inject
-      protected ToPagedIterable(GoogleComputeEngineApi api) {
+      ToPagedIterable(GoogleComputeEngineApi api) {
          this.api = checkNotNull(api, "api");
       }
 
       @Override
       protected Function<Object, IterableWithMarker<Firewall>> fetchNextPage(final String projectName,
-                                                                             final ListOptions options) {
+            final ListOptions options) {
          return new Function<Object, IterableWithMarker<Firewall>>() {
 
             @Override
             public IterableWithMarker<Firewall> apply(Object input) {
-               return api.getFirewallApiForProject(projectName).listAtMarker(input.toString(), options);
+               options.pageToken(input.toString());
+               return api.getFirewallApiForProject(projectName).list(options);
             }
          };
       }

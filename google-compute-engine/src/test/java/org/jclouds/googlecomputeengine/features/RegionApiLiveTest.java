@@ -46,7 +46,7 @@ public class RegionApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
    public void testListRegion() {
 
       PagedIterable<Region> regions = api().list(new ListOptions.Builder()
-              .maxResults(1));
+              .maxResults(1)).toPagedIterable();
 
       Iterator<IterableWithMarker<Region>> pageIterator = regions.iterator();
       assertTrue(pageIterator.hasNext());

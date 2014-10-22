@@ -22,8 +22,8 @@ import javax.inject.Inject;
 
 import org.jclouds.collect.IterableWithMarker;
 import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
-import org.jclouds.googlecomputeengine.domain.ListPage;
 import org.jclouds.googlecomputeengine.domain.Operation;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
 import org.jclouds.googlecomputeengine.options.ListOptions;
 import org.jclouds.http.functions.ParseJson;
 import org.jclouds.json.Json;
@@ -31,12 +31,19 @@ import org.jclouds.json.Json;
 import com.google.common.base.Function;
 import com.google.inject.TypeLiteral;
 
-public class ParseRegionOperations extends ParseJson<ListPage<Operation>> {
+public class ParseRegionOperations extends BasePageParser<Operation, ParseRegionOperations> {
 
    @Inject
-   public ParseRegionOperations(Json json) {
-      super(json, new TypeLiteral<ListPage<Operation>>() {
-      });
+   ParseRegionOperations(ToPage toPage, ToPagedIterable toPagedIterable) {
+      super(toPage, toPagedIterable);
+   }
+
+   public static class ToPage extends ParseJson<PageWithMarker<Operation>> {
+      @Inject
+      ToPage(Json json, TypeLiteral<PageWithMarker<Operation>> type) {
+         super(json, new TypeLiteral<PageWithMarker<Operation>>() {
+         });
+      }
    }
 
    public static class ToPagedIterable extends BaseWithRegionToPagedIterable<Operation, ToPagedIterable> {
@@ -44,20 +51,19 @@ public class ParseRegionOperations extends ParseJson<ListPage<Operation>> {
       private final GoogleComputeEngineApi api;
 
       @Inject
-      protected ToPagedIterable(GoogleComputeEngineApi api) {
+      ToPagedIterable(GoogleComputeEngineApi api) {
          this.api = checkNotNull(api, "api");
       }
 
       @Override
       protected Function<Object, IterableWithMarker<Operation>> fetchNextPage(final String projectName,
-                                                                              final String regionName,
-                                                                              final ListOptions options) {
+            final String regionName, final ListOptions options) {
          return new Function<Object, IterableWithMarker<Operation>>() {
 
             @Override
             public IterableWithMarker<Operation> apply(Object input) {
-               return api.getRegionOperationApiForProject(projectName)
-                       .listAtMarkerInRegion(regionName, input.toString(), options);
+               options.pageToken(input.toString());
+               return api.getRegionOperationApiForProject(projectName).listInRegion(regionName, options);
             }
          };
       }

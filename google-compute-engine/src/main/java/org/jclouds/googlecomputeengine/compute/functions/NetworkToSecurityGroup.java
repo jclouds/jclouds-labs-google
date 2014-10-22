@@ -16,6 +16,8 @@
  */
 package org.jclouds.googlecomputeengine.compute.functions;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -33,6 +35,7 @@ import org.jclouds.net.domain.IpPermission;
 
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 
 /**
@@ -52,9 +55,9 @@ public class NetworkToSecurityGroup implements Function<Network, SecurityGroup> 
    public NetworkToSecurityGroup(Function<Firewall, Iterable<IpPermission>> firewallToPerms,
                                  GoogleComputeEngineApi api,
                                  @UserProject Supplier<String> project) {
-      this.firewallToPerms = firewallToPerms;
-      this.api = api;
-      this.project = project;
+      this.firewallToPerms = checkNotNull(firewallToPerms, "firewallToPerms");
+      this.api = checkNotNull(api, "api");
+      this.project = checkNotNull(project, "project");
    }
 
    @Override
@@ -66,11 +69,12 @@ public class NetworkToSecurityGroup implements Function<Network, SecurityGroup> 
       builder.name(network.getName());
       builder.uri(network.getSelfLink());
 
-      ImmutableSet.Builder permBuilder = ImmutableSet.builder();
+      ImmutableSet.Builder<IpPermission> permBuilder = ImmutableSet.builder();
 
       ListOptions options = new ListOptions.Builder().filter("network eq .*/" + network.getName());
+      FluentIterable<Firewall> fws = api.getFirewallApiForProject(project.get()).list(options).toPagedIterable().concat();
 
-      for (Firewall fw : api.getFirewallApiForProject(project.get()).list(options).concat()) {
+      for (Firewall fw : fws) {
          permBuilder.addAll(firewallToPerms.apply(fw));
       }
 

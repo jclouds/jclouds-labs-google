@@ -61,7 +61,7 @@ public class ImageApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
    @Test(groups = "live")
    public void testListImage() {
 
-      PagedIterable<Image> images = api().list(new ListOptions.Builder().maxResults(1));
+      PagedIterable<Image> images = api().list(new ListOptions.Builder().maxResults(1)).toPagedIterable();
 
       Iterator<IterableWithMarker<Image>> pageIterator = images.iterator();
       assertTrue(pageIterator.hasNext());

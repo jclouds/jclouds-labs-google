@@ -231,7 +231,7 @@ public class DiskApiExpectTest extends BaseGoogleComputeEngineApiExpectTest {
       DiskApi api = requestsSendResponses(requestForScopes(COMPUTE_READONLY_SCOPE),
               TOKEN_RESPONSE, list, operationResponse).getDiskApiForProject("myproject");
 
-      assertEquals(api.listFirstPageInZone("us-central1-a").toString(),
+      assertEquals(api.listInZone("us-central1-a").first().get().toString(),
               new ParseDiskListTest().expected().toString());
    }
 

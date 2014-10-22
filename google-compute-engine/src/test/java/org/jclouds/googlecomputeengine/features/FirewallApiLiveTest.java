@@ -137,7 +137,7 @@ public class FirewallApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
    public void testListFirewall() {
 
       PagedIterable<Firewall> firewalls = api().list(new ListOptions.Builder()
-              .filter("name eq " + FIREWALL_NAME));
+              .filter("name eq " + FIREWALL_NAME)).toPagedIterable();
 
       List<Firewall> firewallsAsList = Lists.newArrayList(firewalls.concat());
 

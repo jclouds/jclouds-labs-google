@@ -97,7 +97,7 @@ public class MachineTypeApiExpectTest extends BaseGoogleComputeEngineApiExpectTe
               TOKEN_RESPONSE, LIST_MACHINE_TYPES_REQUEST, LIST_MACHINE_TYPES_RESPONSE).getMachineTypeApiForProject
               ("myproject");
 
-      assertEquals(machineTypeApi.listFirstPageInZone("us-central1-a").toString(),
+      assertEquals(machineTypeApi.listInZone("us-central1-a").first().get().toString(),
               new ParseMachineTypeListTest().expected().toString());
    }
 

@@ -27,17 +27,22 @@ import static org.testng.Assert.assertTrue;
 import java.net.URI;
 import java.util.Date;
 
-import org.jclouds.collect.IterableWithMarkers;
+import org.jclouds.collect.PagedIterable;
 import org.jclouds.collect.PagedIterables;
 import org.jclouds.compute.domain.SecurityGroup;
 import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
+import org.jclouds.googlecomputeengine.domain.Firewall;
+import org.jclouds.googlecomputeengine.domain.ListPage;
 import org.jclouds.googlecomputeengine.domain.Network;
+import org.jclouds.googlecomputeengine.domain.PageWithMarker;
+import org.jclouds.googlecomputeengine.domain.Resource.Kind;
 import org.jclouds.googlecomputeengine.features.FirewallApi;
 import org.jclouds.googlecomputeengine.options.ListOptions;
 import org.jclouds.googlecomputeengine.options.ListOptions.Builder;
 import org.jclouds.net.domain.IpProtocol;
 import org.testng.annotations.Test;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicates;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
@@ -62,7 +67,19 @@ public class NetworkToSecurityGroupTest {
       ListOptions options = new Builder().filter("network eq .*/jclouds-test");
       expect(api.getFirewallApiForProject(projectSupplier.get()))
               .andReturn(fwApi);
-      expect(fwApi.list(options)).andReturn(PagedIterables.of(IterableWithMarkers.from(ImmutableSet.of(FirewallToIpPermissionTest.fwForTest()))));
+
+      final PageWithMarker<Firewall> page = PageWithMarker.<Firewall> builder().kind(Kind.FIREWALL_LIST)
+            .items(ImmutableSet.of(FirewallToIpPermissionTest.fwForTest())).build();
+
+      ListPage<Firewall> listPage = new ListPage<Firewall>(page,
+            new Function<PageWithMarker<Firewall>, PagedIterable<Firewall>>() {
+               @Override
+               public PagedIterable<Firewall> apply(PageWithMarker<Firewall> input) {
+                  return PagedIterables.<Firewall>onlyPage(page);
+               }
+            });
+
+      expect(fwApi.list(options)).andReturn(listPage);
 
       replay(api, fwApi);
       Network.Builder builder = Network.builder();

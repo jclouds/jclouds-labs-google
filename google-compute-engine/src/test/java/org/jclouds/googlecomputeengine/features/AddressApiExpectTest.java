@@ -140,7 +140,7 @@ public class AddressApiExpectTest extends BaseGoogleComputeEngineApiExpectTest {
       AddressApi api = requestsSendResponses(requestForScopes(COMPUTE_READONLY_SCOPE),
               TOKEN_RESPONSE, list, operationResponse).getAddressApiForProject("myproject");
 
-      assertEquals(api.listFirstPageInRegion("us-central1").toString(),
+      assertEquals(api.listInRegion("us-central1").first().get().toString(),
               new ParseAddressListTest().expected().toString());
    }
 

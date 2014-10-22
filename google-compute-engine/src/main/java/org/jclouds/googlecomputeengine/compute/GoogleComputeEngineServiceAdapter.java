@@ -393,7 +393,8 @@ public class GoogleComputeEngineServiceAdapter implements ComputeServiceAdapter<
    private LoginCredentials getFromImageAndOverrideIfRequired(org.jclouds.compute.domain.Image image,
                                                               GoogleComputeEngineTemplateOptions options) {
       LoginCredentials defaultCredentials = image.getDefaultCredentials();
-      String[] keys = defaultCredentials.getPrivateKey().split(":");
+      // Atthis point the private key must exist
+      String[] keys = defaultCredentials.getOptionalPrivateKey().get().split(":");
       String publicKey = keys[0];
       String privateKey = keys[1];
 

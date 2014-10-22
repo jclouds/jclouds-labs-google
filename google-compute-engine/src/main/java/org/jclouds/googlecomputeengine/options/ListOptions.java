@@ -72,6 +72,16 @@ public class ListOptions extends BaseHttpRequestOptions {
       return this;
    }
 
+   /**
+    * Sets the marker to the page to retrieve.
+    */
+   public ListOptions pageToken(String pageToken) {
+	   checkNotNull(pageToken, "pageToken");
+	   this.queryParameters.removeAll("pageToken");
+      this.queryParameters.put("pageToken", pageToken);
+      return this;
+   }
+
    public static class Builder {
 
       /**
@@ -86,6 +96,13 @@ public class ListOptions extends BaseHttpRequestOptions {
        */
       public ListOptions maxResults(Integer maxResults) {
          return new ListOptions().maxResults(maxResults);
+      }
+
+      /**
+       * @see ListOptions#pageToken(String)
+       */
+      public ListOptions pageToken(String pageToken) {
+         return new ListOptions().pageToken(pageToken);
       }
    }
 }

@@ -25,10 +25,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 
-import org.jclouds.Fallbacks.EmptyIterableWithMarkerOnNotFoundOr404;
 import org.jclouds.Fallbacks.EmptyPagedIterableOnNotFoundOr404;
 import org.jclouds.Fallbacks.NullOnNotFoundOr404;
 import org.jclouds.collect.PagedIterable;
+import org.jclouds.googlecomputeengine.GoogleComputeEngineFallbacks.EmptyListPageOnNotFoundOr404;
 import org.jclouds.googlecomputeengine.domain.ListPage;
 import org.jclouds.googlecomputeengine.domain.Zone;
 import org.jclouds.googlecomputeengine.functions.internal.ParseZones;
@@ -65,71 +65,22 @@ public interface ZoneApi {
    Zone get(@PathParam("zone") String zoneName);
 
    /**
-    * @see ZoneApi#listAtMarker(String, org.jclouds.googlecomputeengine.options.ListOptions)
+    * List all zones.
     */
    @Named("Zones:list")
    @GET
    @Path("/zones")
    @OAuthScopes(COMPUTE_READONLY_SCOPE)
-   @ResponseParser(ParseZones.class)
-   @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
-   ListPage<Zone> listFirstPage();
-
-   /**
-    * @see ZoneApi#listAtMarker(String, org.jclouds.googlecomputeengine.options.ListOptions)
-    */
-   @Named("Zones:list")
-   @GET
-   @Path("/zones")
-   @OAuthScopes(COMPUTE_READONLY_SCOPE)
-   @ResponseParser(ParseZones.class)
-   @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
-   ListPage<Zone> listAtMarker(String marker);
-
-   /**
-    * Retrieves the listFirstPage of zone resources available to the specified project.
-    * By default the listFirstPage as a maximum size of 100, if no options are provided or ListOptions#getMaxResults()
-    * has not been set.
-    *
-    * @param marker      marks the beginning of the next list page
-    * @param listOptions listing options
-    * @return a page of the listFirstPage
-    * @see ListOptions
-    * @see ListPage
-    */
-   @Named("Zones:list")
-   @GET
-   @Path("/zones")
-   @OAuthScopes(COMPUTE_READONLY_SCOPE)
-   @ResponseParser(ParseZones.class)
-   @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
-   ListPage<Zone> listAtMarker(String marker, ListOptions listOptions);
-
-   /**
-    * @see ZoneApi#list(org.jclouds.googlecomputeengine.options.ListOptions)
-    */
-   @Named("Zones:list")
-   @GET
-   @Path("/zones")
-   @OAuthScopes(COMPUTE_READONLY_SCOPE)
-   @ResponseParser(ParseZones.class)
+   @ResponseParser(ParseZones.ToPage.class)
    @Transform(ParseZones.ToPagedIterable.class)
    @Fallback(EmptyPagedIterableOnNotFoundOr404.class)
    PagedIterable<Zone> list();
 
-   /**
-    * A paged version of ZoneApi#listFirstPage()
-    *
-    * @return a Paged, Fluent Iterable that is able to fetch additional pages when required
-    * @see ZoneApi#listAtMarker(String, org.jclouds.googlecomputeengine.options.ListOptions)
-    * @see PagedIterable
-    */
    @Named("Zones:list")
    @GET
    @Path("/zones")
    @OAuthScopes(COMPUTE_READONLY_SCOPE)
    @ResponseParser(ParseZones.class)
-   @Transform(ParseZones.ToPagedIterable.class)
-   @Fallback(EmptyPagedIterableOnNotFoundOr404.class)
-   PagedIterable<Zone> list(ListOptions listOptions);
+   @Fallback(EmptyListPageOnNotFoundOr404.class)
+   ListPage<Zone> list(ListOptions listOptions);
 }

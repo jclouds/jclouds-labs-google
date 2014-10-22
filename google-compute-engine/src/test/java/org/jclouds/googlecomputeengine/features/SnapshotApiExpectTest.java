@@ -78,7 +78,7 @@ public class SnapshotApiExpectTest extends BaseGoogleComputeEngineApiExpectTest 
       SnapshotApi api = requestsSendResponses(requestForScopes(COMPUTE_READONLY_SCOPE),
               TOKEN_RESPONSE, LIST_SNAPSHOTS_REQ, LIST_SNAPSHOTS_RESPONSE).getSnapshotApiForProject("myproject");
 
-      assertEquals(api.listFirstPage().toString(),
+      assertEquals(api.list().first().get().toString(),
               new ParseSnapshotListTest().expected().toString());
    }
 

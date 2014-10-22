@@ -152,7 +152,7 @@ public class RouteApiExpectTest extends BaseGoogleComputeEngineApiExpectTest {
       RouteApi api = requestsSendResponses(requestForScopes(COMPUTE_READONLY_SCOPE),
               TOKEN_RESPONSE, list, operationResponse).getRouteApiForProject("myproject");
 
-      assertEquals(api.listFirstPage().toString(),
+      assertEquals(api.list().first().get().toString(),
               new ParseRouteListTest().expected().toString());
    }
 
