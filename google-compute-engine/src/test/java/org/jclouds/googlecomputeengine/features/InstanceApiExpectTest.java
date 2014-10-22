@@ -300,7 +300,7 @@ public class InstanceApiExpectTest extends BaseGoogleComputeEngineApiExpectTest 
               .payload(payloadFromResource("/zone_operation.json")).build();
 
       InstanceApi api = requestsSendResponses(requestForScopes(COMPUTE_SCOPE),
-              TOKEN_RESPONSE, setTags, setTagsResponse).getInstanceApiForProject("myproject");
+              TOKEN_RESPONSE, setTags, setTagsResponse).getInstanceApi("myproject");
 
       assertEquals(api.setTagsInZone("us-central1-a", "test-1", ImmutableSet.of("foo", "bar"), "efgh"),
               new ParseOperationTest().expected());
@@ -321,7 +321,7 @@ public class InstanceApiExpectTest extends BaseGoogleComputeEngineApiExpectTest 
       HttpResponse setTagsResponse = HttpResponse.builder().statusCode(404).build();
 
       InstanceApi api = requestsSendResponses(requestForScopes(COMPUTE_SCOPE),
-              TOKEN_RESPONSE, setTags, setTagsResponse).getInstanceApiForProject("myproject");
+              TOKEN_RESPONSE, setTags, setTagsResponse).getInstanceApi("myproject");
 
       api.setTagsInZone("us-central1-a", "test-1", ImmutableSet.of("foo", "bar"), "efgh");
    }

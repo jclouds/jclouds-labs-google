@@ -131,7 +131,7 @@ public class DiskApiExpectTest extends BaseGoogleComputeEngineApiExpectTest {
 
     DiskApi api = requestsSendResponses(requestForScopes(COMPUTE_SCOPE),
                                        TOKEN_RESPONSE, insert,
-                                       insertDiskResponse).getDiskApiForProject("myproject");
+                                       insertDiskResponse).getDiskApi("myproject");
 
     DiskCreationOptions diskCreationOptions = new DiskCreationOptions().type(URI.create(SSD_URL));
     assertEquals(api.createInZone("testimage1", 1,

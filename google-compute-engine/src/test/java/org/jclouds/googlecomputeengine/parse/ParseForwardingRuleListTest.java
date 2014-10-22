@@ -41,9 +41,6 @@ public class ParseForwardingRuleListTest extends BaseGoogleComputeEngineParseTes
    public ListPage<ForwardingRule> expected() {
       return ListPage.<ForwardingRule>builder()
               .kind(Resource.Kind.FORWARDING_RULE_LIST)
-              .id("projects/myproject/regions/europe-west1/forwardingRules")
-              .selfLink(URI.create("https://content.googleapis" +
-                      ".com/compute/v1/projects/myproject/regions/europe-west1/forwardingRules"))
               .items(ImmutableSet.of(ForwardingRule.builder()
                       .id("6732523704970219884")
                       .creationTimestamp(new SimpleDateFormatDateService().iso8601DateParse("2014-01-08T06:51:10.809-08:00"))

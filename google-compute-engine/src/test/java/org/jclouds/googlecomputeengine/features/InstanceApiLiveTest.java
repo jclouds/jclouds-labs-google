@@ -113,7 +113,7 @@ public class InstanceApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
               (INSTANCE_NETWORK_NAME, IPV4_RANGE), TIME_WAIT);
 
       DiskCreationOptions diskCreationOptions = new DiskCreationOptions().sourceImage(instance.getImage());
-      assertZoneOperationDoneSucessfully(api.getDiskApiForProject(userProject.get())
+      assertZoneOperationDoneSucessfully(api.getDiskApi(userProject.get())
                                         .createInZone(BOOT_DISK_NAME, DEFAULT_DISK_SIZE_GB, DEFAULT_ZONE_NAME, diskCreationOptions),
                                          TIME_WAIT);
 

@@ -41,8 +41,6 @@ public class ParseTargetPoolListTest extends BaseGoogleComputeEngineParseTest<Li
    public ListPage<TargetPool> expected() {
       return ListPage.<TargetPool>builder()
               .kind(Resource.Kind.TARGET_POOL_LIST)
-              .id("projects/myproject/regions/us-central1/targetPools")
-              .selfLink(URI.create("https://content.googleapis.com/compute/v1/projects/myproject/regions/us-central1/targetPools"))
               .items(ImmutableSet.of(TargetPool.builder()
                       .id("5199309593612841404")
                       .creationTimestamp(new SimpleDateFormatDateService().iso8601DateParse("2014-01-07T05:25:27.783-08:00"))

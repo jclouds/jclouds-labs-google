@@ -241,20 +241,12 @@ public class GoogleComputeEngineServiceAdapter implements ComputeServiceAdapter<
 
       String diskName = instanceName + "-" + GCE_BOOT_DISK_SUFFIX;
 
-<<<<<<< HEAD
       DiskCreationOptions diskCreationOptions = new DiskCreationOptions().sourceImage(imageUri);
-      Operation diskOperation = api.getDiskApiForProject(userProject.get())
+      Operation diskOperation = api.getDiskApi(userProject.get())
                                    .createInZone(diskName,
                                                  diskSize,
                                                  template.getLocation().getId(),
                                                  diskCreationOptions);
-=======
-      Operation diskOperation = api.getDiskApi(userProject.get())
-                                   .createFromImageWithSizeInZone(imageUri.toString(),
-                                                                  diskName,
-                                                                  diskSize,
-                                                                  template.getLocation().getId());
->>>>>>> address comments to PR #22
 
       waitOperationDone(diskOperation);
 

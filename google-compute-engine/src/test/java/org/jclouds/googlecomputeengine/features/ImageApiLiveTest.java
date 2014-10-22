@@ -51,11 +51,11 @@ public class ImageApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
    }
 
    private ImageApi imageApi(){
-      return api.getImageApiForProject(userProject.get());
+      return api.getImageApi(userProject.get());
    }
 
    private DiskApi diskApi() {
-      return api.getDiskApiForProject(userProject.get());
+      return api.getDiskApi(userProject.get());
    }
 
    @Test(groups = "live")

@@ -43,8 +43,6 @@ public class ParseHttpHealthCheckListTest extends BaseGoogleComputeEngineParseTe
    public ListPage<HttpHealthCheck> expected() {
       return ListPage.<HttpHealthCheck>builder()
               .kind(Resource.Kind.HTTP_HEALTH_CHECK_LIST)
-              .id("projects/jclouds-gce/global/httpHealthChecks")
-              .selfLink(URI.create("https://www.googleapis.com/compute/v1/projects/jclouds-gce/global/httpHealthChecks"))
               .items(ImmutableSet.of(HttpHealthCheck.builder()
                               .id("2761502483700014319")
                               .creationTimestamp(new SimpleDateFormatDateService().iso8601DateParse("2014-01-14T05:55:54.910-08:00"))

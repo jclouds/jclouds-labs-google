@@ -173,7 +173,7 @@ public class ImageApiExpectTest extends BaseGoogleComputeEngineApiExpectTest {
                                   .payload(payloadFromResource("/operation.json")).build();
 
       ImageApi imageApi = requestsSendResponses(requestForScopes(COMPUTE_SCOPE),
-            TOKEN_RESPONSE, createImage, createImageResponse).getImageApiForProject("myproject");
+            TOKEN_RESPONSE, createImage, createImageResponse).getImageApi("myproject");
 
       assertEquals(imageApi.createImageFromPD("my-image", "https://www.googleapis.com/" +
             "compute/v1/projects/myproject/zones/us-central1-a/disks/mydisk"),
@@ -195,7 +195,7 @@ public class ImageApiExpectTest extends BaseGoogleComputeEngineApiExpectTest {
       HttpResponse createImageResponse = HttpResponse.builder().statusCode(404).build();
 
       ImageApi imageApi = requestsSendResponses(requestForScopes(COMPUTE_SCOPE),
-              TOKEN_RESPONSE, createImage, createImageResponse).getImageApiForProject("myproject");
+              TOKEN_RESPONSE, createImage, createImageResponse).getImageApi("myproject");
 
       imageApi.createImageFromPD("my-image", "https://www.googleapis.com/" +
                   "compute/v1/projects/myproject/zones/us-central1-a/disks/mydisk");
