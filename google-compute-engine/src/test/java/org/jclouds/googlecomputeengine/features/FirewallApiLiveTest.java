@@ -48,7 +48,7 @@ public class FirewallApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
    @Test(groups = "live")
    public void testInsertFirewall() {
 
-      // need to create the network first
+      // need to insert the network first
       assertGlobalOperationDoneSucessfully(api.getNetworkApi(userProject.get()).createInIPv4Range
               (FIREWALL_NETWORK_NAME, IPV4_RANGE), TIME_WAIT);
 

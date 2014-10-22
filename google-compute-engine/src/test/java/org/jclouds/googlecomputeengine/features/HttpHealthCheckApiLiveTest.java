@@ -16,14 +16,11 @@
  */
 package org.jclouds.googlecomputeengine.features;
 
-import com.google.common.collect.Lists;
-import org.jclouds.collect.PagedIterable;
+import org.jclouds.collect.IterableWithMarker;
 import org.jclouds.googlecomputeengine.domain.HttpHealthCheck;
 import org.jclouds.googlecomputeengine.internal.BaseGoogleComputeEngineApiLiveTest;
 import org.jclouds.googlecomputeengine.options.ListOptions;
 import org.testng.annotations.Test;
-
-import java.util.List;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -39,7 +36,7 @@ public class HttpHealthCheckApiLiveTest extends BaseGoogleComputeEngineApiLiveTe
 
    @Test(groups = "live")
    public void testInsertHttpHealthCheck() {
-      assertGlobalOperationDoneSucessfully(api().create(HTTP_HEALTH_CHECK_NAME), TIME_WAIT);
+      assertGlobalOperationDoneSucessfully(api().insert(HTTP_HEALTH_CHECK_NAME), TIME_WAIT);
    }
 
    @Test(groups = "live", dependsOnMethods = "testInsertHttpHealthCheck")
@@ -51,10 +48,9 @@ public class HttpHealthCheckApiLiveTest extends BaseGoogleComputeEngineApiLiveTe
 
    @Test(groups = "live", dependsOnMethods = "testGetHttpHealthCheck")
    public void testListHttpHealthCheck() {
-      PagedIterable<HttpHealthCheck> httpHealthCheck = api().list(new ListOptions.Builder()
+      IterableWithMarker<HttpHealthCheck> httpHealthCheck = api().list(new ListOptions.Builder()
               .filter("name eq " + HTTP_HEALTH_CHECK_NAME));
-      List<HttpHealthCheck> httpHealthChecksAsList = Lists.newArrayList(httpHealthCheck.concat());
-      assertEquals(httpHealthChecksAsList.size(), 1);
+      assertEquals(httpHealthCheck.toList().size(), 1);
    }
 
    @Test(groups = "live", dependsOnMethods = "testListHttpHealthCheck")

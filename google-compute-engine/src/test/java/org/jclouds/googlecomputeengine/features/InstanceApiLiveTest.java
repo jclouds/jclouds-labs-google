@@ -108,7 +108,7 @@ public class InstanceApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
    @Test(groups = "live")
    public void testInsertInstance() {
 
-      // need to create the network first
+      // need to insert the network first
       assertGlobalOperationDoneSucessfully(api.getNetworkApi(userProject.get()).createInIPv4Range
               (INSTANCE_NETWORK_NAME, IPV4_RANGE), TIME_WAIT);
 

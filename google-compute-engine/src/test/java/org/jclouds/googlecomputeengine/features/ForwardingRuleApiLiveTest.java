@@ -16,8 +16,7 @@
  */
 package org.jclouds.googlecomputeengine.features;
 
-import com.google.common.collect.Lists;
-import org.jclouds.collect.PagedIterable;
+import org.jclouds.collect.IterableWithMarker;
 import org.jclouds.googlecomputeengine.domain.ForwardingRule;
 import org.jclouds.googlecomputeengine.domain.TargetPool;
 import org.jclouds.googlecomputeengine.internal.BaseGoogleComputeEngineApiLiveTest;
@@ -25,8 +24,6 @@ import org.jclouds.googlecomputeengine.options.ListOptions;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import java.util.List;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -52,23 +49,23 @@ public class ForwardingRuleApiLiveTest extends BaseGoogleComputeEngineApiLiveTes
 
    @BeforeClass
    public void init() {
-      assertRegionOperationDoneSucessfully(targetPoolApi().createInRegion(TARGETPOOL_NAME), TIME_WAIT);
-      targetPool = targetPoolApi().getInRegion(TARGETPOOL_NAME);
+      assertRegionOperationDoneSucessfully(targetPoolApi().create(TARGETPOOL_NAME), TIME_WAIT);
+      targetPool = targetPoolApi().get(TARGETPOOL_NAME);
    }
 
    @AfterClass
    public void tearDown() {
-      assertRegionOperationDoneSucessfully(targetPoolApi().deleteInRegion(TARGETPOOL_NAME), TIME_WAIT);
+      assertRegionOperationDoneSucessfully(targetPoolApi().delete(TARGETPOOL_NAME), TIME_WAIT);
    }
 
    @Test(groups = "live")
    public void testInsertForwardingRule() {
-      assertRegionOperationDoneSucessfully(api().createInRegion(FORWARDING_RULE_NAME, targetPool.getSelfLink()), TIME_WAIT);
+      assertRegionOperationDoneSucessfully(api().create(FORWARDING_RULE_NAME, targetPool.getSelfLink()), TIME_WAIT);
    }
 
    @Test(groups = "live", dependsOnMethods = "testInsertForwardingRule")
    public void testGetForwardingRule() {
-      ForwardingRule forwardingRule = api().getInRegion(FORWARDING_RULE_NAME);
+      ForwardingRule forwardingRule = api().get(FORWARDING_RULE_NAME);
       assertNotNull(forwardingRule);
       assertEquals(forwardingRule.getName(), FORWARDING_RULE_NAME);
    }
@@ -76,14 +73,13 @@ public class ForwardingRuleApiLiveTest extends BaseGoogleComputeEngineApiLiveTes
    @Test(groups = "live", dependsOnMethods = "testGetForwardingRule")
    public void testListForwardingRule() {
 
-      PagedIterable<ForwardingRule> forwardingRule = api().listInRegion(new ListOptions.Builder()
+      IterableWithMarker<ForwardingRule> forwardingRule = api().list(new ListOptions.Builder()
               .filter("name eq " + FORWARDING_RULE_NAME));
-      List<ForwardingRule> forwardingRulesAsList = Lists.newArrayList(forwardingRule.concat());
-      assertEquals(forwardingRulesAsList.size(), 1);
+      assertEquals(forwardingRule.toList().size(), 1);
    }
 
    @Test(groups = "live", dependsOnMethods = "testListForwardingRule")
    public void testDeleteForwardingRule() {
-      assertRegionOperationDoneSucessfully(api().deleteInRegion(FORWARDING_RULE_NAME), TIME_WAIT);
+      assertRegionOperationDoneSucessfully(api().delete(FORWARDING_RULE_NAME), TIME_WAIT);
    }
 }

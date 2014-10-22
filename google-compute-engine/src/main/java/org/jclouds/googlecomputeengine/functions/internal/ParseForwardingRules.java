@@ -40,7 +40,7 @@ public class ParseForwardingRules extends ParseJson<ListPage<ForwardingRule>> {
       });
    }
 
-   public static class ToPagedIterable extends BaseWithZoneToPagedIterable<ForwardingRule, ToPagedIterable> {
+   public static class ToPagedIterable extends BaseWithRegionToPagedIterable<ForwardingRule, ToPagedIterable> {
 
       private final GoogleComputeEngineApi api;
 
@@ -57,8 +57,7 @@ public class ParseForwardingRules extends ParseJson<ListPage<ForwardingRule>> {
 
             @Override
             public IterableWithMarker<ForwardingRule> apply(Object input) {
-               return api.getForwardingRuleApi(projectName, regionName)
-                       .listAtMarkerInRegion(input.toString(), options);
+               return api.getForwardingRuleApi(projectName, regionName).list(options);
             }
          };
       }

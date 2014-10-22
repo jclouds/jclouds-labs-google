@@ -113,7 +113,7 @@ public interface GoogleComputeEngineApi extends Closeable {
     * @param projectName the name of the project
     */
    @Delegate
-   @Path("/projects/{project}")
+   @Path("/projects/{project}/global/httpHealthChecks")
    HttpHealthCheckApi getHttpHealthCheckApi(@PathParam("project") String projectName);
 
    /**

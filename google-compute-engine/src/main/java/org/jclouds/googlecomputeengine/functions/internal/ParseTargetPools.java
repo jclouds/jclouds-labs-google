@@ -58,7 +58,7 @@ public class ParseTargetPools extends ParseJson<ListPage<TargetPool>> {
             @Override
             public IterableWithMarker<TargetPool> apply(Object input) {
                return api.getTargetPoolApi(projectName, regionName)
-                       .listAtMarkerInRegion(input.toString(), options);
+                       .list(options);
             }
          };
       }

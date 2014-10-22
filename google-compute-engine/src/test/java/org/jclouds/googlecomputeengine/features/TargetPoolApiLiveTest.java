@@ -16,14 +16,11 @@
  */
 package org.jclouds.googlecomputeengine.features;
 
-import com.google.common.collect.Lists;
-import org.jclouds.collect.PagedIterable;
+import org.jclouds.collect.IterableWithMarker;
 import org.jclouds.googlecomputeengine.domain.TargetPool;
 import org.jclouds.googlecomputeengine.internal.BaseGoogleComputeEngineApiLiveTest;
 import org.jclouds.googlecomputeengine.options.ListOptions;
 import org.testng.annotations.Test;
-
-import java.util.List;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -39,12 +36,12 @@ public class TargetPoolApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
 
    @Test(groups = "live")
    public void testInsertTargetPool() {
-      assertRegionOperationDoneSucessfully(api().createInRegion(TARGETPOOL_NAME), TIME_WAIT);
+      assertRegionOperationDoneSucessfully(api().create(TARGETPOOL_NAME), TIME_WAIT);
    }
 
    @Test(groups = "live", dependsOnMethods = "testInsertTargetPool")
    public void testGetTargetPool() {
-      TargetPool targetPool = api().getInRegion(TARGETPOOL_NAME);
+      TargetPool targetPool = api().get(TARGETPOOL_NAME);
       assertNotNull(targetPool);
       assertEquals(targetPool.getName(), TARGETPOOL_NAME);
    }
@@ -52,14 +49,13 @@ public class TargetPoolApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
    @Test(groups = "live", dependsOnMethods = "testGetTargetPool")
    public void testListTargetPool() {
 
-      PagedIterable<TargetPool> targetPool = api().listInRegion(new ListOptions.Builder()
+      IterableWithMarker<TargetPool> targetPool = api().list(new ListOptions.Builder()
               .filter("name eq " + TARGETPOOL_NAME));
-      List<TargetPool> targetPoolsAsList = Lists.newArrayList(targetPool.concat());
-      assertEquals(targetPoolsAsList.size(), 1);
+      assertEquals(targetPool.toList().size(), 1);
    }
 
    @Test(groups = "live", dependsOnMethods = "testListTargetPool")
    public void testDeleteTargetPool() {
-      assertRegionOperationDoneSucessfully(api().deleteInRegion(TARGETPOOL_NAME), TIME_WAIT);
+      assertRegionOperationDoneSucessfully(api().delete(TARGETPOOL_NAME), TIME_WAIT);
    }
 }

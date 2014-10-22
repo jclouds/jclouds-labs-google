@@ -30,10 +30,10 @@ import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Optional.fromNullable;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import org.jclouds.javax.annotation.Nullable;
+
 /**
  * Represents an TargetPool resource.
- *
- * @see <a href="https://developers.google.com/compute/docs/reference/latest/targetPools#resource"/>
  */
 @Beta
 public final class TargetPool extends Resource {
@@ -50,13 +50,14 @@ public final class TargetPool extends Resource {
            "sessionAffinity", "failoverRatio", "backupPool"
    })
    private TargetPool(String id, Date creationTimestamp, URI selfLink, String name, String description,
-                      URI region, Set<URI> healthChecks, Set<URI> instances, String sessionAffinity, float failoverRatio, String backupPool) {
+                      URI region, Set<URI> healthChecks, Set<URI> instances, @Nullable String sessionAffinity,
+                      float failoverRatio, @Nullable String backupPool) {
       super(Kind.TARGET_POOL, id, creationTimestamp, selfLink, name, description);
       this.region = checkNotNull(region, "region of %s", name);
       this.healthChecks = healthChecks == null ? ImmutableSet.<URI>of() : healthChecks;
       this.instances = instances == null ? ImmutableSet.<URI>of() : instances;
       this.sessionAffinity = fromNullable(sessionAffinity);
-      this.failoverRatio = checkNotNull(failoverRatio, "failoverRatio of %s", name);
+      this.failoverRatio = failoverRatio;
       this.backupPool = fromNullable(backupPool);
    }
 
@@ -90,7 +91,7 @@ public final class TargetPool extends Resource {
    }
 
    /**
-    * @return Defines the session affinity option, determines the hash method that Google Compute Engine uses to
+    * @return the session affinity option, determines the hash method that Google Compute Engine uses to
     * distribute traffic.
     */
    public Optional<String> getSessionAffinity() {
@@ -98,20 +99,21 @@ public final class TargetPool extends Resource {
    }
 
    /**
-    * @return This field is applicable only when the target pool is serving a forwarding rule as the primary pool.
+    * This field is applicable only when the target pool is serving a forwarding rule as the primary pool.
     * The value of the a float between [0, 1]. If set, backupPool must also be set. Together,
     * they define the fallback behavior of the primary target pool. If the ratio of the healthy VMs in the primary
     * pool is at or below this number, traffic arriving at the load-balanced IP will be directed to the backup pool.
     * In case where failoverRatio is not set or all the VMs in the backup pool are unhealthy,
     * the traffic will be  directed back to the primary pool in the force mode, where traffic will be spread to the
     * healthy VMs with the best effort, or to all VMs when no VM is healthy.
+    * @return the failover ratio
     */
    public float getFailoverRatio() {
       return failoverRatio;
    }
 
    /**
-    * @return This field is applicable only when the target pool is serving a forwarding rule as the primary pool.
+    * This field is applicable only when the target pool is serving a forwarding rule as the primary pool.
     * Must be a fully-qualified URL to a target pool that is in the same region as the primary target pool.
     * If set, failoverRatio must also be set. Together, they define the fallback behavior of the primary target pool.
     * If the ratio of the healthy VMs in the primary pool is at or below this number,
@@ -119,6 +121,7 @@ public final class TargetPool extends Resource {
     * not set or all the VMs in the backup pool are unhealthy, the traffic will be directed back to the primary pool
     * in the force mode, where traffic will be spread to the healthy VMs with the best effort,
     * or to all VMs when no VM is healthy.
+    * @return the backup pool
     */
    public Optional<String> getBackupPool() {
       return backupPool;

@@ -28,6 +28,8 @@ import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Optional.fromNullable;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import org.jclouds.javax.annotation.Nullable;
+
 @Beta
 public class ForwardingRule extends Resource {
 
@@ -42,7 +44,8 @@ public class ForwardingRule extends Resource {
            "portRange", "target"
    })
    private ForwardingRule(String id, Date creationTimestamp, URI selfLink, String name, String description,
-                      URI region, String ipAddress, String ipProtocol, String portRange, URI target) {
+                      URI region, @Nullable String ipAddress, @Nullable String ipProtocol, @Nullable String portRange,
+                      URI target) {
       super(Kind.FORWARDING_RULE, id, creationTimestamp, selfLink, name, description);
       this.region = checkNotNull(region, "region of %s", name);
       this.ipAddress = fromNullable(ipAddress);

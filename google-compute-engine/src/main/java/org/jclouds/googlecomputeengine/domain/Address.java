@@ -30,8 +30,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Represents an Address resource.
- *
- * @see <a href="https://developers.google.com/compute/docs/reference/v1/addresses"/>
  */
 @Beta
 public final class Address extends Resource {

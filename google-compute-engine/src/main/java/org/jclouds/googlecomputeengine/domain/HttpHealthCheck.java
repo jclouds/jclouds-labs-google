@@ -27,6 +27,8 @@ import java.util.Date;
 import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Optional.fromNullable;
 
+import org.jclouds.javax.annotation.Nullable;
+
 @Beta
 public class HttpHealthCheck extends Resource {
    private final Optional<String> host;
@@ -42,8 +44,8 @@ public class HttpHealthCheck extends Resource {
            "checkIntervalSec", "timeoutSec", "unhealthyThreshold", "healthyThreshold"
    })
    private HttpHealthCheck(String id, Date creationTimestamp, URI selfLink, String name, String description,
-                          String host, String requestPath, int port, int checkIntervalSec,
-                          int timeoutSec, int unhealthyThreshold, int healthyThreshold) {
+                           @Nullable String host, @Nullable String requestPath, int port, int checkIntervalSec,
+                           int timeoutSec, int unhealthyThreshold, int healthyThreshold) {
       super(Kind.HTTP_HEALTH_CHECK, id, creationTimestamp, selfLink, name, description);
       this.host = fromNullable(host);
       this.requestPath = fromNullable(requestPath);

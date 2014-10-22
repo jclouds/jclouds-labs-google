@@ -47,7 +47,7 @@ public class RegionOperationApiLiveTest extends BaseGoogleComputeEngineApiLiveTe
 
    @Test(groups = "live")
    public void testCreateOperations() {
-      //create some operations by adding and deleting metadata items
+      //insert some operations by adding and deleting metadata items
       // this will make sure there is stuff to listFirstPage
       addOperation = assertRegionOperationDoneSucessfully(addressApi().createInRegion(DEFAULT_REGION_NAME,
               ADDRESS_NAME), 20);

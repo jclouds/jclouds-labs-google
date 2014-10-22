@@ -16,11 +16,10 @@
  */
 package org.jclouds.googlecomputeengine.features;
 
-import org.jclouds.Fallbacks.EmptyIterableWithMarkerOnNotFoundOr404;
 import org.jclouds.Fallbacks.EmptyPagedIterableOnNotFoundOr404;
 import org.jclouds.Fallbacks.NullOnNotFoundOr404;
+import org.jclouds.collect.IterableWithMarker;
 import org.jclouds.collect.PagedIterable;
-import org.jclouds.googlecomputeengine.domain.ListPage;
 import org.jclouds.googlecomputeengine.domain.Operation;
 import org.jclouds.googlecomputeengine.domain.TargetPool;
 import org.jclouds.googlecomputeengine.functions.internal.ParseTargetPools;
@@ -45,7 +44,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.net.URI;
 import java.util.List;
@@ -55,11 +53,10 @@ import static org.jclouds.googlecomputeengine.GoogleComputeEngineConstants.COMPU
 
 /**
  * Provides access to TargetPools via their REST API.
- *
- * @see <a href="https://developers.google.com/compute/docs/reference/latest/#TargetPools"/>
  */
 @SkipEncoding({'/', '='})
 @RequestFilters(OAuthAuthenticator.class)
+@Consumes(MediaType.APPLICATION_JSON)
 public interface TargetPoolApi {
 
    /**
@@ -70,12 +67,11 @@ public interface TargetPoolApi {
     */
    @Named("TargetPools:get")
    @GET
-   @Consumes(MediaType.APPLICATION_JSON)
    @Path("/targetPools/{targetPool}")
    @OAuthScopes(COMPUTE_READONLY_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
-   TargetPool getInRegion(@PathParam("targetPool") String targetPool);
+   TargetPool get(@PathParam("targetPool") String targetPool);
 
    /**
     * Creates a TargetPool resource in the specified project and region using the data included in the request.
@@ -86,12 +82,11 @@ public interface TargetPoolApi {
     */
    @Named("TargetPools:insert")
    @POST
-   @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
    @Path("/targetPools")
-   @OAuthScopes({COMPUTE_SCOPE})
+   @OAuthScopes(COMPUTE_SCOPE)
    @MapBinder(BindToJsonPayload.class)
-   Operation createInRegion(@PayloadParam("name") String targetPoolName);
+   Operation create(@PayloadParam("name") String targetPoolName);
 
    /**
     * Creates a TargetPool resource in the specified project and region using the data included in the request.
@@ -104,13 +99,11 @@ public interface TargetPoolApi {
     */
    @Named("TargetPools:insert")
    @POST
-   @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
    @Path("/targetPools")
-   @OAuthScopes({COMPUTE_SCOPE})
+   @OAuthScopes(COMPUTE_SCOPE)
    @MapBinder(BindToJsonPayload.class)
-   Operation createInRegion(@PayloadParam("name") String targetPoolName,
-                            @PayloadParam("instances") List<URI> instances);
+   Operation create(@PayloadParam("name") String targetPoolName, @PayloadParam("instances") List<URI> instances);
 
    /**
     * Creates a TargetPool resource in the specified project and region using the data included in the request.
@@ -127,14 +120,12 @@ public interface TargetPoolApi {
     */
    @Named("TargetPools:insert")
    @POST
-   @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
    @Path("/targetPools")
-   @OAuthScopes({COMPUTE_SCOPE})
+   @OAuthScopes(COMPUTE_SCOPE)
    @MapBinder(BindToJsonPayload.class)
-   Operation createInRegion(@PayloadParam("name") String targetPoolName,
-                            @PayloadParam("instances") List<URI> instances,
-                            @PayloadParam("healthChecks") List<URI> healthChecks);
+   Operation create(@PayloadParam("name") String targetPoolName, @PayloadParam("instances") List<URI> instances,
+                    @PayloadParam("healthChecks") List<URI> healthChecks);
 
    /**
     * Creates a TargetPool resource in the specified project and region using the data included in the request.
@@ -159,16 +150,13 @@ public interface TargetPoolApi {
     */
    @Named("TargetPools:insert")
    @POST
-   @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
    @Path("/targetPools")
-   @OAuthScopes({COMPUTE_SCOPE})
+   @OAuthScopes(COMPUTE_SCOPE)
    @MapBinder(BindToJsonPayload.class)
-   Operation createInRegion(@PayloadParam("name") String targetPoolName,
-                            @PayloadParam("instances") List<URI> instances,
-                            @PayloadParam("healthChecks") List<URI> healthChecks,
-                            @PayloadParam("backupPool") String backupPool,
-                            @PayloadParam("sessionAffinity") String sessionAffinity);
+   Operation create(@PayloadParam("name") String targetPoolName, @PayloadParam("instances") List<URI> instances,
+                    @PayloadParam("healthChecks") List<URI> healthChecks, @PayloadParam("backupPool") String backupPool,
+                    @PayloadParam("sessionAffinity") String sessionAffinity);
 
    /**
     * Deletes the specified TargetPool resource.
@@ -179,85 +167,39 @@ public interface TargetPoolApi {
     */
    @Named("TargetPools:delete")
    @DELETE
-   @Consumes(MediaType.APPLICATION_JSON)
    @Path("/targetPools/{targetPool}")
    @OAuthScopes(COMPUTE_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
-   Operation deleteInRegion(@PathParam("targetPool") String targetPool);
-
-   /**
-    * @see org.jclouds.googlecomputeengine.features.TargetPoolApi#listAtMarkerInRegion(String, org.jclouds.googlecomputeengine.options.ListOptions)
-    */
-   @Named("TargetPools:list")
-   @GET
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/targetPools")
-   @OAuthScopes(COMPUTE_READONLY_SCOPE)
-   @ResponseParser(ParseTargetPools.class)
-   @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
-   ListPage<TargetPool> listFirstPageInRegion();
-
-   /**
-    * @see org.jclouds.googlecomputeengine.features.TargetPoolApi#listAtMarkerInRegion(String, ListOptions)
-    */
-   @Named("TargetPools:list")
-   @GET
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/targetPools")
-   @OAuthScopes(COMPUTE_READONLY_SCOPE)
-   @ResponseParser(ParseTargetPools.class)
-   @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
-   ListPage<TargetPool> listAtMarkerInRegion(@QueryParam("pageToken") @Nullable String marker);
-
-   /**
-    * Retrieves the listPage of target pool resources contained within the specified project and zone.
-    * By default the listPage as a maximum size of 100, if no options are provided or ListOptions#getMaxResults() has
-    * not been set.
-    *
-    * @param marker      marks the beginning of the next list page
-    * @param listOptions listing options
-    * @return a page of the listPage
-    * @see org.jclouds.googlecomputeengine.options.ListOptions
-    * @see org.jclouds.googlecomputeengine.domain.ListPage
-    */
-   @Named("TargetPools:list")
-   @GET
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/targetPools")
-   @OAuthScopes(COMPUTE_READONLY_SCOPE)
-   @ResponseParser(ParseTargetPools.class)
-   @Fallback(EmptyIterableWithMarkerOnNotFoundOr404.class)
-   ListPage<TargetPool> listAtMarkerInRegion(@QueryParam("pageToken") @Nullable String marker, ListOptions listOptions);
+   Operation delete(@PathParam("targetPool") String targetPool);
 
    /**
     * @return a Paged, Fluent Iterable that is able to fetch additional pages when required
     * @see org.jclouds.collect.PagedIterable
-    * @see org.jclouds.googlecomputeengine.features.TargetPoolApi#listAtMarkerInRegion(String,
-    * org.jclouds.googlecomputeengine.options.ListOptions)
     */
    @Named("TargetPools:list")
    @GET
-   @Consumes(MediaType.APPLICATION_JSON)
    @Path("/targetPools")
    @OAuthScopes(COMPUTE_READONLY_SCOPE)
    @ResponseParser(ParseTargetPools.class)
    @Transform(ParseTargetPools.ToPagedIterable.class)
    @Fallback(EmptyPagedIterableOnNotFoundOr404.class)
-   PagedIterable<TargetPool> listInRegion();
-
-   @Named("TargetPools:list")
-   @GET
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/targetPools")
-   @OAuthScopes(COMPUTE_READONLY_SCOPE)
-   @ResponseParser(ParseTargetPools.class)
-   @Transform(ParseTargetPools.ToPagedIterable.class)
-   @Fallback(EmptyPagedIterableOnNotFoundOr404.class)
-   PagedIterable<TargetPool> listInRegion(ListOptions options);
+   PagedIterable<TargetPool> list();
 
    /**
-    * Adds instance url to targetPool.
+    * @param options @see org.jclouds.googlecomputeengine.options.ListOptions
+    * @return IterableWithMarker
+    */
+   @Named("TargetPools:list")
+   @GET
+   @Path("/targetPools")
+   @OAuthScopes(COMPUTE_READONLY_SCOPE)
+   @ResponseParser(ParseTargetPools.class)
+   @Fallback(EmptyPagedIterableOnNotFoundOr404.class)
+   IterableWithMarker<TargetPool> list(ListOptions options);
+
+   /**
+    * Adds instance to the targetPool.
     *
     * @param targetPool the name of the target pool.
     * @param instanceName the name for the instance to be added to targetPool.
@@ -267,14 +209,12 @@ public interface TargetPoolApi {
     */
    @Named("TargetPools:addInstance")
    @POST
-   @Consumes(MediaType.APPLICATION_JSON)
    @Path("/targetPools/{targetPool}/addInstance")
    @OAuthScopes(COMPUTE_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @MapBinder(BindToJsonPayload.class)
    @Nullable
-   Operation addInstance(@PathParam("targetPool") String targetPool,
-                         @PayloadParam("instance") String instanceName);
+   Operation addInstance(@PathParam("targetPool") String targetPool, @PayloadParam("instance") String instanceName);
 
    /**
     * Adds health check URL to targetPool.
@@ -287,14 +227,12 @@ public interface TargetPoolApi {
     */
    @Named("TargetPools:addHealthCheck")
    @POST
-   @Consumes(MediaType.APPLICATION_JSON)
    @Path("/targetPools/{targetPool}/addHealthCheck")
    @OAuthScopes(COMPUTE_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @MapBinder(BindToJsonPayload.class)
    @Nullable
-   Operation addHealthCheck(@PathParam("targetPool") String targetPool,
-                         @PayloadParam("healthCheck") String healthCheck);
+   Operation addHealthCheck(@PathParam("targetPool") String targetPool, @PayloadParam("healthCheck") String healthCheck);
 
    /**
     * Removes instance URL from targetPool.
@@ -307,14 +245,12 @@ public interface TargetPoolApi {
     */
    @Named("TargetPools:removeInstance")
    @POST
-   @Consumes(MediaType.APPLICATION_JSON)
    @Path("/targetPools/{targetPool}/removeInstance")
    @OAuthScopes(COMPUTE_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @MapBinder(BindToJsonPayload.class)
    @Nullable
-   Operation removeInstance(@PathParam("targetPool") String targetPool,
-                            @PayloadParam("instanceName") String instanceName);
+   Operation removeInstance(@PathParam("targetPool") String targetPool, @PayloadParam("instanceName") String instanceName);
 
    /**
     * Changes backup pool configurations.
@@ -327,12 +263,10 @@ public interface TargetPoolApi {
     */
    @Named("TargetPools:setBackup")
    @POST
-   @Consumes(MediaType.APPLICATION_JSON)
    @Path("/targetPools/{targetPool}/setBackup")
    @OAuthScopes(COMPUTE_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @MapBinder(BindToJsonPayload.class)
    @Nullable
-   Operation setBackup(@PathParam("targetPool") String targetPool,
-                       @PayloadParam("target") String target);
+   Operation setBackup(@PathParam("targetPool") String targetPool, @PayloadParam("target") String target);
 }

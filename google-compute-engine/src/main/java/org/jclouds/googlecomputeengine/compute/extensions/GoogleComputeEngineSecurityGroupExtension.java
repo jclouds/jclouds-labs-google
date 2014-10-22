@@ -189,7 +189,7 @@ public class GoogleComputeEngineSecurityGroupExtension implements SecurityGroupE
       retry(operationDonePredicate, operationCompleteCheckTimeout, operationCompleteCheckInterval,
                  MILLISECONDS).apply(operation);
 
-      checkState(!operation.get().getHttpError().isPresent(), "Could not create network, operation failed" + operation);
+      checkState(!operation.get().getHttpError().isPresent(), "Could not insert network, operation failed" + operation);
 
       return true;
    }
@@ -238,7 +238,7 @@ public class GoogleComputeEngineSecurityGroupExtension implements SecurityGroupE
       retry(operationDonePredicate, operationCompleteCheckTimeout, operationCompleteCheckInterval,
               MILLISECONDS).apply(operation);
 
-      checkState(!operation.get().getHttpError().isPresent(), "Could not create firewall, operation failed" + operation);
+      checkState(!operation.get().getHttpError().isPresent(), "Could not insert firewall, operation failed" + operation);
 
       return getSecurityGroupById(group.getId());
    }

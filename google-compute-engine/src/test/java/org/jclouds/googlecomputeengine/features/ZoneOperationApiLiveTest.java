@@ -48,7 +48,7 @@ public class ZoneOperationApiLiveTest extends BaseGoogleComputeEngineApiLiveTest
 
    @Test(groups = "live")
    public void testCreateOperations() {
-      //create some operations by creating and deleting a disk
+      //insert some operations by creating and deleting a disk
       // this will make sure there is stuff to listFirstPage
       addOperation = assertZoneOperationDoneSucessfully(diskApi().createInZone(DISK_NAME, 1, DEFAULT_ZONE_NAME), TIME_WAIT);
       deleteOperation = assertZoneOperationDoneSucessfully(diskApi().deleteInZone(DEFAULT_ZONE_NAME, DISK_NAME), TIME_WAIT);

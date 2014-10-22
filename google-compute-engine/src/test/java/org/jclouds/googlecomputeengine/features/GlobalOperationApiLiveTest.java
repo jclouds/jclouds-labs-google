@@ -47,7 +47,7 @@ public class GlobalOperationApiLiveTest extends BaseGoogleComputeEngineApiLiveTe
 
    @Test(groups = "live")
    public void testCreateOperations() {
-      //create some operations by adding and deleting metadata items
+      //insert some operations by adding and deleting metadata items
       // this will make sure there is stuff to listFirstPage
       addOperation = assertGlobalOperationDoneSucessfully(addItemToMetadata(api.getProjectApi(),
               userProject.get(), METADATA_ITEM_KEY, METADATA_ITEM_VALUE), 20);

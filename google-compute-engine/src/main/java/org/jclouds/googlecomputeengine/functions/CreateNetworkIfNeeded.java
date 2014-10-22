@@ -85,14 +85,14 @@ public class CreateNetworkIfNeeded implements Function<NetworkAndAddressRange, N
          retry(operationDonePredicate, operationCompleteCheckTimeout, operationCompleteCheckInterval,
                  MILLISECONDS).apply(operation);
 
-         checkState(!operation.get().getHttpError().isPresent(), "Could not create network, operation failed" + operation);
+         checkState(!operation.get().getHttpError().isPresent(), "Could not insert network, operation failed" + operation);
       } else {
          AtomicReference<Operation> operation = Atomics.newReference(api.getNetworkApi(userProject
                  .get()).createInIPv4Range(input.getName(), input.getIpV4Range()));
          retry(operationDonePredicate, operationCompleteCheckTimeout, operationCompleteCheckInterval,
                  MILLISECONDS).apply(operation);
 
-         checkState(!operation.get().getHttpError().isPresent(), "Could not create network, operation failed" + operation);
+         checkState(!operation.get().getHttpError().isPresent(), "Could not insert network, operation failed" + operation);
       }
       return checkNotNull(api.getNetworkApi(userProject.get()).get(input.getName()),
                  "no network with name %s was found", input.getName());

@@ -56,8 +56,7 @@ public class ParseHttpHealthChecks extends ParseJson<ListPage<HttpHealthCheck>> 
 
             @Override
             public IterableWithMarker<HttpHealthCheck> apply(Object input) {
-               return api.getHttpHealthCheckApi(projectName)
-                       .listAtMarker(input.toString(), options);
+               return api.getHttpHealthCheckApi(projectName).list(options);
             }
          };
       }
