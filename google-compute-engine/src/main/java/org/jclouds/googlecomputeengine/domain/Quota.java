@@ -27,8 +27,6 @@ import com.google.common.base.Objects;
 
 /**
  * Quotas assigned to a given project or region.
- *
- * @see <a href="https://developers.google.com/compute/docs/reference/v1/projects#resource"/>
  */
 @Beta
 public class Quota {

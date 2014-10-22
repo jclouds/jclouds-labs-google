@@ -16,17 +16,19 @@
  */
 package org.jclouds.googlecomputeengine.config;
 
-import static org.jclouds.googlecomputeengine.domain.Firewall.Rule;
-
-import java.beans.ConstructorProperties;
-import java.lang.reflect.Type;
-import java.net.URI;
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
-
-import javax.inject.Singleton;
-
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Range;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import org.jclouds.googlecomputeengine.domain.Firewall;
 import org.jclouds.googlecomputeengine.domain.Instance;
 import org.jclouds.googlecomputeengine.domain.InstanceTemplate;
@@ -43,19 +45,15 @@ import org.jclouds.oauth.v2.domain.Header;
 import org.jclouds.oauth.v2.json.ClaimSetTypeAdapter;
 import org.jclouds.oauth.v2.json.HeaderTypeAdapter;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Range;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
+import javax.inject.Singleton;
+import java.beans.ConstructorProperties;
+import java.lang.reflect.Type;
+import java.net.URI;
+import java.util.Date;
+import java.util.Map;
+import java.util.Set;
+
+import static org.jclouds.googlecomputeengine.domain.Firewall.Rule;
 
 public class GoogleComputeEngineParserModule extends AbstractModule {
 
