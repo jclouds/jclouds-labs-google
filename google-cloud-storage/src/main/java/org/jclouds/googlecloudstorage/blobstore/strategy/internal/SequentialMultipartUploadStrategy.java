@@ -58,7 +58,7 @@ public class SequentialMultipartUploadStrategy extends MultipartUploadStrategy {
             PayloadSlicer slicer, MultipartNamingStrategy namingStrategy) {
       this.api = checkNotNull(api, "api");
       this.blobBuilders = checkNotNull(blobBuilders, "blobBuilders");
-      this.blob2ObjectTemplate = checkNotNull(blob2ObjectTemplate, "blob2Object");
+      this.blob2ObjectTemplate = checkNotNull(blob2ObjectTemplate, "blob2ObjectTemplate");
       this.algorithm = checkNotNull(algorithm, "algorithm");
       this.slicer = checkNotNull(slicer, "slicer");
       this.namingStrategy = checkNotNull(namingStrategy, "namingStrategy");

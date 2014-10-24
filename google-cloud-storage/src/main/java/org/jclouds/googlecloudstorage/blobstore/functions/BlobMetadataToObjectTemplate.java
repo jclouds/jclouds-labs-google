@@ -31,8 +31,9 @@ import com.google.common.hash.HashCode;
 public class BlobMetadataToObjectTemplate implements Function<BlobMetadata, ObjectTemplate> {
 
    public ObjectTemplate apply(BlobMetadata from) {
-      if (from == null)
+      if (from == null){
          return null;
+      }        
 
       String name = from.getName();
       Map<String, String> userMeta = from.getUserMetadata();
