@@ -17,11 +17,9 @@
 package org.jclouds.googlecomputeengine.config;
 
 import static com.google.common.base.Suppliers.compose;
-import static com.google.inject.name.Names.named;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jclouds.Constants.PROPERTY_SESSION_INTERVAL;
 
-import java.net.URI;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Named;
@@ -29,19 +27,11 @@ import javax.inject.Singleton;
 
 import org.jclouds.domain.Credentials;
 import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
-import org.jclouds.googlecomputeengine.compute.domain.SlashEncodedIds;
-import org.jclouds.googlecomputeengine.domain.Operation;
 import org.jclouds.googlecomputeengine.handlers.GoogleComputeEngineErrorHandler;
-import org.jclouds.googlecomputeengine.predicates.GlobalOperationDonePredicate;
-import org.jclouds.googlecomputeengine.predicates.RegionOperationDonePredicate;
-import org.jclouds.googlecomputeengine.predicates.ZoneOperationDonePredicate;
 import org.jclouds.http.HttpErrorHandler;
-import org.jclouds.http.Uris;
 import org.jclouds.http.annotation.ClientError;
 import org.jclouds.http.annotation.Redirection;
 import org.jclouds.http.annotation.ServerError;
-import org.jclouds.json.config.GsonModule.DateAdapter;
-import org.jclouds.json.config.GsonModule.Iso8601DateAdapter;
 import org.jclouds.location.Provider;
 import org.jclouds.rest.AuthorizationException;
 import org.jclouds.rest.ConfiguresHttpApi;
@@ -49,28 +39,14 @@ import org.jclouds.rest.config.HttpApiModule;
 import org.jclouds.rest.suppliers.MemoizedRetryOnTimeOutButNotOnAuthorizationExceptionSupplier;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 import com.google.inject.Provides;
-import com.google.inject.TypeLiteral;
 
 @ConfiguresHttpApi
 public final class GoogleComputeEngineHttpApiModule extends HttpApiModule<GoogleComputeEngineApi> {
    public GoogleComputeEngineHttpApiModule() {
-   }
-
-   @Override
-   protected void configure() {
-      bind(DateAdapter.class).to(Iso8601DateAdapter.class);
-      bind(new TypeLiteral<Predicate<AtomicReference<Operation>>>() {
-      }).annotatedWith(named("global")).to(GlobalOperationDonePredicate.class);
-      bind(new TypeLiteral<Predicate<AtomicReference<Operation>>>() {
-      }).annotatedWith(named("region")).to(RegionOperationDonePredicate.class);
-      bind(new TypeLiteral<Predicate<AtomicReference<Operation>>>() {
-      }).annotatedWith(named("zone")).to(ZoneOperationDonePredicate.class);
-      super.configure();
    }
 
    @Override
@@ -114,32 +90,5 @@ public final class GoogleComputeEngineHttpApiModule extends HttpApiModule<Google
                     return api.getProjectApi().get(projectName).name();
                  }
               }, creds), seconds, SECONDS);
-   }
-
-   @Provides
-   @Singleton
-   @Named("machineTypeToURI") Function<String, URI> machineTypeNameToURI(
-         @Provider final Supplier<URI> endpoint, @UserProject final Supplier<String> userProject) {
-      return new Function<String, URI>() {
-         @Override
-         public URI apply(String input) {
-            SlashEncodedIds zoneAndMachineType = SlashEncodedIds.fromSlashEncoded(input);
-            return Uris.uriBuilder(endpoint.get()).appendPath("/projects/").appendPath(userProject.get())
-                    .appendPath("/zones/").appendPath(zoneAndMachineType.left())
-                    .appendPath("/machineTypes/").appendPath(zoneAndMachineType.right()).build();
-         }
-      };
-   }
-
-   @Provides
-   @Singleton
-   @Named("networkToURI") Function<String, URI> networkNameToURI(@Provider final Supplier<URI> endpoint,
-                                                                 @UserProject final Supplier<String> userProject) {
-      return new Function<String, URI>() {
-         @Override public URI apply(String input) {
-            return Uris.uriBuilder(endpoint.get()).appendPath("/projects/").appendPath(userProject.get())
-                    .appendPath("/global/networks/").appendPath(input).build();
-         }
-      };
    }
 }
