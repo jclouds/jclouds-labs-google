@@ -26,6 +26,7 @@ public class BaseGoogleCloudStorageApiExpectTest extends BaseGoogleCloudStorageE
    protected Properties setupProperties() {
       Properties properties = super.setupProperties();
       properties.put("google-cloud-storage.identity", "JcloudTest");
+      properties.put("google-cloud-storage.credential", "testpk.pem");
       return properties;
    }
 }

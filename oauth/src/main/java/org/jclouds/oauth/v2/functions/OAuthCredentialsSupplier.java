@@ -18,7 +18,6 @@ package org.jclouds.oauth.v2.functions;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Throwables.propagate;
 import static java.lang.String.format;
 import static org.jclouds.crypto.Pems.privateKeySpec;
 import static org.jclouds.oauth.v2.OAuthConstants.NO_ALGORITHM;
@@ -26,20 +25,20 @@ import static org.jclouds.oauth.v2.OAuthConstants.OAUTH_ALGORITHM_NAMES_TO_KEYFA
 import static org.jclouds.oauth.v2.config.OAuthProperties.SIGNATURE_OR_MAC_ALGORITHM;
 import static org.jclouds.util.Throwables2.getFirstThrowableOfType;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.jclouds.domain.Credentials;
 import org.jclouds.location.Provider;
+import org.jclouds.oauth.v2.config.CredentialType;
 import org.jclouds.oauth.v2.domain.OAuthCredentials;
 import org.jclouds.rest.AuthorizationException;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
 import com.google.common.base.Supplier;
@@ -47,6 +46,8 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.io.ByteSource;
+import com.google.common.io.Files;
+import com.google.common.io.Resources;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
 /**
@@ -77,26 +78,44 @@ public final class OAuthCredentialsSupplier implements Supplier<OAuthCredentials
    @VisibleForTesting
    static final class OAuthCredentialsForCredentials extends CacheLoader<Credentials, OAuthCredentials> {
       private final String keyFactoryAlgorithm;
+      private final CredentialType credentialType;
 
-      @Inject OAuthCredentialsForCredentials(@Named(SIGNATURE_OR_MAC_ALGORITHM) String signatureOrMacAlgorithm) {
+      @Inject
+      public OAuthCredentialsForCredentials(@Named(SIGNATURE_OR_MAC_ALGORITHM) String signatureOrMacAlgorithm,
+            CredentialType credentialType) {
          this.keyFactoryAlgorithm = OAUTH_ALGORITHM_NAMES_TO_KEYFACTORY_ALGORITHM_NAMES.get(checkNotNull(
                  signatureOrMacAlgorithm, "signatureOrMacAlgorithm"));
+         this.credentialType = credentialType;
       }
 
       @Override public OAuthCredentials load(Credentials in) {
          try {
-            String identity = in.identity;
             String privateKeyInPemFormat = in.credential;
+            String identity = in.identity;
+
+            // If passing Bearer tokens, simply create and pass it along
+            if (credentialType == CredentialType.BEARER_TOKEN_CREDENTIALS) {
+               return new OAuthCredentials.Builder().identity(identity).credential(in.credential).build();
+            }
+
+            // If using keys, check if credential is the actual key, or try to load from a file if not
+            if (credentialType == CredentialType.SERVICE_ACCOUNT_CREDENTIALS) {
+               privateKeyInPemFormat = in.credential.startsWith("-----BEGIN") ?
+                     in.credential :
+                     Files.toString(new File(
+                           Resources.getResource(in.credential).getPath()), Charsets.UTF_8);
+            }
+
             if (keyFactoryAlgorithm.equals(NO_ALGORITHM)) {
                return new OAuthCredentials.Builder().identity(identity).credential(privateKeyInPemFormat).build();
             }
             KeyFactory keyFactory = KeyFactory.getInstance(keyFactoryAlgorithm);
             PrivateKey privateKey = keyFactory.generatePrivate(privateKeySpec(ByteSource.wrap(
-               privateKeyInPemFormat.getBytes(Charsets.UTF_8))));
+                  privateKeyInPemFormat.getBytes(Charsets.UTF_8))));
             return new OAuthCredentials.Builder().identity(identity).credential(privateKeyInPemFormat)
                     .privateKey(privateKey).build();
          } catch (IOException e) {
-            throw propagate(e);
+            throw new AuthorizationException("Unable to load key from file. " + e.getMessage(), e);
             // catch security exceptions InvalidKeySpecException and NoSuchAlgorithmException as GSE
          } catch (GeneralSecurityException e) {
             throw new AuthorizationException("security exception loading credentials. " + e.getMessage(), e);

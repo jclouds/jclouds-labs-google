@@ -23,8 +23,10 @@ import java.net.URI;
 import java.util.Properties;
 
 import org.jclouds.apis.ApiMetadata;
+import org.jclouds.oauth.v2.config.CredentialType;
 import org.jclouds.oauth.v2.config.OAuthHttpApiModule;
 import org.jclouds.oauth.v2.config.OAuthModule;
+import org.jclouds.oauth.v2.config.OAuthProperties;
 import org.jclouds.rest.internal.BaseHttpApiMetadata;
 
 import com.google.auto.service.AutoService;
@@ -50,6 +52,7 @@ public class OAuthApiMetadata extends BaseHttpApiMetadata<OAuthApi> {
    public static Properties defaultProperties() {
       Properties properties = BaseHttpApiMetadata.defaultProperties();
       properties.put(SIGNATURE_OR_MAC_ALGORITHM, "RS256");
+      properties.put(OAuthProperties.CREDENTIAL_TYPE, CredentialType.SERVICE_ACCOUNT_CREDENTIALS);
       properties.put(PROPERTY_SESSION_INTERVAL, 3600);
       return properties;
    }

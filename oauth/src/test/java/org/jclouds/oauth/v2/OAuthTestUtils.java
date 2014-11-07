@@ -18,6 +18,7 @@ package org.jclouds.oauth.v2;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
+import static org.jclouds.oauth.v2.OAuthConstants.NO_ALGORITHM;
 import static org.jclouds.oauth.v2.config.OAuthProperties.AUDIENCE;
 import static org.jclouds.util.Strings2.toStringAndClose;
 
@@ -52,7 +53,8 @@ public class OAuthTestUtils {
       properties.put("oauth.credential", "1/8xbJqaOZXSUZbHLl5EOtu1pxz3fmmetKx9W8CV4t79M");
       properties.put("oauth.endpoint", "http://localhost:5000/o/oauth2/token");
       properties.put(AUDIENCE, "https://accounts.google.com/o/oauth2/token");
-      properties.put(OAuthProperties.CREDENTIAL_TYPE, CredentialType.BEARER_TOKEN_CREDENTIALS.toString());
+      properties.put(OAuthProperties.CREDENTIAL_TYPE, CredentialType.BEARER_TOKEN_CREDENTIALS);
+      properties.put(OAuthProperties.SIGNATURE_OR_MAC_ALGORITHM, NO_ALGORITHM);
       return properties;
    }
 

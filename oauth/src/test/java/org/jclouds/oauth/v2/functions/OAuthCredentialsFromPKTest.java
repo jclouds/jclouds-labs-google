@@ -32,6 +32,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
 import org.jclouds.domain.Credentials;
+import org.jclouds.oauth.v2.config.CredentialType;
 import org.jclouds.oauth.v2.domain.OAuthCredentials;
 import org.jclouds.oauth.v2.functions.OAuthCredentialsSupplier.OAuthCredentialsForCredentials;
 import org.testng.annotations.Test;
@@ -46,7 +47,7 @@ public class OAuthCredentialsFromPKTest {
          CertificateException, InvalidKeySpecException {
       OAuthCredentialsSupplier loader = new OAuthCredentialsSupplier(ofInstance(new Credentials("foo",
             Files.asCharSource(new File("src/test/resources/testpk.pem"), Charsets.UTF_8).read())),
-            new OAuthCredentialsForCredentials("RS256"), "RS256");
+            new OAuthCredentialsForCredentials("RS256", CredentialType.SERVICE_ACCOUNT_CREDENTIALS), "RS256");
       return loader.get();
    }
 

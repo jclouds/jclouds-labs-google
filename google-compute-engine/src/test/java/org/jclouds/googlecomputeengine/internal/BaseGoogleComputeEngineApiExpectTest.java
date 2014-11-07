@@ -26,6 +26,7 @@ public class BaseGoogleComputeEngineApiExpectTest extends BaseGoogleComputeEngin
    protected Properties setupProperties() {
       Properties properties = super.setupProperties();
       properties.put("google-compute-engine.identity", "myproject");
+      properties.put("google-compute-engine.credential", "testpk.pem");
       return properties;
    }
 }
