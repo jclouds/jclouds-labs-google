@@ -52,13 +52,13 @@ import org.jclouds.http.HttpResponse;
 import org.jclouds.io.Payload;
 import org.jclouds.oauth.v2.OAuthConstants;
 import org.jclouds.oauth.v2.config.OAuthProperties;
+import org.jclouds.oauth.v2.functions.BuildTokenRequest;
 import org.jclouds.providers.ProviderMetadata;
 import org.jclouds.rest.internal.BaseRestApiExpectTest;
 import org.jclouds.ssh.SshKeys;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.google.common.io.ByteSource;
 import com.google.inject.Binder;
 import com.google.inject.Module;
@@ -116,7 +116,8 @@ public class BaseGoogleComputeEngineExpectTest<T> extends BaseRestApiExpectTest<
          @Override
          public void configure(Binder binder) {
             // Predictable time
-            binder.bind(new TypeLiteral<Supplier<Long>>() {}).toInstance(Suppliers.ofInstance(0L));
+            binder.bind(BuildTokenRequest.class).to(BuildTokenRequest.WithConstantIssuedAt.class);
+
             Crypto crypto = createMock(Crypto.class);
             KeyPairGenerator rsaKeyPairGenerator = createMock(KeyPairGenerator.class);
             SecureRandom secureRandom = createMock(SecureRandom.class);

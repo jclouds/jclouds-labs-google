@@ -16,9 +16,6 @@
  */
 package org.jclouds.oauth.v2.config;
 
-/**
- * Configurable properties for jclouds OAuth
- */
 public class OAuthProperties {
 
    /**
@@ -37,15 +34,9 @@ public class OAuthProperties {
    public static final String AUDIENCE = "jclouds.oauth.audience";
 
    /**
-    * Optional list of comma-separated scopes to use when no OAuthScopes annotation is present.
-    */
-   public static final String SCOPES = "jclouds.oauth.scopes";
-
-   /**
     * Specify if credentials are id + private key or if you are reusing an oauth2 token.
     *
     * @see org.jclouds.oauth.v2.config.CredentialType
     */
    public static final String CREDENTIAL_TYPE = "jclouds.oauth.credential-type";
-
 }

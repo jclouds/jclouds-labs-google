@@ -18,10 +18,7 @@ package org.jclouds.oauth.v2.filters;
 
 import org.jclouds.http.HttpRequestFilter;
 
-/**
- * Marker interface to specify auth mechanism (credentials or bearer token)
- *
- */
+/** Marker interface to specify auth mechanism (credentials or bearer token). */
 public interface OAuthAuthenticationFilter extends HttpRequestFilter {
 
 }

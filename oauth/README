@@ -7,8 +7,6 @@ oauth.endpoint - the endpoint to use for authentication (e.g., "http://accounts.
 oauth.audience - the "audience" of the token request (e.g., "http://accounts.google.com/o/oauth2/token" in Google Api's)
 
 Optional:
-- each application may expose a Map<String,String> of additional claims to be added to the token request,
-these should be annotated/named with "oauth.additional-claims"
 oauth.signature-or-mac-algorithm  - the algorithms to use when signing the token request.
 
 Running the live test:

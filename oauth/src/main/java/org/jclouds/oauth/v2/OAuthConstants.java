@@ -20,21 +20,15 @@ import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
 
-/**
- * The constants for OAuth \
- */
 public final class OAuthConstants {
 
-   /**
-    * Selected algorithm when a signature or mac isn't required.
-    */
+   /** Selected algorithm when a signature or mac isn't required. */
    public static final String NO_ALGORITHM = "none";
 
    /**
     * Static mapping between the oauth algorithm name and the Crypto provider signature algorithm name.
     *
     * @see <a href="http://tools.ietf.org/html/draft-ietf-jose-json-web-algorithms-06#section-3.1">doc</a>
-    * @see org.jclouds.oauth.v2.json.JWTTokenRequestFormat
     */
    public static final Map<String, String> OAUTH_ALGORITHM_NAMES_TO_SIGNATURE_ALGORITHM_NAMES = ImmutableMap
            .<String, String>builder()
@@ -67,12 +61,6 @@ public final class OAuthConstants {
            .put("ES512", "EC")
            .put(NO_ALGORITHM, NO_ALGORITHM).build();
 
-   /**
-    * The (optional) set of additional claims to use, provided in Map<String,String> form
-    */
-   public static final String ADDITIONAL_CLAIMS = "jclouds.oauth.additional-claims";
-
    private OAuthConstants() {
-      throw new AssertionError("intentionally unimplemented");
    }
 }

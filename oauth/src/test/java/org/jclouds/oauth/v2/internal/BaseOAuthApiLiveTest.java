@@ -19,7 +19,6 @@ package org.jclouds.oauth.v2.internal;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.jclouds.oauth.v2.OAuthTestUtils.setCredential;
 import static org.jclouds.oauth.v2.config.OAuthProperties.AUDIENCE;
-import static org.jclouds.oauth.v2.config.OAuthProperties.SCOPES;
 import static org.jclouds.oauth.v2.config.OAuthProperties.SIGNATURE_OR_MAC_ALGORITHM;
 
 import java.util.Properties;
@@ -43,7 +42,7 @@ public class BaseOAuthApiLiveTest extends BaseApiLiveTest<OAuthApi> {
       setCredential(props, "oauth.credential");
       checkNotNull(setIfTestSystemPropertyPresent(props, "oauth.endpoint"), "test.oauth.endpoint must be set");
       checkNotNull(setIfTestSystemPropertyPresent(props, AUDIENCE), "test.jclouds.oauth.audience must be set");
-      setIfTestSystemPropertyPresent(props, SCOPES);
+      setIfTestSystemPropertyPresent(props, "jclouds.oauth.scopes");
       setIfTestSystemPropertyPresent(props, SIGNATURE_OR_MAC_ALGORITHM);
       return props;
    }
