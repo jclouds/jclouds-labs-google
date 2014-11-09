@@ -74,10 +74,10 @@ public class OAuthApiMockTest {
 
    public void testGenerateJWTRequest() throws Exception {
       MockWebServer server = new MockWebServer();
-      server.enqueue(new MockResponse().setBody("{\n" +
-                  "  \"access_token\" : \"1/8xbJqaOZXSUZbHLl5EOtu1pxz3fmmetKx9W8CV4t79M\",\n" +
-                  "  \"token_type\" : \"Bearer\",\n" +
-                  "  \"expires_in\" : 3600\n" +
+      server.enqueue(new MockResponse().setBody("{" +
+                  "  \"access_token\" : \"1/8xbJqaOZXSUZbHLl5EOtu1pxz3fmmetKx9W8CV4t79M\"," +
+                  "  \"token_type\" : \"Bearer\"," +
+                  "  \"expires_in\" : 3600" +
                   "}"));
       server.play();
 

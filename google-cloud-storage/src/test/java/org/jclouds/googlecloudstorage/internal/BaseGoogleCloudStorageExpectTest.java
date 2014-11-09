@@ -51,11 +51,12 @@ import org.jclouds.io.Payload;
 import org.jclouds.io.payloads.ByteSourcePayload;
 import org.jclouds.oauth.v2.OAuthConstants;
 import org.jclouds.oauth.v2.config.OAuthProperties;
+import org.jclouds.oauth.v2.functions.BuildTokenRequest;
 import org.jclouds.rest.internal.BaseRestApiExpectTest;
 import org.jclouds.ssh.SshKeys;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Resources;
 import com.google.inject.Binder;
@@ -89,9 +90,9 @@ public class BaseGoogleCloudStorageExpectTest<T> extends BaseRestApiExpectTest<T
       return new Module() {
          @Override
          public void configure(Binder binder) {
-            // Predicatable time
-            binder.bind(new TypeLiteral<Supplier<Long>>() {
-            }).toInstance(Suppliers.ofInstance(0L));
+            // Predictable time
+            binder.bind(BuildTokenRequest.class).to(BuildTokenRequest.WithConstantIssuedAt.class);
+
             try {
                KeyFactory keyfactory = KeyFactory.getInstance("RSA");
                PrivateKey privateKey = keyfactory.generatePrivate(privateKeySpec(ByteSource.wrap(PRIVATE_KEY

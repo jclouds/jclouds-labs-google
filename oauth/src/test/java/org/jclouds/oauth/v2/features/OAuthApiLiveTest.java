@@ -19,7 +19,6 @@ package org.jclouds.oauth.v2.features;
 import static com.google.common.base.Preconditions.checkState;
 import static org.jclouds.oauth.v2.OAuthTestUtils.getMandatoryProperty;
 import static org.jclouds.oauth.v2.config.OAuthProperties.AUDIENCE;
-import static org.jclouds.oauth.v2.config.OAuthProperties.SCOPES;
 import static org.jclouds.oauth.v2.config.OAuthProperties.SIGNATURE_OR_MAC_ALGORITHM;
 import static org.jclouds.oauth.v2.domain.Claims.EXPIRATION_TIME;
 import static org.jclouds.oauth.v2.domain.Claims.ISSUED_AT;
@@ -56,7 +55,6 @@ public class OAuthApiLiveTest extends BaseOAuthApiLiveTest {
    protected Properties setupProperties() {
       properties = super.setupProperties();
       return properties;
-
    }
 
    @Test(groups = "live", singleThreaded = true)
@@ -68,7 +66,7 @@ public class OAuthApiLiveTest extends BaseOAuthApiLiveTest {
 
       Header header = Header.create(signatureAlgorithm, "JWT");
 
-      String scopes = getMandatoryProperty(properties, SCOPES);
+      String scopes = getMandatoryProperty(properties, "jclouds.oauth.scopes");
       String audience = getMandatoryProperty(properties, AUDIENCE);
 
       long now = nowInSeconds();

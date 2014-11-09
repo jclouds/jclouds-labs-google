@@ -16,11 +16,12 @@
  */
 package org.jclouds.oauth.v2.config;
 
-import javax.inject.Qualifier;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import javax.inject.Qualifier;
 
 /**
  * Used to annotate REST methods/ifaces that use OAuthAuthentication.
@@ -32,9 +33,6 @@ import java.lang.annotation.Target;
 @Qualifier
 public @interface OAuthScopes {
 
-   /**
-    * @return the OAuth scopes required to access the resource.
-    */
+   /** The OAuth scopes required to access the resource. */
    String[] value();
-
 }
