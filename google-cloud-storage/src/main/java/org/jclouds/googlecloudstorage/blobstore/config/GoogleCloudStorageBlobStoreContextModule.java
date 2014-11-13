@@ -14,26 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.googlecomputeengine.internal;
+package org.jclouds.googlecloudstorage.blobstore.config;
 
-import java.util.List;
-import java.util.Map;
+import org.jclouds.blobstore.BlobStore;
+import org.jclouds.blobstore.attr.ConsistencyModel;
+import org.jclouds.googlecloudstorage.blobstore.GCSBlobStore;
 
-import org.jclouds.javax.annotation.Nullable;
+import com.google.inject.AbstractModule;
+import com.google.inject.Scopes;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+public class GoogleCloudStorageBlobStoreContextModule extends AbstractModule {
 
-public final class NullSafeCopies {
-
-   public static <K, V> Map<K, V> copyOf(@Nullable Map<K, V> map) {
-      return map != null ? ImmutableMap.copyOf(map) : ImmutableMap.<K, V>of();
-   }
-
-   public static <E> List<E> copyOf(@Nullable List<E> list) {
-      return list != null ? ImmutableList.copyOf(list) : ImmutableList.<E>of();
-   }
-
-   private NullSafeCopies() {
+   @Override
+   protected void configure() {
+      bind(ConsistencyModel.class).toInstance(ConsistencyModel.EVENTUAL);
+      bind(BlobStore.class).to(GCSBlobStore.class).in(Scopes.SINGLETON);
    }
 }

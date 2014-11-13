@@ -14,18 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.googlecomputeengine.config;
+package org.jclouds.googlecloud.internal;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.List;
+import java.util.Map;
 
-import javax.inject.Qualifier;
+import org.jclouds.javax.annotation.Nullable;
 
-/** Associated bindings with the current <a href="https://cloud.google.com/compute/docs/projects">project</a>. */
-@Retention(value = RetentionPolicy.RUNTIME)
-@Target(value = {ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD})
-@Qualifier
-public @interface CurrentProject {
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+
+public final class NullSafeCopies {
+
+   public static <K, V> Map<K, V> copyOf(@Nullable Map<K, V> map) {
+      return map != null ? ImmutableMap.copyOf(map) : ImmutableMap.<K, V>of();
+   }
+
+   public static <E> List<E> copyOf(@Nullable List<E> list) {
+      return list != null ? ImmutableList.copyOf(list) : ImmutableList.<E>of();
+   }
+
+   private NullSafeCopies() {
+   }
 }
