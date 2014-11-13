@@ -14,22 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.googlecomputeengine.internal;
+package org.jclouds.googlecloud.options;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import static com.google.common.base.Preconditions.checkNotNull;
 
-import javax.ws.rs.HttpMethod;
+import org.jclouds.http.options.BaseHttpRequestOptions;
 
-/**
- * Indicates that the annotated method responds to HTTP PATCH requests
- *
- * @see javax.ws.rs.HttpMethod
- */
-@Target({ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
-@HttpMethod("PATCH")
-public @interface PATCH {
+/** Base controls for listing resources in google cloud products. */
+public abstract class ListOptions extends BaseHttpRequestOptions {
+   /**  Sets Maximum count of results to be returned. Maximum value is product-specific. */
+   public ListOptions maxResults(Integer maxResults) {
+      this.queryParameters.put("maxResults", checkNotNull(maxResults, "maxResults").toString());
+      return this;
+   }
 }

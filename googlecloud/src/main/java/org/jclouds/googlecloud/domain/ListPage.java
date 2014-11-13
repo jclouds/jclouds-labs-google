@@ -14,18 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.googlecloudstorage;
+package org.jclouds.googlecloud.domain;
 
-import org.jclouds.View;
-import org.jclouds.apis.internal.BaseApiMetadataTest;
-import org.testng.annotations.Test;
+import java.util.List;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.reflect.TypeToken;
+import org.jclouds.javax.annotation.Nullable;
 
-@Test(groups = "unit", testName = "GoogleStorageApiMetadataTest")
-public class GoogleCloudStorageApiMetadataTest extends BaseApiMetadataTest {
-   public GoogleCloudStorageApiMetadataTest() {
-      super(new GoogleCloudStorageApiMetadata(), ImmutableSet.<TypeToken<? extends View>> of());
-   }
+/** An immutable list that includes a token, if there is another page available. */
+public interface ListPage<T> extends List<T> {
+   /** Indicates more data is available. */
+   @Nullable String nextPageToken();
 }
+

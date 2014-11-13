@@ -14,44 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.googlecloudstorage.domain;
-
-import static org.jclouds.googlecloudstorage.internal.NullSafeCopies.copyOf;
+package org.jclouds.googlecloud.domain;
 
 import java.beans.ConstructorProperties;
 import java.util.List;
 
+import org.jclouds.googlecloud.internal.NullSafeCopies;
 import org.jclouds.javax.annotation.Nullable;
 
 import com.google.common.collect.ForwardingList;
 
 /** An immutable list that includes a token, if there is another page available. */
-public final class ListPage<T> extends ForwardingList<T> {
+public final class ForwardingListPage<T> extends ForwardingList<T> implements ListPage<T> {
 
    private final List<T> items;
    private final String nextPageToken;
-   private final List<String> prefixes;
 
-   public static <T> ListPage<T> create(List<T> items, String nextPageToken, List<String> prefixes) {
-      return new ListPage<T>(items, nextPageToken, prefixes);
-   }
-
-   @ConstructorProperties({ "items", "nextPageToken", "prefixes" })
-   ListPage(List<T> items, String nextPageToken, List<String> prefixes) {
-      this.items = copyOf(items);
+   @ConstructorProperties({ "items", "nextPageToken" }) ForwardingListPage(List<T> items, String nextPageToken) {
+      this.items = NullSafeCopies.copyOf(items);
       this.nextPageToken = nextPageToken;
-      this.prefixes = copyOf(prefixes);
    }
 
-   @Nullable public String nextPageToken() {
+   public static <T> ListPage<T> create(List<T> items, String nextPageToken) {
+      return new ForwardingListPage<T>(items, nextPageToken);
+   }
+
+   @Override @Nullable public String nextPageToken() {
       return nextPageToken;
-   }
-
-   public List<String> prefixes() {
-      return prefixes;
    }
 
    @Override protected List<T> delegate() {
       return items;
    }
+
 }
+
