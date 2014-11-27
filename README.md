@@ -1,7 +1,7 @@
 jclouds Labs Google
 ======================
 
-Repository for developing Google providers and APIs
+Repository for developing [Google Cloud Platform](https://cloud.google.com/) providers and [APIs](https://cloud.google.com/storage/docs/json_api/v1/)
 
 License
 -------
