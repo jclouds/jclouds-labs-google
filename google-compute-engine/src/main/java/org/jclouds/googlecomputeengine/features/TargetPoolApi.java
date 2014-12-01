@@ -39,6 +39,7 @@ import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
 import org.jclouds.googlecomputeengine.binders.TargetPoolChangeHealthChecksBinder;
 import org.jclouds.googlecomputeengine.binders.TargetPoolChangeInstancesBinder;
 import org.jclouds.googlecomputeengine.binders.TargetPoolCreationBinder;
+import org.jclouds.googlecomputeengine.domain.HealthStatus;
 import org.jclouds.googlecomputeengine.domain.Operation;
 import org.jclouds.googlecomputeengine.domain.TargetPool;
 import org.jclouds.googlecomputeengine.internal.BaseCallerArg0ToIteratorOfListPage;
@@ -156,6 +157,22 @@ public interface TargetPoolApi {
    @MapBinder(TargetPoolChangeHealthChecksBinder.class)
    @Nullable
    Operation removeHealthCheck(@PathParam("targetPool") String targetPool, @PayloadParam("healthChecks") List<URI> healthChecks);
+
+   /**
+    * Gets the HealthStatus of an instance in a targetPool.
+    *
+    * @param targetPool the name of the target pool.
+    * @param healthChecks the self-links of the health checks to be removed from the targetPool.
+    *
+    * @return an Operation resource. To check on the status of an operation, poll the Operations resource returned to
+    *         you, and look for the status field.
+    */
+   @Named("TargetPools:getHealth")
+   @POST
+   @Path("/{targetPool}/getHealth")
+   @Nullable
+   @MapBinder(BindToJsonPayload.class)
+   HealthStatus getHealth(@PathParam("targetPool") String targetPool, @PayloadParam("instance") URI instance);
 
 
    /**
