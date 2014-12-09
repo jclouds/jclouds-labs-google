@@ -141,9 +141,10 @@ public final class GoogleComputeEngineServiceAdapter
 
       // Add metadata from template and for ssh key and image id
       newInstance.metadata().putAll(options.getUserMetadata());
-      if (options.getPublicKey() != null) { // TODO: why are we doing this?
-         newInstance.metadata().put("sshKeys", format("%s:%s %s@localhost", checkNotNull(options.getLoginUser(),
-               "loginUser cannot be null"), options.getPublicKey(), options.getLoginUser()));
+
+      if (options.getPublicKey() != null) {
+         String metadataFormatted = format("%s:%s", options.getLoginUser(), options.getPublicKey());
+         newInstance.metadata().put("sshKeys", metadataFormatted);
       }
 
       String zone = template.getLocation().getId();
@@ -169,12 +170,22 @@ public final class GoogleComputeEngineServiceAdapter
             null, // serviceAccounts
             Scheduling.create(OnHostMaintenance.MIGRATE, true) // scheduling
       ));
+
       checkState(instanceVisible.apply(instance), "instance %s is not api visible!", instance.get());
 
       // Add lookup for InstanceToNodeMetadata
       diskToSourceImage.put(instance.get().disks().get(0).source(), template.getImage().getUri());
 
-      LoginCredentials credentials = getFromImageAndOverrideIfRequired(template.getImage(), options);
+
+      LoginCredentials credentials = new LoginCredentials.Builder()
+            .user(template.getOptions().getLoginUser())
+            .privateKey(template.getOptions().getLoginPrivateKey())
+            .password(template.getOptions().getLoginPassword())
+            .build();
+
+      Instance createdInstance = instanceApi.get(newInstance.name());
+      System.out.println("CREATED INSTANCE: " + createdInstance);
+
       return new NodeAndInitialCredentials<Instance>(instance.get(), instance.get().selfLink().toString(), credentials);
    }
 
@@ -254,40 +265,6 @@ public final class GoogleComputeEngineServiceAdapter
 
    @Override  public void suspendNode(String name) {
       throw new UnsupportedOperationException("suspend is not supported by GCE");
-   }
-
-   // TODO: this entire method is questionable. needs a test case, or to be removed.
-   private static LoginCredentials getFromImageAndOverrideIfRequired(org.jclouds.compute.domain.Image image,
-                                                              GoogleComputeEngineTemplateOptions options) {
-      LoginCredentials defaultCredentials = image.getDefaultCredentials();
-      String[] keys = defaultCredentials.getPrivateKey().split(":");
-      String publicKey = keys[0];
-      String privateKey = keys[1];
-
-      LoginCredentials.Builder credentialsBuilder = defaultCredentials.toBuilder();
-      credentialsBuilder.privateKey(privateKey);
-
-      // LoginCredentials from image stores the public key along with the private key in the privateKey field
-      // @see GoogleComputePopulateDefaultLoginCredentialsForImageStrategy
-      // so if options doesn't have a public key set we set it from the default
-      if (options.getPublicKey() == null) {
-         options.authorizePublicKey(publicKey);
-      }
-      if (options.hasLoginPrivateKeyOption()) {
-         credentialsBuilder.privateKey(options.getPrivateKey());
-      }
-      if (options.getLoginUser() != null) {
-         credentialsBuilder.identity(options.getLoginUser());
-      }
-      if (options.hasLoginPasswordOption()) {
-         credentialsBuilder.password(options.getLoginPassword());
-      }
-      if (options.shouldAuthenticateSudo() != null) {
-         credentialsBuilder.authenticateSudo(options.shouldAuthenticateSudo());
-      }
-      LoginCredentials credentials = credentialsBuilder.build();
-      options.overrideLoginCredentials(credentials);
-      return credentials;
    }
 
    private void waitOperationDone(Operation operation) {
