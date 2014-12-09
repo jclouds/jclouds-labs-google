@@ -106,7 +106,6 @@ public interface TargetPoolApi {
    @POST
    @Path("/{targetPool}/addInstance")
    @MapBinder(TargetPoolChangeInstancesBinder.class)
-   @Nullable
    Operation addInstance(@PathParam("targetPool") String targetPool, @PayloadParam("instances") List<URI> instances);
 
    /**
@@ -122,7 +121,6 @@ public interface TargetPoolApi {
    @POST
    @Path("/{targetPool}/removeInstance")
    @MapBinder(TargetPoolChangeInstancesBinder.class)
-   @Nullable
    Operation removeInstance(@PathParam("targetPool") String targetPool, @PayloadParam("instances") List<URI> instances);
 
    /**
@@ -138,7 +136,6 @@ public interface TargetPoolApi {
    @POST
    @Path("/{targetPool}/addHealthCheck")
    @MapBinder(TargetPoolChangeHealthChecksBinder.class)
-   @Nullable
    Operation addHealthCheck(@PathParam("targetPool") String targetPool, @PayloadParam("healthChecks") List<URI> healthChecks);
 
 
@@ -151,11 +148,10 @@ public interface TargetPoolApi {
     * @return an Operation resource. To check on the status of an operation, poll the Operations resource returned to
     *         you, and look for the status field.
     */
-   @Named("TargetPools:removeHealthChek")
+   @Named("TargetPools:removeHealthCheck")
    @POST
    @Path("/{targetPool}/removeHealthCheck")
    @MapBinder(TargetPoolChangeHealthChecksBinder.class)
-   @Nullable
    Operation removeHealthCheck(@PathParam("targetPool") String targetPool, @PayloadParam("healthChecks") List<URI> healthChecks);
 
    /**
@@ -170,7 +166,6 @@ public interface TargetPoolApi {
    @Named("TargetPools:getHealth")
    @POST
    @Path("/{targetPool}/getHealth")
-   @Nullable
    @MapBinder(BindToJsonPayload.class)
    HealthStatus getHealth(@PathParam("targetPool") String targetPool, @PayloadParam("instance") URI instance);
 

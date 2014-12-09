@@ -33,25 +33,34 @@ public abstract class HttpHealthCheckCreationOptions {
    @Nullable public abstract Integer healthyThreshold();
    @Nullable public abstract String description();
 
+   static final String DEFAULT_REQUEST_PATH = "/";
+   static final Integer DEFAULT_PORT = 80;
+   static final Integer DEFAULT_CHECK_INTERVAL_SEC = 5;
+   static final Integer DEFAULT_TIMEOUT_SEC = 5;
+   static final Integer DEFAULT_UNHEALTHY_THRESHOLD = 2;
+   static final Integer DEFAULT_HEALTHY_THRESHOLD = 2;
+
    /*
     * Currently GCE is not setting the advertised defaults so we do so here.
     * This only leads to trouble in the case of a PATCH operation which we now
     * have a workaround for.
     */
    /**
-    * @param requestPath Defaults to "/" when null.
-    * @param port Defaults to 80 when null.
-    * @param checkIntervalSec Defaults to 5 when null.
-    * @param timeoutSec Defaults to 5 when null.
-    * @param unhealthyThreshold Defaults to 2 when null.
-    * @param healthyThreshold Defaults to 2 when null.
+    * @param requestPath Defaults to {@value #DEFAULT_REQUEST_PATH} when null.
+    * @param port Defaults to {@value #DEFAULT_PORT} when null.
+    * @param checkIntervalSec Defaults to {@value #DEFAULT_CHECK_INTERVAL_SEC} when null.
+    * @param timeoutSec Defaults to {@value #DEFAULT_TIMEOUT_SEC} when null.
+    * @param unhealthyThreshold Defaults to {@value #DEFAULT_UNHEALTHY_THRESHOLD} when null.
+    * @param healthyThreshold Defaults to {@value #DEFAULT_HEALTHY_THRESHOLD} when null.
     */
    static HttpHealthCheckCreationOptions createWithDefaults(String host,
          String requestPath, Integer port, Integer checkIntervalSec, Integer timeoutSec, Integer unhealthyThreshold,
          Integer healthyThreshold, String description) {
-      return create(host, requestPath != null ? requestPath : "/", port != null ? port : 80,
-            checkIntervalSec != null ? checkIntervalSec : 5, timeoutSec != null ? timeoutSec : 5,
-            unhealthyThreshold != null ? unhealthyThreshold : 2, healthyThreshold != null ? healthyThreshold : 2, description);
+      return create(host, requestPath != null ? requestPath : DEFAULT_REQUEST_PATH, port != null ? port : DEFAULT_PORT,
+            checkIntervalSec != null ? checkIntervalSec : DEFAULT_CHECK_INTERVAL_SEC,
+            timeoutSec != null ? timeoutSec : DEFAULT_TIMEOUT_SEC,
+            unhealthyThreshold != null ? unhealthyThreshold : DEFAULT_UNHEALTHY_THRESHOLD,
+            healthyThreshold != null ? healthyThreshold : DEFAULT_HEALTHY_THRESHOLD, description);
    }
 
    @SerializedNames(
@@ -85,25 +94,25 @@ public abstract class HttpHealthCheckCreationOptions {
          return this;
       }
 
-      /** The request path of the HTTP health check request. The default value is /. */
+      /** The request path of the HTTP health check request. The default value is {@value #DEFAULT_REQUEST_PATH}. */
       public Builder requestPath(String requestPath){
          this.requestPath = requestPath;
          return this;
       }
 
-      /** The TCP port number for the HTTP health check request. The default value is 80. */
+      /** The TCP port number for the HTTP health check request. The default value is {@value #DEFAULT_PORT}. */
       public Builder port(Integer port){
          this.port = port;
          return this;
       }
 
-      /** How often (in seconds) to send a health check. The default value is 5 seconds. */
+      /** How often (in seconds) to send a health check. The default value is {@value #DEFAULT_CHECK_INTERVAL_SEC} seconds. */
       public Builder checkIntervalSec(Integer checkIntervalSec){
          this.checkIntervalSec = checkIntervalSec;
          return this;
       }
 
-      /** How long (in seconds) to wait before claiming failure. The default value is 5 seconds. */
+      /** How long (in seconds) to wait before claiming failure. The default value is {@value #DEFAULT_TIMEOUT_SEC} seconds. */
       public Builder timeoutSec(Integer timeoutSec){
          this.timeoutSec = timeoutSec;
          return this;
@@ -111,7 +120,7 @@ public abstract class HttpHealthCheckCreationOptions {
 
       /**
        * A so-far healthy VM will be marked unhealthy after this many consecutive failures.
-       * The default value is 2.
+       * The default value is {@value #DEFAULT_UNHEALTHY_THRESHOLD}.
        */
       public Builder unhealthyThreshold(Integer unhealthyThreshold){
          this.unhealthyThreshold = unhealthyThreshold;
@@ -120,7 +129,7 @@ public abstract class HttpHealthCheckCreationOptions {
 
       /**
        * An unhealthy VM will be marked healthy after this many consecutive successes.
-       * The default value is 2.
+       * The default value is {@value #DEFAULT_HEALTHY_THRESHOLD}.
        */
       public Builder healthyThreshold(Integer healthyThreshold){
          this.healthyThreshold = healthyThreshold;
@@ -136,12 +145,12 @@ public abstract class HttpHealthCheckCreationOptions {
       /**
        * Fields left as null will be replaced with their default before the request
        * is made.
-       *  requestPath Defaults to "/" when null.
-       *  port Defaults to 80 when null.
-       *  checkIntervalSec Defaults to 5 when null.
-       *  timeoutSec Defaults to 5 when null.
-       *  unhealthyThreshold Defaults to 2 when null.
-       *  healthyThreshold Defaults to 2 when null.
+       * @param requestPath Defaults to {@value #DEFAULT_REQUEST_PATH} when null.
+       * @param port Defaults to {@value #DEFAULT_PORT} when null.
+       * @param checkIntervalSec Defaults to {@value #DEFAULT_CHECK_INTERVAL_SEC} when null.
+       * @param timeoutSec Defaults to {@value #DEFAULT_TIMEOUT_SEC} when null.
+       * @param unhealthyThreshold Defaults to {@value #DEFAULT_UNHEALTHY_THRESHOLD} when null.
+       * @param healthyThreshold Defaults to {@value #DEFAULT_HEALTHY_THRESHOLD} when null.
        */
       public HttpHealthCheckCreationOptions buildWithDefaults() {
          return HttpHealthCheckCreationOptions.createWithDefaults(host, requestPath, port,
