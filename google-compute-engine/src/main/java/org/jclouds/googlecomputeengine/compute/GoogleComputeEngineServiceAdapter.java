@@ -183,8 +183,8 @@ public final class GoogleComputeEngineServiceAdapter
             .password(template.getOptions().getLoginPassword())
             .build();
 
-      Instance createdInstance = instanceApi.get(newInstance.name());
-      System.out.println("CREATED INSTANCE: " + createdInstance);
+      //Instance createdInstance = instanceApi.get(newInstance.name());
+      //System.out.println("CREATED INSTANCE: " + createdInstance);
 
       return new NodeAndInitialCredentials<Instance>(instance.get(), instance.get().selfLink().toString(), credentials);
    }
