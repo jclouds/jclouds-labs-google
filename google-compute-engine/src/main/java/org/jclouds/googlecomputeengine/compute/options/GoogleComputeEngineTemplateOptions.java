@@ -25,6 +25,7 @@ import org.jclouds.domain.LoginCredentials;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.scriptbuilder.domain.Statement;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 
 /** Instance options specific to Google Compute Engine. */
@@ -46,6 +47,8 @@ public final class GoogleComputeEngineTemplateOptions extends TemplateOptions {
       if (to instanceof GoogleComputeEngineTemplateOptions) {
          GoogleComputeEngineTemplateOptions eTo = GoogleComputeEngineTemplateOptions.class.cast(to);
          eTo.network(network());
+         eTo.loginPassword = Optional.fromNullable(this.getLoginPassword());
+         eTo.loginPrivateKey = Optional.fromNullable(this.getLoginPrivateKey());
       }
    }
 
