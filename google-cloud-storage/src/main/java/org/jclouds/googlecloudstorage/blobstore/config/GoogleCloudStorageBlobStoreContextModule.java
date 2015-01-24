@@ -27,7 +27,7 @@ public class GoogleCloudStorageBlobStoreContextModule extends AbstractModule {
 
    @Override
    protected void configure() {
-      bind(ConsistencyModel.class).toInstance(ConsistencyModel.EVENTUAL);
+      bind(ConsistencyModel.class).toInstance(ConsistencyModel.STRICT);
       bind(BlobStore.class).to(GoogleCloudStorageBlobStore.class).in(Scopes.SINGLETON);
    }
 }
