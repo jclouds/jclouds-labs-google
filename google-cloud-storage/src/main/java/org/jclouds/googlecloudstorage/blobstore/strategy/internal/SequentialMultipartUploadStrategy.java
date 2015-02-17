@@ -72,18 +72,20 @@ public final class SequentialMultipartUploadStrategy extends MultipartUploadStra
       checkNotNull(length,
                "please invoke payload.getContentMetadata().setContentLength(length) prior to multipart upload");
       long chunkSize = algorithm.calculateChunkSize(length);
-      int partCount = algorithm.getParts();
-      if (partCount > 0) {
+      int partCount = MultipartUploadSlicingAlgorithm.calculateParts(length, chunkSize);
+      long remaining = MultipartUploadSlicingAlgorithm.calculateRemaining(length.longValue(), chunkSize);
+      if (partCount > 1){
+         int part_num = 0;
          for (Payload part : slicer.slice(payload, chunkSize)) {
-            int partNum = algorithm.getNextPart();
-            String partName = namingStrategy.getPartName(key, partNum, partCount);
-            long partSize = ((partCount + 1) == partNum) ? algorithm.getRemaining() : algorithm.getChunkSize();
+            String partName = namingStrategy.getPartName(key, part_num, partCount);
+            long partSize = (partCount == (part_num + 1)) ? remaining : chunkSize;
             Blob blobPart = blobBuilders.get().name(partName).payload(part).contentDisposition(partName)
                      .contentLength(partSize).contentType(blob.getMetadata().getContentMetadata().getContentType())
                      .build();
             GoogleCloudStorageObject object = api.getObjectApi().multipartUpload(container,
                      blob2ObjectTemplate.apply(blobPart.getMetadata()), part);
             sourceList.add(object);
+            part_num++;
          }
          ComposeObjectTemplate template = ComposeObjectTemplate.create(sourceList, destination);
          return api.getObjectApi().composeObjects(container, key, template).etag();
