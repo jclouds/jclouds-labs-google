@@ -39,6 +39,9 @@ import org.jclouds.blobstore.integration.internal.BaseBlobIntegrationTest;
 import org.jclouds.blobstore.options.PutOptions;
 import org.jclouds.googlecloud.internal.TestProperties;
 import org.jclouds.googlecloudstorage.blobstore.strategy.internal.MultipartUpload;
+import org.jclouds.http.internal.PayloadEnclosingImpl;
+import org.jclouds.io.ByteStreams2;
+import org.jclouds.io.PayloadEnclosing;
 import org.jclouds.io.Payloads;
 import org.jclouds.io.payloads.ByteSourcePayload;
 import org.jclouds.utils.TestUtils;
@@ -228,10 +231,10 @@ public class GoogleCloudStorageBlobIntegrationLiveTest extends BaseBlobIntegrati
    @Test(groups = { "integration", "live" })
    public void testMultipartChunkedFileStream() throws IOException, InterruptedException {
       String containerName = getContainerName();
+
       try {
          BlobStore blobStore = view.getBlobStore();
          long countBefore = blobStore.countBlobs(containerName);
-
          addMultipartBlobToContainer(containerName, "const.txt");
 
          long countAfter = blobStore.countBlobs(containerName);
@@ -243,8 +246,28 @@ public class GoogleCloudStorageBlobIntegrationLiveTest extends BaseBlobIntegrati
       }
    }
 
+   @Test(groups = "live")
+   public void testMultipartUploadAndDownload() throws IOException, InterruptedException {
+      ByteSource byteSource = TestUtils.randomByteSource().slice(0, getMinimumMultipartBlobSize());
+      BlobStore blobStore = view.getBlobStore();
+
+      String containerName = getContainerName();
+      blobStore.createContainerInLocation(null, containerName);
+      Blob blob = blobStore.blobBuilder("multipart_upload_check").payload(byteSource).contentLength(byteSource.size())
+               .contentType(MediaType.TEXT_PLAIN).build();
+      blobStore.putBlob(containerName, blob, PutOptions.Builder.multipart());
+
+      ByteSourcePayload payload = Payloads.newByteSourcePayload(byteSource);
+      PayloadEnclosing payloadImpl = new PayloadEnclosingImpl(payload);
+
+      Blob downloaded = blobStore.getBlob(containerName, "multipart_upload_check");
+
+      assertThat(ByteStreams2.toByteArrayAndClose(downloaded.getPayload().openStream())).isEqualTo(
+               ByteStreams2.toByteArrayAndClose(payloadImpl.getPayload().openStream()));
+   }
+
    protected void addMultipartBlobToContainer(String containerName, String key) throws IOException {
-      ByteSource sourceToUpload = TestUtils.randomByteSource().slice(0, PART_SIZE + 1);
+      ByteSource sourceToUpload = TestUtils.randomByteSource().slice(0, getMinimumMultipartBlobSize());
 
       BlobStore blobStore = view.getBlobStore();
       blobStore.createContainerInLocation(null, containerName);

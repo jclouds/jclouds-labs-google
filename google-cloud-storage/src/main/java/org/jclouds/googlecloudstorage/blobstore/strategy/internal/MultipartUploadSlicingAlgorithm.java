@@ -47,21 +47,11 @@ public class MultipartUploadSlicingAlgorithm {
    @VisibleForTesting
    int magnitudeBase = DEFAULT_MAGNITUDE_BASE;
 
-   // calculated only once, but not from the constructor
-   private volatile int parts; // required number of parts with chunkSize
-   private volatile long chunkSize;
-   private volatile long remaining; // number of bytes remained for the last part
-
-   // sequentially updated values
-   private volatile int part;
-   private volatile long chunkOffset;
-   private volatile long copied;
-
-   @VisibleForTesting
+   //TODO: Needs testing!
    protected long calculateChunkSize(long length) {
       long unitPartSize = defaultPartSize; // first try with default part size
-      int parts = (int) (length / unitPartSize);
       long partSize = unitPartSize;
+      int parts = (int) (length / partSize);
       int magnitude = parts / magnitudeBase;
       if (magnitude > 0) {
          partSize = magnitude * unitPartSize;
@@ -92,48 +82,30 @@ public class MultipartUploadSlicingAlgorithm {
       if (remainder == 0 && parts > 0) {
          parts -= 1;
       }
-      this.chunkSize = partSize;
-      this.parts = parts;
-      this.remaining = length - partSize * parts;
-      logger.debug(" %d bytes partitioned in %d parts of part size: %d, remaining: %d%s", length, parts, chunkSize,
+      long remaining = length - partSize * parts;
+      logger.debug(" %d bytes partitioned in %d parts of part size: %d, remaining: %d%s", length, parts, partSize,
                remaining, remaining > MultipartUpload.MAX_PART_SIZE ? " overflow!" : "");
-      return this.chunkSize;
+      return partSize;
    }
 
-   public long getCopied() {
-      return copied;
+   // Returns the correct number of parts.
+   public static int calculateParts(long length, long chunkSize){
+      if (length < chunkSize){
+         return 1;
+      }
+      long remainder = length % chunkSize;
+      int val = (int) (length / chunkSize);
+      if (remainder > 0){
+         return val + 1;
+      }
+      return val;
    }
 
-   public void setCopied(long copied) {
-      this.copied = copied;
-   }
-
-   @VisibleForTesting
-   protected int getParts() {
-      return parts;
-   }
-
-   protected int getNextPart() {
-      return ++part;
-   }
-
-   protected void addCopied(long copied) {
-      this.copied += copied;
-   }
-
-   protected long getNextChunkOffset() {
-      long next = chunkOffset;
-      chunkOffset += getChunkSize();
-      return next;
-   }
-
-   @VisibleForTesting
-   protected long getChunkSize() {
-      return chunkSize;
-   }
-
-   @VisibleForTesting
-   protected long getRemaining() {
-      return remaining;
+   // Calculates the size of the last chunk given a length of bytes and a chunkSize
+   public static long calculateRemaining(long length, long chunkSize) {
+      if (length < chunkSize) {
+         return length;
+      }
+      return length % chunkSize;
    }
 }
