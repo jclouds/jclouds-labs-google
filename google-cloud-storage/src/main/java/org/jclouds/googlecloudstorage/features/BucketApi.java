@@ -155,7 +155,7 @@ public interface BucketApi {
    @Named("Bucket:delete")
    @DELETE
    @Path("/b/{bucket}")
-   @Fallback(TrueOnNotFoundOr404.class)
+   @Fallback(FalseOnNotFoundOr404.class)
    boolean deleteBucket(@PathParam("bucket") String bucketName);
 
    /**
@@ -169,7 +169,7 @@ public interface BucketApi {
    @Named("Bucket:delete")
    @DELETE
    @Path("/b/{bucket}")
-   @Fallback(TrueOnNotFoundOr404.class)
+   @Fallback(FalseOnNotFoundOr404.class)
    boolean deleteBucket(@PathParam("bucket") String bucketName, DeleteBucketOptions options);
 
    /**

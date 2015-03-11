@@ -199,7 +199,7 @@ public interface ObjectApi {
    @Named("Object:delete")
    @DELETE
    @Path("storage/v1/b/{bucket}/o/{object}")
-   @Fallback(TrueOnNotFoundOr404.class)
+   @Fallback(FalseOnNotFoundOr404.class)
    boolean deleteObject(@PathParam("bucket") String bucketName, @PathParam("object") String objectName);
 
    /**
@@ -216,7 +216,7 @@ public interface ObjectApi {
    @Named("Object:delete")
    @DELETE
    @Path("storage/v1/b/{bucket}/o/{object}")
-   @Fallback(TrueOnNotFoundOr404.class)
+   @Fallback(FalseOnNotFoundOr404.class)
    boolean deleteObject(@PathParam("bucket") String bucketName, @PathParam("object") String objectName,
             DeleteObjectOptions options);
 
@@ -230,6 +230,7 @@ public interface ObjectApi {
    @GET
    @Consumes(APPLICATION_JSON)
    @Path("storage/v1/b/{bucket}/o")
+   @Fallback(NullOnNotFoundOr404.class)
    ListPageWithPrefixes<GoogleCloudStorageObject> listObjects(@PathParam("bucket") String bucketName);
 
    /**
@@ -245,6 +246,7 @@ public interface ObjectApi {
    @GET
    @Consumes(APPLICATION_JSON)
    @Path("storage/v1/b/{bucket}/o")
+   @Fallback(NullOnNotFoundOr404.class)
    ListPageWithPrefixes<GoogleCloudStorageObject> listObjects(@PathParam("bucket") String bucketName, ListObjectOptions options);
 
    /**
