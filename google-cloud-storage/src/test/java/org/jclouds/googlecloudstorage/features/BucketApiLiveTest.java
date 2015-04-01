@@ -81,8 +81,8 @@ public class BucketApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       Logging log = Logging.create(LOG_BUCKET_NAME, BUCKET_NAME);
 
       BucketTemplate template = new BucketTemplate().name(BUCKET_NAME).addAcl(acl).addDefaultObjectAccessControls(oac)
-               .versioning(version).location(Location.US_CENTRAL2).logging(log)
-               .storageClass(StorageClass.DURABLE_REDUCED_AVAILABILITY).addCORS(cors);
+               .versioning(version).location(Location.US).logging(log)
+               .storageClass(StorageClass.NEARLINE).addCORS(cors);
 
       Bucket response = api().createBucket(PROJECT_NUMBER, template);
 
@@ -90,7 +90,7 @@ public class BucketApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       assertNotNull(response.cors());
       assertTrue(response.cors().size() == 1);
       assertEquals(response.name(), BUCKET_NAME);
-      assertEquals(response.location(), Location.US_CENTRAL2);
+      assertEquals(response.location(), Location.US);
       assertTrue(response.versioning().enabled());
    }
 
