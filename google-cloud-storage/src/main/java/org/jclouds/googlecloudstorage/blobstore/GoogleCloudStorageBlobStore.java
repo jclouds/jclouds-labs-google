@@ -28,7 +28,9 @@ import javax.inject.Inject;
 
 import org.jclouds.blobstore.BlobStoreContext;
 import org.jclouds.blobstore.domain.Blob;
+import org.jclouds.blobstore.domain.BlobAccess;
 import org.jclouds.blobstore.domain.BlobMetadata;
+import org.jclouds.blobstore.domain.ContainerAccess;
 import org.jclouds.blobstore.domain.MutableBlobMetadata;
 import org.jclouds.blobstore.domain.PageSet;
 import org.jclouds.blobstore.domain.StorageMetadata;
@@ -56,6 +58,7 @@ import org.jclouds.googlecloudstorage.domain.Bucket;
 import org.jclouds.googlecloudstorage.domain.DomainResourceReferences;
 import org.jclouds.googlecloudstorage.domain.GoogleCloudStorageObject;
 import org.jclouds.googlecloudstorage.domain.ListPageWithPrefixes;
+import org.jclouds.googlecloudstorage.domain.ObjectAccessControls;
 import org.jclouds.googlecloudstorage.domain.templates.BucketTemplate;
 import org.jclouds.googlecloudstorage.domain.templates.ObjectAccessControlsTemplate;
 import org.jclouds.googlecloudstorage.domain.templates.ObjectTemplate;
@@ -80,7 +83,7 @@ public final class GoogleCloudStorageBlobStore extends BaseBlobStore {
    private final Provider<FetchBlobMetadata> fetchBlobMetadataProvider;
    private final BlobMetadataToObjectTemplate blobMetadataToObjectTemplate;
    private final BlobStoreListContainerOptionsToListObjectOptions listContainerOptionsToListObjectOptions;
-   private final MultipartUploadStrategy multipartUploadStrategy;
+   private final Provider<MultipartUploadStrategy> multipartUploadStrategy;
    private final Supplier<String> projectId;
 
    @Inject GoogleCloudStorageBlobStore(BlobStoreContext context, BlobUtils blobUtils, Supplier<Location> defaultLocation,
@@ -90,7 +93,7 @@ public final class GoogleCloudStorageBlobStore extends BaseBlobStore {
             Provider<FetchBlobMetadata> fetchBlobMetadataProvider,
             BlobMetadataToObjectTemplate blobMetadataToObjectTemplate,
             BlobStoreListContainerOptionsToListObjectOptions listContainerOptionsToListObjectOptions,
-            MultipartUploadStrategy multipartUploadStrategy, @CurrentProject Supplier<String> projectId) {
+            Provider<MultipartUploadStrategy> multipartUploadStrategy, @CurrentProject Supplier<String> projectId) {
       super(context, blobUtils, defaultLocation, locations);
       this.api = api;
       this.bucketToStorageMetadata = bucketToStorageMetadata;
@@ -150,6 +153,27 @@ public final class GoogleCloudStorageBlobStore extends BaseBlobStore {
       return bucket != null;
    }
 
+   @Override
+   public ContainerAccess getContainerAccess(String container) {
+      ObjectAccessControls controls = api.getDefaultObjectAccessControlsApi().getDefaultObjectAccessControls(container, "allUsers");
+      if (controls == null || controls.role() == DomainResourceReferences.ObjectRole.OWNER) {
+         return ContainerAccess.PRIVATE;
+      } else {
+         return ContainerAccess.PUBLIC_READ;
+      }
+   }
+
+   @Override
+   public void setContainerAccess(String container, ContainerAccess access) {
+      ObjectAccessControlsTemplate doAclTemplate;
+      if (access == ContainerAccess.PUBLIC_READ) {
+         doAclTemplate = ObjectAccessControlsTemplate.create("allUsers", READER);
+         api.getDefaultObjectAccessControlsApi().createDefaultObjectAccessControls(container, doAclTemplate);
+      } else {
+         api.getDefaultObjectAccessControlsApi().deleteDefaultObjectAccessControls(container, "allUsers");
+      }
+   }
+
    /** Returns list of of all the objects */
    @Override
    public PageSet<? extends StorageMetadata> list(String container) {
@@ -202,8 +226,8 @@ public final class GoogleCloudStorageBlobStore extends BaseBlobStore {
 
    @Override
    public String putBlob(String container, Blob blob, PutOptions options) {
-      if (options.multipart().isMultipart()) {
-         return multipartUploadStrategy.execute(container, blob);
+      if (options.isMultipart()) {
+         return multipartUploadStrategy.get().execute(container, blob);
       } else {
          return putBlob(container, blob);
       }
@@ -238,6 +262,30 @@ public final class GoogleCloudStorageBlobStore extends BaseBlobStore {
          throw Throwables.propagate(uee);
       }
       api.getObjectApi().deleteObject(container, urlName);
+   }
+
+   @Override
+   public BlobAccess getBlobAccess(String container, String name) {
+      ObjectAccessControls controls = api.getObjectAccessControlsApi().getObjectAccessControls(container, name, "allUsers");
+      if (controls != null && controls.role() == DomainResourceReferences.ObjectRole.READER) {
+         return BlobAccess.PUBLIC_READ;
+      } else {
+         return BlobAccess.PRIVATE;
+      }
+   }
+
+   @Override
+   public void setBlobAccess(String container, String name, BlobAccess access) {
+      if (access == BlobAccess.PUBLIC_READ) {
+         ObjectAccessControls controls = ObjectAccessControls.builder()
+               .entity("allUsers")
+               .bucket(container)
+               .role(READER)
+               .build();
+         api.getObjectApi().patchObject(container, name, new ObjectTemplate().addAcl(controls));
+      } else {
+         api.getObjectAccessControlsApi().deleteObjectAccessControls(container, name, "allUsers");
+      }
    }
 
    @Override

@@ -46,6 +46,7 @@ public class GoogleCloudStorageContainerIntegrationLiveTest extends BaseContaine
    }
 
    @Override protected Properties setupProperties() {
+      TestProperties.setGoogleCredentialsFromJson(provider);
       return TestProperties.apply(provider, super.setupProperties());
    }
 
@@ -98,5 +99,10 @@ public class GoogleCloudStorageContainerIntegrationLiveTest extends BaseContaine
    public void testDirectory() throws InterruptedException {
       // GoogleCloudStorage does not support directories, rather it supports prefixes which look like directories.
       throw new SkipException("directories are not supported in GoogleCloudStorage");
+   }
+
+   @Override
+   public void testListMarkerAfterLastKey() throws Exception {
+      throw new SkipException("cannot specify arbitrary markers");
    }
 }
