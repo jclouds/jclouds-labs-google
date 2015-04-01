@@ -69,7 +69,6 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
    private static final String BUCKET_NAME = "jcloudsobjectoperations" + UUID.randomUUID();
    private static final String BUCKET_NAME2 = "jcloudobjectdestination" + UUID.randomUUID();
-   private static final String NONEXISTENT_BUCKET_NAME = "jcloudunknownbucket" + UUID.randomUUID();
    private static final String UPLOAD_OBJECT_NAME = "objectOperation.txt";
    private static final String UPLOAD_OBJECT_NAME2 = "jcloudslogo.jpg";
    private static final String MULTIPART_UPLOAD_OBJECT = "multipart_related.jpg";
@@ -425,9 +424,8 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
    @AfterClass
    private void deleteBucket() {
-      assertTrue(api.getBucketApi().deleteBucket(BUCKET_NAME));
-      assertTrue(api.getBucketApi().deleteBucket(BUCKET_NAME2));
-      assertFalse(api.getBucketApi().deleteBucket(NONEXISTENT_BUCKET_NAME));
+      api.getBucketApi().deleteBucket(BUCKET_NAME);
+      api.getBucketApi().deleteBucket(BUCKET_NAME2);
    }
 
    private static byte[] reverse(byte[] b) {
