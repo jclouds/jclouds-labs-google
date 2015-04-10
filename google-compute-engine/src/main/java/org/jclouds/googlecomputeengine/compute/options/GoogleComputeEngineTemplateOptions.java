@@ -53,6 +53,7 @@ public final class GoogleComputeEngineTemplateOptions extends TemplateOptions {
          eTo.network(network());
          eTo.disks(getDisks());
          eTo.autoCreateDisk(getAutoCreateDiskOptions());
+         eTo.canIpForward(canIpForward());
          eTo.autoCreateKeyPair(autoCreateKeyPair());
       }
    }

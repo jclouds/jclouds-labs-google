@@ -80,7 +80,7 @@ public abstract class NewInstance {
       return create(name, machineType, false, network, Arrays.asList(AttachDisk.newBootDisk(sourceImage)), null);
    }
 
-   public static NewInstance create(String name, URI machineType, boolean canIpForward, URI network, List<AttachDisk> disks, String description) {
+   public static NewInstance create(String name, URI machineType, Boolean canIpForward, URI network, List<AttachDisk> disks, String description) {
       checkArgument(disks.get(0).boot(), "disk 0 must be a boot disk! %s", disks);
       boolean foundBoot = false;
       for (AttachDisk disk : disks) {
