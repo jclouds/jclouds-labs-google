@@ -77,10 +77,10 @@ public abstract class NewInstance {
 
    /** Convenience for creating a new instance with only a boot disk and minimal parameters. */
    public static NewInstance create(String name, URI machineType, URI network, URI sourceImage) {
-      return create(name, machineType, network, Arrays.asList(AttachDisk.newBootDisk(sourceImage)), null);
+      return create(name, machineType, false, network, Arrays.asList(AttachDisk.newBootDisk(sourceImage)), null);
    }
 
-   public static NewInstance create(String name, URI machineType, URI network, List<AttachDisk> disks, String description) {
+   public static NewInstance create(String name, URI machineType, boolean canIpForward, URI network, List<AttachDisk> disks, String description) {
       checkArgument(disks.get(0).boot(), "disk 0 must be a boot disk! %s", disks);
       boolean foundBoot = false;
       for (AttachDisk disk : disks) {
@@ -89,7 +89,7 @@ public abstract class NewInstance {
             foundBoot = true;
          }
       }
-      return create(name, machineType, null, ImmutableList.of(NetworkInterface.create(network)), ImmutableList.copyOf(disks),
+      return create(name, machineType, canIpForward, ImmutableList.of(NetworkInterface.create(network)), ImmutableList.copyOf(disks),
             description, Tags.create(), Metadata.create(), null, null);
    }
 

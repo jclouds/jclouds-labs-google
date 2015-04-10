@@ -131,10 +131,12 @@ public final class GoogleComputeEngineServiceAdapter implements ComputeServiceAd
 
 		NewInstance newInstance = NewInstance.create(name, // name
 				template.getHardware().getUri(), // machineType
+				options.canIpForward(), //ip forward
 				options.network(), // network
 				disks, // disks
 				group // description
 				);
+		
 
 		// Add tags from template and for security groups
 		newInstance.tags().items().addAll(options.getTags());
@@ -155,10 +157,13 @@ public final class GoogleComputeEngineServiceAdapter implements ComputeServiceAd
 		InstanceApi instanceApi = api.instancesInZone(zone);
 		Operation create = instanceApi.create(newInstance);
 
+		// TODO: What does this AtomicReference do?
+		// TODO: What's the differenc between AttachDisk and Instance.AttachedDisk and can they be refactored together?
+		
 		// We need to see the created instance so that we can access the newly created disk.
 		AtomicReference<Instance> instance = Atomics.newReference(Instance.create( //
 				"0000000000000000000", // id can't be null, but isn't available until provisioning is done.
-				null, // creationTimestamp
+				null, // creationTimest amp
 				create.targetLink(), // selfLink
 				newInstance.name(), // name
 				newInstance.description(), // description
@@ -167,7 +172,7 @@ public final class GoogleComputeEngineServiceAdapter implements ComputeServiceAd
 				Instance.Status.PROVISIONING, // status
 				null, // statusMessage
 				create.zone(), // zone
-				null, // canIpForward
+				newInstance.canIpForward(), // canIpForward
 				null, // networkInterfaces
 				null, // disks
 				newInstance.metadata(), // metadata
