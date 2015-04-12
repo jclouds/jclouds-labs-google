@@ -90,6 +90,7 @@ public class InstanceApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
       instance = NewInstance.create(
             INSTANCE_NAME, // name
             getDefaultMachineTypeUrl(), // machineType
+            false, // canIpForward
             getNetworkUrl(INSTANCE_NETWORK_NAME), // network
             Arrays.asList(AttachDisk.newBootDisk(imageUri),
                   AttachDisk.existingDisk(getDiskUrl(DISK_NAME))), // disks
@@ -125,8 +126,8 @@ public class InstanceApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
             new DiskCreationOptions.Builder().sizeGb(DEFAULT_DISK_SIZE_GB).build()));
       assertOperationDoneSuccessfully(api().create(instance));
       assertOperationDoneSuccessfully(api().create(instance2));
-   }
-
+   }   
+   
    @Test(groups = "live", dependsOnMethods = "testInsertInstance")
    public void testGetInstance() {
       Instance instance = api().get(INSTANCE_NAME);

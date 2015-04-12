@@ -86,6 +86,7 @@ public class InstanceApiMockTest extends BaseGoogleComputeEngineApiMockTest {
       NewInstance newInstance = NewInstance.create(
             "test-1", // name
             URI.create(url("/projects/party/zones/us-central1-a/machineTypes/n1-standard-1")), // machineType
+            false, //can ip forward
             URI.create(url("/projects/party/global/networks/default")), // network
             Arrays.asList(AttachDisk.existingBootDisk(URI.create(url("/projects/party/zones/us-central1-a/disks/test")))),
             "desc" // description
