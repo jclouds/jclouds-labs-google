@@ -65,8 +65,7 @@ public final class GoogleComputeEngineTemplateOptions extends TemplateOptions {
    }
 
    /**
-    * The network instances will attach to. When absent, a new network will be
-    * created for the project.
+    * The network instances will attach to. When absent, a new network will be created for the project.
     */
    @Nullable
    public URI network() {
@@ -338,14 +337,16 @@ public final class GoogleComputeEngineTemplateOptions extends TemplateOptions {
       public final int diskSizeGb;
       private String diskName = null;
 
-      public AutoCreateDiskOptions(final AttachDisk.Type diskType, final AttachDisk.Mode diskMode, final boolean isBootDisk, final int diskSizeGb) {
+      public AutoCreateDiskOptions(final AttachDisk.Type diskType, final AttachDisk.Mode diskMode,
+            final boolean isBootDisk, final int diskSizeGb) {
          this.diskType = diskType;
          this.diskMode = diskMode;
          this.isBootDisk = isBootDisk;
          this.diskSizeGb = diskSizeGb;
       }
 
-      public AutoCreateDiskOptions(final AttachDisk.Type diskType, final AttachDisk.Mode diskMode, final boolean isBootDisk, final int diskSizeGb, final String diskName) {
+      public AutoCreateDiskOptions(final AttachDisk.Type diskType, final AttachDisk.Mode diskMode,
+            final boolean isBootDisk, final int diskSizeGb, final String diskName) {
          this(diskType, diskMode, isBootDisk, diskSizeGb);
          // TODO: Validate against regex according to GCE spec.
          this.diskName = diskName;

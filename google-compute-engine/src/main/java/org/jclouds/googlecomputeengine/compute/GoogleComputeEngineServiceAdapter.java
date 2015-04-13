@@ -83,225 +83,245 @@ import com.google.common.util.concurrent.UncheckedTimeoutException;
  * <li>{@linkplain Location#getDescription()} to {@link Zone#selfLink()}</li>
  * </ul>
  */
-public final class GoogleComputeEngineServiceAdapter implements ComputeServiceAdapter<Instance, MachineType, Image, Location> {
+public final class GoogleComputeEngineServiceAdapter implements
+      ComputeServiceAdapter<Instance, MachineType, Image, Location> {
 
-	private final JustProvider							justProvider;
-	private final GoogleComputeEngineApi				api;
-	private final Resources								resources;
-	private final Map<URI, URI>							diskToSourceImage;
-	private final Predicate<AtomicReference<Operation>>	operationDone;
-	private final Predicate<AtomicReference<Instance>>	instanceVisible;
-	private final FirewallTagNamingConvention.Factory	firewallTagNamingConvention;
-	private final List<String>							imageProjects;
+   private final JustProvider justProvider;
+   private final GoogleComputeEngineApi api;
+   private final Resources resources;
+   private final Map<URI, URI> diskToSourceImage;
+   private final Predicate<AtomicReference<Operation>> operationDone;
+   private final Predicate<AtomicReference<Instance>> instanceVisible;
+   private final FirewallTagNamingConvention.Factory firewallTagNamingConvention;
+   private final List<String> imageProjects;
 
+   @Inject
+   GoogleComputeEngineServiceAdapter(JustProvider justProvider, GoogleComputeEngineApi api,
+         Predicate<AtomicReference<Operation>> operationDone, Predicate<AtomicReference<Instance>> instanceVisible,
+         Map<URI, URI> diskToSourceImage, Resources resources,
+         FirewallTagNamingConvention.Factory firewallTagNamingConvention, @Named(IMAGE_PROJECTS) String imageProjects) {
+      this.justProvider = justProvider;
+      this.api = api;
+      this.operationDone = operationDone;
+      this.instanceVisible = instanceVisible;
+      this.diskToSourceImage = diskToSourceImage;
+      this.resources = resources;
+      this.firewallTagNamingConvention = firewallTagNamingConvention;
+      this.imageProjects = Splitter.on(',').omitEmptyStrings().splitToList(imageProjects);
+   }
 
-	@Inject GoogleComputeEngineServiceAdapter(JustProvider justProvider, GoogleComputeEngineApi api, Predicate<AtomicReference<Operation>> operationDone,
-			Predicate<AtomicReference<Instance>> instanceVisible, Map<URI, URI> diskToSourceImage, Resources resources,
-			FirewallTagNamingConvention.Factory firewallTagNamingConvention, @Named(IMAGE_PROJECTS) String imageProjects) {
-		this.justProvider = justProvider;
-		this.api = api;
-		this.operationDone = operationDone;
-		this.instanceVisible = instanceVisible;
-		this.diskToSourceImage = diskToSourceImage;
-		this.resources = resources;
-		this.firewallTagNamingConvention = firewallTagNamingConvention;
-		this.imageProjects = Splitter.on(',').omitEmptyStrings().splitToList(imageProjects);
-	}
+   @Override
+   public NodeAndInitialCredentials<Instance> createNodeWithGroupEncodedIntoName(String group, String name, Template template) {
+      GoogleComputeEngineTemplateOptions options = GoogleComputeEngineTemplateOptions.class.cast(template.getOptions());
+      checkNotNull(options.network(), "template options must specify a network");
+      checkNotNull(template.getHardware().getUri(), "hardware must have a URI");
+      checkNotNull(template.getImage().getUri(), "image URI is null");
 
+      List<AttachDisk> disks = Lists.newArrayList();
+      disks.add(AttachDisk.newBootDisk(template.getImage().getUri()));
 
-	@Override public NodeAndInitialCredentials<Instance> createNodeWithGroupEncodedIntoName(String group, String name, Template template) {
-		GoogleComputeEngineTemplateOptions options = GoogleComputeEngineTemplateOptions.class.cast(template.getOptions());
-		checkNotNull(options.network(), "template options must specify a network");
-		checkNotNull(template.getHardware().getUri(), "hardware must have a URI");
-		checkNotNull(template.getImage().getUri(), "image URI is null");
+      disks.addAll(options.getDisks());
+      if (null != options.getAutoCreateDiskOptions()) {
+         AutoCreateDiskOptions diskOptions = options.getAutoCreateDiskOptions();
+         checkArgument(template.getLocation().getScope() == LocationScope.ZONE);
+         DiskApi diskApi = api.disksInZone(template.getLocation().getId());
+         Operation op = diskApi.create(
+               diskOptions.getDiskName(name),
+               new DiskCreationOptions.Builder().sizeGb(diskOptions.diskSizeGb).build());
+         // TODO: Is there a way to avoid the op, and just AttachDisk.create? where do we get the URI from? does it have
+         // to pre-exist?
+         AttachDisk disk = AttachDisk.create(
+               diskOptions.diskType,
+               diskOptions.diskMode,
+               op.targetLink(),
+               diskOptions.getDiskName(name),
+               false,
+               null,
+               true,
+               null,
+               null);
+         disks.add(disk);
+      }
 
-		List<AttachDisk> disks = Lists.newArrayList();
-		disks.add(AttachDisk.newBootDisk(template.getImage().getUri()));
+      NewInstance newInstance = NewInstance.create(name, // name
+            template.getHardware().getUri(), // machineType
+            options.canIpForward(), // ip forward
+            options.network(), // network
+            disks, // disks
+            group // description
+            );
 
-		disks.addAll(options.getDisks());
-		if (null != options.getAutoCreateDiskOptions()) {
-			AutoCreateDiskOptions diskOptions = options.getAutoCreateDiskOptions();
-			checkArgument(template.getLocation().getScope() == LocationScope.ZONE);
-			DiskApi diskApi = api.disksInZone(template.getLocation().getId());
-			Operation op = diskApi.create(diskOptions.getDiskName(name), new DiskCreationOptions.Builder().sizeGb(diskOptions.diskSizeGb).build());
-			// TODO: Is there a way to avoid the op, and just AttachDisk.create? where do we get the URI from? does it have to pre-exist?
-			AttachDisk disk = AttachDisk.create(diskOptions.diskType, diskOptions.diskMode, op.targetLink(), diskOptions.getDiskName(name), false, null, true, null, null);
-			disks.add(disk);
-		}
+      // Add tags from template and for security groups
+      newInstance.tags().items().addAll(options.getTags());
+      FirewallTagNamingConvention naming = firewallTagNamingConvention.get(group);
+      for (int port : options.getInboundPorts()) {
+         newInstance.tags().items().add(naming.name(port));
+      }
 
-		NewInstance newInstance = NewInstance.create(name, // name
-				template.getHardware().getUri(), // machineType
-				options.canIpForward(), //ip forward
-				options.network(), // network
-				disks, // disks
-				group // description
-				);
-		
+      // Add metadata from template and for ssh key and image id
+      newInstance.metadata().putAll(options.getUserMetadata());
 
-		// Add tags from template and for security groups
-		newInstance.tags().items().addAll(options.getTags());
-		FirewallTagNamingConvention naming = firewallTagNamingConvention.get(group);
-		for (int port : options.getInboundPorts()) {
-			newInstance.tags().items().add(naming.name(port));
-		}
+      LoginCredentials credentials = resolveNodeCredentials(template);
+      if (options.getPublicKey() != null) {
+         newInstance.metadata().put(
+               "sshKeys",
+               format("%s:%s %s@localhost", credentials.getUser(), options.getPublicKey(), credentials.getUser()));
+      }
 
-		// Add metadata from template and for ssh key and image id
-		newInstance.metadata().putAll(options.getUserMetadata());
+      String zone = template.getLocation().getId();
+      InstanceApi instanceApi = api.instancesInZone(zone);
+      Operation create = instanceApi.create(newInstance);
 
-		LoginCredentials credentials = resolveNodeCredentials(template);
-		if (options.getPublicKey() != null) {
-			newInstance.metadata().put("sshKeys", format("%s:%s %s@localhost", credentials.getUser(), options.getPublicKey(), credentials.getUser()));
-		}
+      // TODO: What does this AtomicReference do?
+      // TODO: What's the differenc between AttachDisk and Instance.AttachedDisk and can they be refactored together?
 
-		String zone = template.getLocation().getId();
-		InstanceApi instanceApi = api.instancesInZone(zone);
-		Operation create = instanceApi.create(newInstance);
+      // We need to see the created instance so that we can access the newly created disk.
+      AtomicReference<Instance> instance = Atomics.newReference(Instance.create( //
+            "0000000000000000000", // id can't be null, but isn't available until provisioning is done.
+            null, // creationTimest amp
+            create.targetLink(), // selfLink
+            newInstance.name(), // name
+            newInstance.description(), // description
+            newInstance.tags(), // tags
+            newInstance.machineType(), // machineType
+            Instance.Status.PROVISIONING, // status
+            null, // statusMessage
+            create.zone(), // zone
+            newInstance.canIpForward(), // canIpForward
+            null, // networkInterfaces
+            null, // disks
+            newInstance.metadata(), // metadata
+            null, // serviceAccounts
+            Scheduling.create(OnHostMaintenance.MIGRATE, true) // scheduling
+            ));
+      checkState(instanceVisible.apply(instance), "instance %s is not api visible!", instance.get());
 
-		// TODO: What does this AtomicReference do?
-		// TODO: What's the differenc between AttachDisk and Instance.AttachedDisk and can they be refactored together?
-		
-		// We need to see the created instance so that we can access the newly created disk.
-		AtomicReference<Instance> instance = Atomics.newReference(Instance.create( //
-				"0000000000000000000", // id can't be null, but isn't available until provisioning is done.
-				null, // creationTimest amp
-				create.targetLink(), // selfLink
-				newInstance.name(), // name
-				newInstance.description(), // description
-				newInstance.tags(), // tags
-				newInstance.machineType(), // machineType
-				Instance.Status.PROVISIONING, // status
-				null, // statusMessage
-				create.zone(), // zone
-				newInstance.canIpForward(), // canIpForward
-				null, // networkInterfaces
-				null, // disks
-				newInstance.metadata(), // metadata
-				null, // serviceAccounts
-				Scheduling.create(OnHostMaintenance.MIGRATE, true) // scheduling
-				));
-		checkState(instanceVisible.apply(instance), "instance %s is not api visible!", instance.get());
+      // Add lookup for InstanceToNodeMetadata
+      diskToSourceImage.put(instance.get().disks().get(0).source(), template.getImage().getUri());
 
-		// Add lookup for InstanceToNodeMetadata
-		diskToSourceImage.put(instance.get().disks().get(0).source(), template.getImage().getUri());
+      return new NodeAndInitialCredentials<Instance>(instance.get(), instance.get().selfLink().toString(), credentials);
+   }
 
-		return new NodeAndInitialCredentials<Instance>(instance.get(), instance.get().selfLink().toString(), credentials);
-	}
+   @Override
+   public Iterable<MachineType> listHardwareProfiles() {
+      return filter(concat(api.aggregatedList().machineTypes()), new Predicate<MachineType>() {
+         @Override
+         public boolean apply(MachineType input) {
+            return input.deprecated() == null;
+         }
+      });
+   }
 
+   @Override
+   public Iterable<Image> listImages() {
+      List<Iterable<Image>> images = newArrayList();
 
-	@Override public Iterable<MachineType> listHardwareProfiles() {
-		return filter(concat(api.aggregatedList().machineTypes()), new Predicate<MachineType>() {
-			@Override public boolean apply(MachineType input) {
-				return input.deprecated() == null;
-			}
-		});
-	}
+      images.add(concat(api.images().list()));
 
+      for (String project : imageProjects) {
+         images.add(concat(api.images().listInProject(project)));
+      }
 
-	@Override public Iterable<Image> listImages() {
-		List<Iterable<Image>> images = newArrayList();
+      return Iterables.concat(images);
+   }
 
-		images.add(concat(api.images().list()));
+   @Override
+   public Image getImage(String selfLink) {
+      return api.images().get(URI.create(checkNotNull(selfLink, "id")));
+   }
 
-		for (String project : imageProjects) {
-			images.add(concat(api.images().listInProject(project)));
-		}
+   /** Unlike EC2, you cannot default GCE instances to a region. Hence, we constrain to zones. */
+   @Override
+   public Iterable<Location> listLocations() {
+      Location provider = justProvider.get().iterator().next();
+      ImmutableList.Builder<Location> zones = ImmutableList.builder();
+      for (Region region : concat(api.regions().list())) {
+         Location regionLocation = new LocationBuilder().scope(LocationScope.REGION).id(region.name())
+               .description(region.selfLink().toString()).parent(provider).build();
+         for (URI zoneSelfLink : region.zones()) {
+            String zoneName = toName(zoneSelfLink);
+            zones.add(new LocationBuilder().scope(LocationScope.ZONE).id(zoneName).description(zoneSelfLink.toString())
+                  .parent(regionLocation).build());
+         }
+      }
+      return zones.build();
+   }
 
-		return Iterables.concat(images);
-	}
+   @Override
+   public Instance getNode(String selfLink) {
+      return resources.instance(URI.create(checkNotNull(selfLink, "id")));
+   }
 
+   @Override
+   public Iterable<Instance> listNodes() {
+      return concat(api.aggregatedList().instances());
+   }
 
-	@Override public Image getImage(String selfLink) {
-		return api.images().get(URI.create(checkNotNull(selfLink, "id")));
-	}
+   @Override
+   public Iterable<Instance> listNodesByIds(final Iterable<String> selfLinks) {
+      return filter(listNodes(), new Predicate<Instance>() { // TODO: convert to server-side filter
+               @Override
+               public boolean apply(Instance instance) {
+                  return Iterables.contains(selfLinks, instance.selfLink().toString());
+               }
+            });
+   }
 
+   @Override
+   public void destroyNode(String selfLink) {
+      waitOperationDone(resources.delete(URI.create(checkNotNull(selfLink, "id"))));
+   }
 
-	/** Unlike EC2, you cannot default GCE instances to a region. Hence, we constrain to zones. */
-	@Override public Iterable<Location> listLocations() {
-		Location provider = justProvider.get().iterator().next();
-		ImmutableList.Builder<Location> zones = ImmutableList.builder();
-		for (Region region : concat(api.regions().list())) {
-			Location regionLocation = new LocationBuilder().scope(LocationScope.REGION).id(region.name()).description(region.selfLink().toString()).parent(provider).build();
-			for (URI zoneSelfLink : region.zones()) {
-				String zoneName = toName(zoneSelfLink);
-				zones.add(new LocationBuilder().scope(LocationScope.ZONE).id(zoneName).description(zoneSelfLink.toString()).parent(regionLocation).build());
-			}
-		}
-		return zones.build();
-	}
+   @Override
+   public void rebootNode(String selfLink) {
+      waitOperationDone(resources.resetInstance(URI.create(checkNotNull(selfLink, "id"))));
+   }
 
+   @Override
+   public void resumeNode(String name) {
+      throw new UnsupportedOperationException("resume is not supported by GCE");
+   }
 
-	@Override public Instance getNode(String selfLink) {
-		return resources.instance(URI.create(checkNotNull(selfLink, "id")));
-	}
+   @Override
+   public void suspendNode(String name) {
+      throw new UnsupportedOperationException("suspend is not supported by GCE");
+   }
 
+   private void waitOperationDone(Operation operation) {
+      AtomicReference<Operation> operationRef = Atomics.newReference(operation);
 
-	@Override public Iterable<Instance> listNodes() {
-		return concat(api.aggregatedList().instances());
-	}
+      // wait for the operation to complete
+      if (!operationDone.apply(operationRef)) {
+         throw new UncheckedTimeoutException("operation did not reach DONE state" + operationRef.get());
+      }
 
+      // check if the operation failed
+      if (operationRef.get().httpErrorStatusCode() != null) {
+         throw new IllegalStateException("operation failed. Http Error Code: "
+               + operationRef.get().httpErrorStatusCode() + " HttpError: " + operationRef.get().httpErrorMessage());
+      }
+   }
 
-	@Override public Iterable<Instance> listNodesByIds(final Iterable<String> selfLinks) {
-		return filter(listNodes(), new Predicate<Instance>() { // TODO: convert to server-side filter
-					@Override public boolean apply(Instance instance) {
-						return Iterables.contains(selfLinks, instance.selfLink().toString());
-					}
-				});
-	}
+   private LoginCredentials resolveNodeCredentials(Template template) {
+      TemplateOptions options = template.getOptions();
+      LoginCredentials.Builder credentials = LoginCredentials.builder(template.getImage().getDefaultCredentials());
+      if (!Strings.isNullOrEmpty(options.getLoginUser())) {
+         credentials.user(options.getLoginUser());
+      }
+      if (!Strings.isNullOrEmpty(options.getLoginPrivateKey())) {
+         credentials.privateKey(options.getLoginPrivateKey());
+      }
+      if (!Strings.isNullOrEmpty(options.getLoginPassword())) {
+         credentials.password(options.getLoginPassword());
+      }
+      if (options.shouldAuthenticateSudo() != null) {
+         credentials.authenticateSudo(options.shouldAuthenticateSudo());
+      }
+      return credentials.build();
+   }
 
-
-	@Override public void destroyNode(String selfLink) {
-		waitOperationDone(resources.delete(URI.create(checkNotNull(selfLink, "id"))));
-	}
-
-
-	@Override public void rebootNode(String selfLink) {
-		waitOperationDone(resources.resetInstance(URI.create(checkNotNull(selfLink, "id"))));
-	}
-
-
-	@Override public void resumeNode(String name) {
-		throw new UnsupportedOperationException("resume is not supported by GCE");
-	}
-
-
-	@Override public void suspendNode(String name) {
-		throw new UnsupportedOperationException("suspend is not supported by GCE");
-	}
-
-
-	private void waitOperationDone(Operation operation) {
-		AtomicReference<Operation> operationRef = Atomics.newReference(operation);
-
-		// wait for the operation to complete
-		if (!operationDone.apply(operationRef)) { throw new UncheckedTimeoutException("operation did not reach DONE state" + operationRef.get()); }
-
-		// check if the operation failed
-		if (operationRef.get().httpErrorStatusCode() != null) { throw new IllegalStateException("operation failed. Http Error Code: " + operationRef.get().httpErrorStatusCode()
-				+ " HttpError: " + operationRef.get().httpErrorMessage()); }
-	}
-
-
-	private LoginCredentials resolveNodeCredentials(Template template) {
-		TemplateOptions options = template.getOptions();
-		LoginCredentials.Builder credentials = LoginCredentials.builder(template.getImage().getDefaultCredentials());
-		if (!Strings.isNullOrEmpty(options.getLoginUser())) {
-			credentials.user(options.getLoginUser());
-		}
-		if (!Strings.isNullOrEmpty(options.getLoginPrivateKey())) {
-			credentials.privateKey(options.getLoginPrivateKey());
-		}
-		if (!Strings.isNullOrEmpty(options.getLoginPassword())) {
-			credentials.password(options.getLoginPassword());
-		}
-		if (options.shouldAuthenticateSudo() != null) {
-			credentials.authenticateSudo(options.shouldAuthenticateSudo());
-		}
-		return credentials.build();
-	}
-
-
-	private static String toName(URI link) {
-		String path = link.getPath();
-		return path.substring(path.lastIndexOf('/') + 1);
-	}
+   private static String toName(URI link) {
+      String path = link.getPath();
+      return path.substring(path.lastIndexOf('/') + 1);
+   }
 }
