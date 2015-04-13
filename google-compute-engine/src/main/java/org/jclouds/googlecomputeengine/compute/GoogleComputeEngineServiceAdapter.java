@@ -128,8 +128,7 @@ public final class GoogleComputeEngineServiceAdapter implements
          Operation op = diskApi.create(
                diskOptions.getDiskName(name),
                new DiskCreationOptions.Builder().sizeGb(diskOptions.diskSizeGb).build());
-         // TODO: Is there a way to avoid the op, and just AttachDisk.create? where do we get the URI from? does it have
-         // to pre-exist?
+
          AttachDisk disk = AttachDisk.create(
                diskOptions.diskType,
                diskOptions.diskMode,

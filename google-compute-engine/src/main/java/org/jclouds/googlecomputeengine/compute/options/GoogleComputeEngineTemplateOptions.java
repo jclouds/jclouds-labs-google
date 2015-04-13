@@ -119,15 +119,6 @@ public final class GoogleComputeEngineTemplateOptions extends TemplateOptions {
       return disks;
    }
 
-   // /**
-   // * @see #shouldKeepBootDisk()
-   // */
-   // public GoogleComputeEngineTemplateOptions keepBootDisk(boolean
-   // keepBootDisk) {
-   // this.keepBootDisk = keepBootDisk;
-   // return this;
-   // }
-
    /**
     * @see #getDisks()
     * @see org.jclouds.googlecomputeengine.domain.templates.InstanceTemplate.AttachDisk
@@ -137,14 +128,6 @@ public final class GoogleComputeEngineTemplateOptions extends TemplateOptions {
       return this;
    }
 
-   // /**
-   // * @see #getBootDiskSize()
-   // */
-   // public GoogleComputeEngineTemplateOptions bootDiskSize(Long bootDiskSize)
-   // {
-   // this.bootDiskSize = fromNullable(bootDiskSize);
-   // return this;
-   // }
 
    /**
     * {@inheritDoc}
