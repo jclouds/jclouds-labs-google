@@ -58,17 +58,14 @@ public final class GoogleComputeEngineTemplateOptions extends TemplateOptions {
       }
    }
 
-   /** @see #network() */
+   /** @see #network()  */
    public GoogleComputeEngineTemplateOptions network(URI network) {
       this.network = network;
       return this;
    }
 
-   /**
-    * The network instances will attach to. When absent, a new network will be created for the project.
-    */
-   @Nullable
-   public URI network() {
+   /** The network instances will attach to. When absent, a new network will be created for the project. */
+   @Nullable public URI network() {
       return network;
    }
 
