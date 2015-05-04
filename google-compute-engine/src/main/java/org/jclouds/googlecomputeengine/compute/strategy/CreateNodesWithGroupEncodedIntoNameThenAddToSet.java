@@ -16,7 +16,7 @@
  */
 package org.jclouds.googlecomputeengine.compute.strategy;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.of;
 
@@ -140,10 +140,12 @@ public final class CreateNodesWithGroupEncodedIntoNameThenAddToSet extends
       else {
          Iterator<String> iterator = networks.iterator();
          networkName = nameFromNetworkString(iterator.next());
-         assert !iterator.hasNext() : "Error: Please specify only one network in TemplateOptions when using GCE.";
+         checkArgument(!iterator.hasNext(), "Error: Please specify only one network in TemplateOptions when using GCE.");
+
       }
       Network network = api.networks().get(networkName);
-      return checkNotNull(network, "Error: no network with name %s was found", networkName);
+      checkArgument(network != null, "Error: no network with name %s was found", networkName);
+      return network;
    }
 
    /**
@@ -171,7 +173,7 @@ public final class CreateNodesWithGroupEncodedIntoNameThenAddToSet extends
       String name = naming.name(ports);
       Firewall firewall = firewallApi.get(name);
       AtomicReference<Operation> operation = null;
-      if (firewall == null){
+      if (firewall == null) {
          List<Rule> rules = ImmutableList.of(Rule.create("tcp", ports), Rule.create("udp", ports));
          FirewallOptions firewallOptions = new FirewallOptions().name(name).network(network.selfLink())
                   .allowedRules(rules).sourceTags(templateOptions.getTags())

@@ -133,9 +133,6 @@ public final class GoogleComputeEngineService extends BaseComputeService {
       FirewallApi firewallApi = api.firewalls();
 
       for (Firewall firewall : concat(firewallApi.list())) {
-         if (firewall == null) {
-            continue;
-         }
          String foundGroup = namingScheme.groupInUniqueNameOrNull(firewall.name());
          if ((foundGroup != null) && foundGroup.equals(groupName)){
             AtomicReference<Operation> operation = Atomics.newReference(firewallApi.delete(firewall.name()));
