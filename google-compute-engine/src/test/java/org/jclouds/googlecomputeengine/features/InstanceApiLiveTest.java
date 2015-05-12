@@ -75,31 +75,25 @@ public class InstanceApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
    protected GoogleComputeEngineApi create(Properties props, Iterable<Module> modules) {
       GoogleComputeEngineApi api = super.create(props, modules);
       List<Image> list = api.images().listInProject("centos-cloud", filter("name eq centos.*")).next();
-      URI imageUri = FluentIterable.from(list)
-                        .filter(new Predicate<Image>() {
-                           @Override
-                           public boolean apply(Image input) {
-                              // filter out all deprecated images
-                              return !(input.deprecated() != null && input.deprecated().state() != null);
-                           }
-                        })
-                        .first()
-                        .get()
-                        .selfLink();
+      URI imageUri = FluentIterable.from(list).filter(new Predicate<Image>() {
+         @Override
+         public boolean apply(Image input) {
+            // filter out all deprecated images
+            return !(input.deprecated() != null && input.deprecated().state() != null);
+         }
+      }).first().get().selfLink();
 
-      instance = NewInstance.create(
-            INSTANCE_NAME, // name
+      instance = NewInstance.create(INSTANCE_NAME, // name
             getDefaultMachineTypeUrl(), // machineType
+            false, // canIpForward
             getNetworkUrl(INSTANCE_NETWORK_NAME), // network
-            Arrays.asList(AttachDisk.newBootDisk(imageUri),
-                  AttachDisk.existingDisk(getDiskUrl(DISK_NAME))), // disks
+            Arrays.asList(AttachDisk.newBootDisk(imageUri), AttachDisk.existingDisk(getDiskUrl(DISK_NAME))), // disks
             "a description" // description
       );
       instance.tags().items().addAll(Arrays.asList("foo", "bar"));
       instance.metadata().put("mykey", "myvalue");
 
-      instance2 = NewInstance.create(
-            INSTANCE_NAME2, // name
+      instance2 = NewInstance.create(INSTANCE_NAME2, // name
             getDefaultMachineTypeUrl(), // machineType
             getNetworkUrl(INSTANCE_NETWORK_NAME), // network
             imageUri); // sourceImage
@@ -118,10 +112,10 @@ public class InstanceApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
    @Test(groups = "live")
    public void testInsertInstance() {
       // need to insert the network first
-      assertOperationDoneSuccessfully(api.networks().createInIPv4Range
-              (INSTANCE_NETWORK_NAME, IPV4_RANGE));
+      assertOperationDoneSuccessfully(api.networks().createInIPv4Range(INSTANCE_NETWORK_NAME, IPV4_RANGE));
 
-      assertOperationDoneSuccessfully(diskApi().create(DISK_NAME,
+      assertOperationDoneSuccessfully(diskApi().create(
+            DISK_NAME,
             new DiskCreationOptions.Builder().sizeGb(DEFAULT_DISK_SIZE_GB).build()));
       assertOperationDoneSuccessfully(api().create(instance));
       assertOperationDoneSuccessfully(api().create(instance2));
@@ -138,8 +132,10 @@ public class InstanceApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
    public void testAddAccessConfig() {
       Instance instance = api().get(INSTANCE_NAME);
       assertNotNull(instance);
-      assertOperationDoneSuccessfully(api().deleteAccessConfigFromNic(INSTANCE_NAME,
-            instance.networkInterfaces().get(0).accessConfigs().get(0).name(), "nic0"));
+      assertOperationDoneSuccessfully(api().deleteAccessConfigFromNic(
+            INSTANCE_NAME,
+            instance.networkInterfaces().get(0).accessConfigs().get(0).name(),
+            "nic0"));
 
       AccessConfig config = AccessConfig.create("test-config", Type.ONE_TO_ONE_NAT, null);
       assertOperationDoneSuccessfully(api().addAccessConfigToNic(INSTANCE_NAME, config, "nic0"));
@@ -194,15 +190,14 @@ public class InstanceApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
       assertEquals(instanceAltered.scheduling().onHostMaintenance(), Scheduling.OnHostMaintenance.TERMINATE);
    }
 
-   private boolean existsDiskWithNameAndAutoDelete(String instanceName, final String diskName, final boolean autoDelete){
+   private boolean existsDiskWithNameAndAutoDelete(String instanceName, final String diskName, final boolean autoDelete) {
       Instance revertedInstance = api().get(instanceName);
 
       return Iterables.any(revertedInstance.disks(), new Predicate<AttachedDisk>() {
          @Override
          public boolean apply(AttachedDisk disk) {
-            return disk.type() == AttachedDisk.Type.PERSISTENT &&
-            diskName.equals(disk.deviceName()) &&
-            disk.autoDelete() == autoDelete;
+            return disk.type() == AttachedDisk.Type.PERSISTENT && diskName.equals(disk.deviceName())
+                  && disk.autoDelete() == autoDelete;
          }
       });
    }
@@ -210,8 +205,9 @@ public class InstanceApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
    @Test(groups = "live", dependsOnMethods = "testListInstance")
    public void testSetMetadataForInstance() {
       Instance originalInstance = api().get(INSTANCE_NAME);
-      Metadata update = Metadata.create(originalInstance.metadata().fingerprint())
-            .put(METADATA_ITEM_KEY, METADATA_ITEM_VALUE);
+      Metadata update = Metadata.create(originalInstance.metadata().fingerprint()).put(
+            METADATA_ITEM_KEY,
+            METADATA_ITEM_VALUE);
       assertOperationDoneSuccessfully(api().setMetadata(INSTANCE_NAME, update));
 
       Instance modifiedInstance = api().get(INSTANCE_NAME);
@@ -224,8 +220,7 @@ public class InstanceApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
    @Test(groups = "live", dependsOnMethods = "testListInstance")
    public void testSetTagsForInstance() {
       Instance originalInstance = api().get(INSTANCE_NAME);
-      assertOperationDoneSuccessfully(
-            api().setTags(INSTANCE_NAME, TAGS, originalInstance.tags().fingerprint()));
+      assertOperationDoneSuccessfully(api().setTags(INSTANCE_NAME, TAGS, originalInstance.tags().fingerprint()));
 
       Instance modifiedInstance = api().get(INSTANCE_NAME);
 
@@ -235,21 +230,21 @@ public class InstanceApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
 
    @Test(groups = "live", dependsOnMethods = "testSetMetadataForInstance")
    public void testAttachDiskToInstance() {
-      assertOperationDoneSuccessfully(diskApi().create(ATTACH_DISK_NAME,
+      assertOperationDoneSuccessfully(diskApi().create(
+            ATTACH_DISK_NAME,
             new DiskCreationOptions.Builder().sizeGb(1).build()));
 
       Instance originalInstance = api().get(INSTANCE_NAME);
-      assertOperationDoneSuccessfully(api().attachDisk(INSTANCE_NAME,
-                  AttachDisk.create(AttachDisk.Type.PERSISTENT, // type
-                                    AttachDisk.Mode.READ_ONLY, // mode
-                                    getDiskUrl(ATTACH_DISK_NAME), // source
-                                    ATTACH_DISK_DEVICE_NAME, // deviceName
-                                    false, // boot
-                                    null, // initializeParams
-                                    false, // autoDelete
-                                    null, // licenses
-                                    null // interface
-                                    )));
+      assertOperationDoneSuccessfully(api().attachDisk(INSTANCE_NAME, AttachDisk.create(AttachDisk.Type.PERSISTENT, // type
+            AttachDisk.Mode.READ_ONLY, // mode
+            getDiskUrl(ATTACH_DISK_NAME), // source
+            ATTACH_DISK_DEVICE_NAME, // deviceName
+            false, // boot
+            null, // initializeParams
+            false, // autoDelete
+            null, // licenses
+            null // interface
+            )));
 
       Instance modifiedInstance = api().get(INSTANCE_NAME);
 
@@ -258,8 +253,7 @@ public class InstanceApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
 
          @Override
          public boolean apply(AttachedDisk disk) {
-            return disk.type() == AttachedDisk.Type.PERSISTENT &&
-                  ATTACH_DISK_DEVICE_NAME.equals(disk.deviceName());
+            return disk.type() == AttachedDisk.Type.PERSISTENT && ATTACH_DISK_DEVICE_NAME.equals(disk.deviceName());
          }
       }));
    }
@@ -309,8 +303,10 @@ public class InstanceApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
       assertEquals(originalInstance.status(), Instance.Status.RUNNING);
    }
 
-   @Test(groups = "live", dependsOnMethods = {"testSetDiskAutoDelete", "testResetInstance", "testSetScheduling",
-         "testGetInstance", "testGetSerialPortOutput", "testDeleteAccessConfig", "testStartInstance"}, alwaysRun = true)
+   @Test(groups = "live", dependsOnMethods = {
+         "testSetDiskAutoDelete", "testResetInstance", "testSetScheduling", "testGetInstance",
+         "testGetSerialPortOutput", "testDeleteAccessConfig", "testStartInstance"
+   }, alwaysRun = true)
    public void testDeleteInstance() {
       assertOperationDoneSuccessfully(api().delete(INSTANCE_NAME));
       assertOperationDoneSuccessfully(api().delete(INSTANCE_NAME2));
@@ -325,7 +321,9 @@ public class InstanceApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
       assertEquals(result.tags().items(), expected.tags().items());
    }
 
-   @AfterClass(groups = { "integration", "live" })
+   @AfterClass(groups = {
+         "integration", "live"
+   })
    protected void tearDownContext() {
       try {
          waitOperationDone(api().delete(INSTANCE_NAME));
@@ -333,6 +331,6 @@ public class InstanceApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
          waitOperationDone(api.networks().delete(INSTANCE_NETWORK_NAME));
       } catch (Exception e) {
          // we don't really care about any exception here, so just delete away.
-       }
+      }
    }
 }

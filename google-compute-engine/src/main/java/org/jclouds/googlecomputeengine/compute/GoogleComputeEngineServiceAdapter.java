@@ -16,6 +16,7 @@
  */
 package org.jclouds.googlecomputeengine.compute;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.filter;
@@ -45,6 +46,7 @@ import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
 import org.jclouds.googlecomputeengine.compute.functions.FirewallTagNamingConvention;
 import org.jclouds.googlecomputeengine.compute.functions.Resources;
 import org.jclouds.googlecomputeengine.compute.options.GoogleComputeEngineTemplateOptions;
+import org.jclouds.googlecomputeengine.compute.options.GoogleComputeEngineTemplateOptions.AutoCreateDiskOptions;
 import org.jclouds.googlecomputeengine.domain.AttachDisk;
 import org.jclouds.googlecomputeengine.domain.Image;
 import org.jclouds.googlecomputeengine.domain.Instance;
@@ -55,7 +57,9 @@ import org.jclouds.googlecomputeengine.domain.NewInstance;
 import org.jclouds.googlecomputeengine.domain.Operation;
 import org.jclouds.googlecomputeengine.domain.Region;
 import org.jclouds.googlecomputeengine.domain.Zone;
+import org.jclouds.googlecomputeengine.features.DiskApi;
 import org.jclouds.googlecomputeengine.features.InstanceApi;
+import org.jclouds.googlecomputeengine.options.DiskCreationOptions;
 import org.jclouds.location.suppliers.all.JustProvider;
 
 import com.google.common.base.Predicate;
@@ -118,13 +122,35 @@ public final class GoogleComputeEngineServiceAdapter
       List<AttachDisk> disks = Lists.newArrayList();
       disks.add(AttachDisk.newBootDisk(template.getImage().getUri()));
 
-      NewInstance newInstance = NewInstance.create(
-            name, // name
+      disks.addAll(options.getDisks());
+      if (null != options.getAutoCreateDiskOptions()) {
+         AutoCreateDiskOptions diskOptions = options.getAutoCreateDiskOptions();
+         checkArgument(template.getLocation().getScope() == LocationScope.ZONE);
+         DiskApi diskApi = api.disksInZone(template.getLocation().getId());
+         Operation op = diskApi.create(
+               diskOptions.getDiskName(name),
+               new DiskCreationOptions.Builder().sizeGb(diskOptions.diskSizeGb).build());
+
+         AttachDisk disk = AttachDisk.create(
+               diskOptions.diskType,
+               diskOptions.diskMode,
+               op.targetLink(),
+               diskOptions.getDiskName(name),
+               false,
+               null,
+               true,
+               null,
+               null);
+         disks.add(disk);
+      }
+
+      NewInstance newInstance = NewInstance.create(name, // name
             template.getHardware().getUri(), // machineType
+            options.canIpForward(), // ip forward
             options.network(), // network
             disks, // disks
             group // description
-      );
+            );
 
       // Add tags from template and for security groups
       newInstance.tags().items().addAll(options.getTags());
@@ -146,10 +172,13 @@ public final class GoogleComputeEngineServiceAdapter
       InstanceApi instanceApi = api.instancesInZone(zone);
       Operation create = instanceApi.create(newInstance);
 
+      // TODO: What does this AtomicReference do?
+      // TODO: What's the differenc between AttachDisk and Instance.AttachedDisk and can they be refactored together?
+
       // We need to see the created instance so that we can access the newly created disk.
       AtomicReference<Instance> instance = Atomics.newReference(Instance.create( //
             "0000000000000000000", // id can't be null, but isn't available until provisioning is done.
-            null, // creationTimestamp
+            null, // creationTimest amp
             create.targetLink(), // selfLink
             newInstance.name(), // name
             newInstance.description(), // description
@@ -158,7 +187,7 @@ public final class GoogleComputeEngineServiceAdapter
             Instance.Status.PROVISIONING, // status
             null, // statusMessage
             create.zone(), // zone
-            null, // canIpForward
+            newInstance.canIpForward(), // canIpForward
             null, // networkInterfaces
             null, // disks
             newInstance.metadata(), // metadata
@@ -174,12 +203,12 @@ public final class GoogleComputeEngineServiceAdapter
    }
 
    @Override public Iterable<MachineType> listHardwareProfiles() {
-      return filter(concat(api.aggregatedList().machineTypes()), new Predicate<MachineType>() {
-         @Override public boolean apply(MachineType input) {
-            return input.deprecated() == null;
-         }
-      });
-   }
+	      return filter(concat(api.aggregatedList().machineTypes()), new Predicate<MachineType>() {
+	         @Override public boolean apply(MachineType input) {
+	            return input.deprecated() == null;
+	         }
+	      });
+	   }
 
    @Override public Iterable<Image> listImages() {
       List<Iterable<Image>> images = newArrayList();
@@ -261,9 +290,8 @@ public final class GoogleComputeEngineServiceAdapter
 
       // check if the operation failed
       if (operationRef.get().httpErrorStatusCode() != null) {
-         throw new IllegalStateException(
-               "operation failed. Http Error Code: " + operationRef.get().httpErrorStatusCode() +
-                     " HttpError: " + operationRef.get().httpErrorMessage());
+         throw new IllegalStateException("operation failed. Http Error Code: "
+               + operationRef.get().httpErrorStatusCode() + " HttpError: " + operationRef.get().httpErrorMessage());
       }
    }
 

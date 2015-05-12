@@ -17,18 +17,26 @@
 package org.jclouds.googlecomputeengine.compute.options;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.jclouds.compute.options.TemplateOptions;
 import org.jclouds.domain.LoginCredentials;
+import org.jclouds.googlecomputeengine.domain.AttachDisk;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.scriptbuilder.domain.Statement;
+
+import com.google.common.collect.Lists;
 
 /** Instance options specific to Google Compute Engine. */
 public final class GoogleComputeEngineTemplateOptions extends TemplateOptions {
 
    private URI network = null;
    private boolean autoCreateKeyPair = true;
+   private List<AttachDisk> disks = Lists.newArrayList();
+   private AutoCreateDiskOptions autoCreateDiskOptions = null;
+   private boolean canIpForward = false;
 
    @Override
    public GoogleComputeEngineTemplateOptions clone() {
@@ -43,6 +51,9 @@ public final class GoogleComputeEngineTemplateOptions extends TemplateOptions {
       if (to instanceof GoogleComputeEngineTemplateOptions) {
          GoogleComputeEngineTemplateOptions eTo = GoogleComputeEngineTemplateOptions.class.cast(to);
          eTo.network(network());
+         eTo.disks(getDisks());
+         eTo.autoCreateDisk(getAutoCreateDiskOptions());
+         eTo.canIpForward(canIpForward());
          eTo.autoCreateKeyPair(autoCreateKeyPair());
       }
    }
@@ -72,6 +83,48 @@ public final class GoogleComputeEngineTemplateOptions extends TemplateOptions {
    public boolean autoCreateKeyPair() {
       return autoCreateKeyPair;
    }
+
+   public boolean canIpForward() {
+      return canIpForward;
+   }
+
+   public void canIpForward(boolean enable) {
+      this.canIpForward = enable;
+   }
+
+   /**
+    * @see #getDisks()
+    * @see org.jclouds.googlecomputeengine.domain.templates.InstanceTemplate.AttachDisk
+    */
+   public GoogleComputeEngineTemplateOptions addDisk(AttachDisk disk) {
+      this.disks.add(disk);
+      return this;
+   }
+
+   public void autoCreateDisk(final AutoCreateDiskOptions diskOptions) {
+      this.autoCreateDiskOptions = diskOptions;
+   }
+
+   public AutoCreateDiskOptions getAutoCreateDiskOptions() {
+      return autoCreateDiskOptions;
+   }
+
+   /**
+    * @return the AttachDisks for this instance.
+    */
+   public List<AttachDisk> getDisks() {
+      return disks;
+   }
+
+   /**
+    * @see #getDisks()
+    * @see org.jclouds.googlecomputeengine.domain.templates.InstanceTemplate.AttachDisk
+    */
+   public GoogleComputeEngineTemplateOptions disks(List<AttachDisk> disks) {
+      this.disks = Lists.newArrayList(disks);
+      return this;
+   }
+
 
    /**
     * {@inheritDoc}
@@ -255,5 +308,35 @@ public final class GoogleComputeEngineTemplateOptions extends TemplateOptions {
    @Override
    public GoogleComputeEngineTemplateOptions blockOnComplete(boolean blockOnComplete) {
       return GoogleComputeEngineTemplateOptions.class.cast(super.blockOnComplete(blockOnComplete));
+   }
+
+   public static class AutoCreateDiskOptions {
+      public final AttachDisk.Type diskType;
+      public final AttachDisk.Mode diskMode;
+      public final boolean isBootDisk;
+      public final int diskSizeGb;
+      private String diskName = null;
+
+      public AutoCreateDiskOptions(final AttachDisk.Type diskType, final AttachDisk.Mode diskMode,
+            final boolean isBootDisk, final int diskSizeGb) {
+         this.diskType = diskType;
+         this.diskMode = diskMode;
+         this.isBootDisk = isBootDisk;
+         this.diskSizeGb = diskSizeGb;
+      }
+
+      public AutoCreateDiskOptions(final AttachDisk.Type diskType, final AttachDisk.Mode diskMode,
+            final boolean isBootDisk, final int diskSizeGb, final String diskName) {
+         this(diskType, diskMode, isBootDisk, diskSizeGb);
+         // TODO: Validate against regex according to GCE spec.
+         this.diskName = diskName;
+      }
+
+      public String getDiskName(final String nodeName) {
+         if (null != diskName)
+            return diskName;
+         else
+            return "jclouds-" + UUID.randomUUID().toString();
+      }
    }
 }
