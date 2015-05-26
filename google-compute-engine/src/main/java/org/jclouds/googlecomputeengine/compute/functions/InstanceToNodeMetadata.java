@@ -65,13 +65,19 @@ public final class InstanceToNodeMetadata implements Function<Instance, NodeMeta
 
    @Override public NodeMetadata apply(Instance input) {
       String group = groupFromMapOrName(input.metadata().asMap(), input.name(), nodeNamingConvention);
-      Predicate<String> isFirewallTag = firewallTagNamingConvention.get(group).isFirewallTag();
-      if (group != null) {
-         for (Iterator<String> tag = input.tags().items().iterator(); tag.hasNext(); ) {
-            if (isFirewallTag.apply(tag.next())) {
-               tag.remove();
+
+      // Attempt to filter out firewallTags. Ignore failures for names that don't match jclouds expected format.
+      try {
+         Predicate<String> isFirewallTag = firewallTagNamingConvention.get(group).isFirewallTag();
+         if (group != null) {
+            for (Iterator<String> tag = input.tags().items().iterator(); tag.hasNext(); ) {
+               if (isFirewallTag.apply(tag.next())) {
+                  tag.remove();
+               }
             }
          }
+      } catch (IllegalArgumentException e){
+         // pass
       }
 
       NodeMetadataBuilder builder = new NodeMetadataBuilder();
