@@ -313,8 +313,6 @@ public class InstanceApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
       assertOperationDoneSuccessfully(api().reset(INSTANCE_NAME));
    }
 
-
-
    @Test(groups = "live", dependsOnMethods = "testGetInstance2")
    public void testStopInstance() {
       Instance originalInstance = api().get(INSTANCE_NAME2);
