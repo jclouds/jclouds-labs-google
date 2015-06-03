@@ -241,6 +241,7 @@ public interface InstanceApi {
     * @param onHostMaintenance either MIGRATE or TERMINATE the default is MIGRATE (Live Migration).
     * @param automaticRestart Defines whether the Instance should be automatically
     *  restarted when it is terminated by Compute Engine (not terminated by user).
+    * @param preemptible Defines whether the Instance should be launched as spot instance
     *  Used when onHostMaintenance is set to TERMINATE.
     * @return
     */
@@ -250,7 +251,8 @@ public interface InstanceApi {
    @MapBinder(BindToJsonPayload.class)
    Operation setScheduling(@PathParam("instance") String instanceName,
                            @PayloadParam("onHostMaintenance") Scheduling.OnHostMaintenance onHostMaintenance,
-                           @PayloadParam("automaticRestart") boolean automaticRestart);
+                           @PayloadParam("automaticRestart") boolean automaticRestart,
+                           @PayloadParam("preemptible") boolean preemptible);
 
    /**
     * This method starts an instance that was stopped using the using the {@link #stop(String)} method.
