@@ -22,9 +22,11 @@ import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static org.jclouds.googlecloud.internal.ListPages.concat;
-import static org.jclouds.googlecomputeengine.config.GoogleComputeEngineProperties.IMAGE_PROJECTS;
 import static org.jclouds.googlecomputeengine.compute.strategy.CreateNodesWithGroupEncodedIntoNameThenAddToSet.simplifyPorts;
+import static org.jclouds.googlecomputeengine.config.GoogleComputeEngineProperties.IMAGE_PROJECTS;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -32,9 +34,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-
+import com.google.common.base.Predicate;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Atomics;
+import com.google.common.util.concurrent.UncheckedTimeoutException;
 import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.domain.Hardware;
 import org.jclouds.compute.domain.NodeMetadata;
@@ -61,15 +68,6 @@ import org.jclouds.googlecomputeengine.domain.Tags;
 import org.jclouds.googlecomputeengine.domain.Zone;
 import org.jclouds.googlecomputeengine.features.InstanceApi;
 import org.jclouds.location.suppliers.all.JustProvider;
-
-import com.google.common.base.Predicate;
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.Atomics;
-import com.google.common.util.concurrent.UncheckedTimeoutException;
 
 /**
  * This implementation maps the following:
@@ -257,12 +255,12 @@ public final class GoogleComputeEngineServiceAdapter
       waitOperationDone(resources.resetInstance(URI.create(checkNotNull(selfLink, "id"))));
    }
 
-   @Override public void resumeNode(String name) {
-      throw new UnsupportedOperationException("resume is not supported by GCE");
+   @Override public void resumeNode(String selfLink) {
+      waitOperationDone(resources.startInstance(URI.create(checkNotNull(selfLink, "id"))));
    }
 
-   @Override  public void suspendNode(String name) {
-      throw new UnsupportedOperationException("suspend is not supported by GCE");
+   @Override  public void suspendNode(String selfLink) {
+      waitOperationDone(resources.stopInstance(URI.create(checkNotNull(selfLink, "id"))));
    }
 
    private void waitOperationDone(Operation operation) {

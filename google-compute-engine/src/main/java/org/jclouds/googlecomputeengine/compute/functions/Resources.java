@@ -19,14 +19,14 @@ package org.jclouds.googlecomputeengine.compute.functions;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.jclouds.Fallbacks.NullOnNotFoundOr404;
 
-import java.net.URI;
-
 import javax.inject.Named;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import java.net.URI;
 
 import org.jclouds.googlecomputeengine.domain.Instance;
 import org.jclouds.googlecomputeengine.domain.Network;
@@ -68,4 +68,28 @@ public interface Resources {
    @POST
    @Path("/reset")
    Operation resetInstance(@EndpointParam URI selfLink);
+
+   /**
+    * This method starts an instance that was stopped using the using the {@link #stop(String)} method.
+    * @param instance - name of the instance to be started
+    */
+   @Named("Instances:start")
+   @POST
+   @Path("/start")
+   @Produces(APPLICATION_JSON)
+   Operation startInstance(@EndpointParam URI selfLink);
+
+   /**
+    * This method stops a running instance, shutting it down cleanly, and allows you to restart
+    *  the instance at a later time. Stopped instances do not incur per-minute, virtual machine
+    *  usage charges while they are stopped, but any resources that the virtual machine is using,
+    *  such as persistent disks and static IP addresses,will continue to be charged until they are deleted.
+    * @param instance
+    * @return
+    */
+   @Named("Instances:stop")
+   @POST
+   @Path("/stop")
+   @Produces(APPLICATION_JSON)
+   Operation stopInstance(@EndpointParam URI selfLink);
 }
