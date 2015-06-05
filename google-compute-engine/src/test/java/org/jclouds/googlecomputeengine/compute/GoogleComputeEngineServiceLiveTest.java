@@ -77,14 +77,54 @@ public class GoogleComputeEngineServiceLiveTest extends BaseComputeServiceLiveTe
    public void testCorrectAuthException() throws Exception {
    }
 
-   // reboot is not supported by GCE
-   @Test(enabled = true, dependsOnMethods = "testGet")
-   public void testReboot() throws Exception {
+   @Test(enabled = true)
+   public void testCompareSizes() throws Exception {
+      super.testCompareSizes();
    }
 
-   // suspend/Resume is not supported by GCE
+   @Test(enabled = true, dependsOnMethods = {"testCompareSizes"})
+   public void testAScriptExecutionAfterBootWithBasicTemplate() throws Exception {
+      super.testAScriptExecutionAfterBootWithBasicTemplate();
+   }
+
+   @Test(enabled = true, dependsOnMethods = {"testCompareSizes"})
+   public void testConcurrentUseOfComputeServiceToCreateNodes() throws Exception {
+      super.testConcurrentUseOfComputeServiceToCreateNodes();
+   }
+
+   @Test(enabled = true, dependsOnMethods = {"testConcurrentUseOfComputeServiceToCreateNodes"})
+   public void testCreateTwoNodesWithRunScript() throws Exception {
+      super.testCreateTwoNodesWithRunScript();
+   }
+
+   @Test(enabled = true, dependsOnMethods = {"testCreateAnotherNodeWithANewContextToEnsureSharedMemIsntRequired"})
+   public void testCredentialsCache() throws Exception {
+      super.testCredentialsCache();
+   }
+
+   @Test(enabled = true, dependsOnMethods = {"testCreateTwoNodesWithRunScript"})
+   public void testCreateTwoNodesWithOneSpecifiedName() throws Exception {
+      super.testCreateTwoNodesWithOneSpecifiedName();
+   }
+
+   @Test(enabled = true, dependsOnMethods = {"testCreateTwoNodesWithOneSpecifiedName"})
+   public void testCreateAnotherNodeWithANewContextToEnsureSharedMemIsntRequired() throws Exception {
+      super.testCreateAnotherNodeWithANewContextToEnsureSharedMemIsntRequired();
+   }
+
+   @Test(enabled = true, dependsOnMethods = {"testCreateAnotherNodeWithANewContextToEnsureSharedMemIsntRequired"})
+   public void testGet() throws Exception {
+      super.testGet();
+   }
+
+   @Test(enabled = true, dependsOnMethods = {"testGet"})
+   public void testReboot() throws Exception {
+      super.testReboot();
+   }
+
    @Test(enabled = true, dependsOnMethods = "testReboot")
    public void testSuspendResume() throws Exception {
+      super.testSuspendResume();
    }
 
    @Test(enabled = true, dependsOnMethods = "testSuspendResume")
