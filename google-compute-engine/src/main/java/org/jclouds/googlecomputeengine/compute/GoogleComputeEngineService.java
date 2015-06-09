@@ -16,9 +16,12 @@
  */
 package org.jclouds.googlecomputeengine.compute;
 
+import static autovalue.shaded.com.google.common.common.collect.Sets.newHashSet;
+import static com.google.common.collect.Iterables.filter;
 import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_NODE_RUNNING;
 import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_NODE_SUSPENDED;
 import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_NODE_TERMINATED;
+import static org.jclouds.compute.predicates.NodePredicates.all;
 import static org.jclouds.googlecloud.internal.ListPages.concat;
 
 import java.util.Map;
@@ -62,6 +65,8 @@ import org.jclouds.googlecomputeengine.domain.Network;
 import org.jclouds.googlecomputeengine.domain.Operation;
 import org.jclouds.googlecomputeengine.features.FirewallApi;
 import org.jclouds.scriptbuilder.functions.InitAdminAccess;
+
+import autovalue.shaded.com.google.common.common.collect.ImmutableSet;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -120,6 +125,31 @@ public final class GoogleComputeEngineService extends BaseComputeService {
       this.api = api;
       this.operationDone = operationDone;
    }
+   
+   @Override
+   public void destroyNode(String id) {
+      // GCE does not return TERMINATED nodes, so in practice no node will never reach the TERMINATED
+      // state, and the deleted nodes will never be returned.
+      // In order to be able to clean up the resources associated to the deleted nodes, we have to retrieve
+      // the details of the nodes before deleting them.
+      NodeMetadata node = getNodeMetadata(id);
+      super.destroyNode(id);
+      cleanUpIncidentalResourcesOfDeadNodes(ImmutableSet.of(node));
+   }
+
+   @Override
+   public Set<? extends NodeMetadata> destroyNodesMatching(Predicate<NodeMetadata> filter) {
+      // GCE does not return TERMINATED nodes, so in practice no node will never reach the TERMINATED
+      // state, and the deleted nodes will never be returned.
+      // In order to be able to clean up the resources associated to the deleted nodes, we have to retrieve
+      // the details of the nodes before deleting them.
+      Set<? extends NodeMetadata> nodes = newHashSet(filter(listNodesDetailsMatching(all()), filter));
+      super.destroyNodesMatching(filter); // This returns an empty list (a list of null elements) in GCE, as the api does not return deleted nodes
+      cleanUpIncidentalResourcesOfDeadNodes(nodes);
+      return nodes;
+   }
+
+
 
    @Override
    protected synchronized void cleanUpIncidentalResourcesOfDeadNodes(Set<? extends NodeMetadata> deadNodes) {
@@ -134,27 +164,29 @@ public final class GoogleComputeEngineService extends BaseComputeService {
       Network network = api.networks().get(resourceName);
       FirewallApi firewallApi = api.firewalls();
 
-      for (Firewall firewall : concat(firewallApi.list())) {
-         if (firewall == null || !firewall.network().equals(network.selfLink())) {
-            continue;
+      if (network != null) {
+         for (Firewall firewall : concat(firewallApi.list())) {
+            if (firewall == null || firewall.network() == null || !firewall.network().equals(network.selfLink())) {
+               continue;
+            }
+            AtomicReference<Operation> operation = Atomics.newReference(firewallApi.delete(firewall.name()));
+            operationDone.apply(operation);
+   
+            if (operation.get().httpErrorStatusCode() != null) {
+               logger.warn("delete orphaned firewall %s failed. Http Error Code: %d HttpError: %s",
+                     operation.get().targetId(), operation.get().httpErrorStatusCode(),
+                     operation.get().httpErrorMessage());
+            }
          }
-         AtomicReference<Operation> operation = Atomics.newReference(firewallApi.delete(firewall.name()));
+    
+         AtomicReference<Operation> operation = Atomics.newReference(api.networks().delete(resourceName));
+
          operationDone.apply(operation);
 
          if (operation.get().httpErrorStatusCode() != null) {
-            logger.warn("delete orphaned firewall %s failed. Http Error Code: %d HttpError: %s",
-                  operation.get().targetId(), operation.get().httpErrorStatusCode(),
-                  operation.get().httpErrorMessage());
+            logger.warn("delete orphaned network failed. Http Error Code: " + operation.get().httpErrorStatusCode() +
+                  " HttpError: " + operation.get().httpErrorMessage());
          }
-      }
-
-      AtomicReference<Operation> operation = Atomics.newReference(api.networks().delete(resourceName));
-
-      operationDone.apply(operation);
-
-      if (operation.get().httpErrorStatusCode() != null) {
-         logger.warn("delete orphaned network failed. Http Error Code: " + operation.get().httpErrorStatusCode() +
-               " HttpError: " + operation.get().httpErrorMessage());
       }
    }
 
