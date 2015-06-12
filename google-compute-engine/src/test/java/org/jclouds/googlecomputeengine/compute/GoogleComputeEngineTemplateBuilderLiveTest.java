@@ -59,7 +59,6 @@ public class GoogleComputeEngineTemplateBuilderLiveTest extends BaseTemplateBuil
       Map<OsFamily, String> defaultUsernames = ImmutableMap.of(COREOS, "core", WINDOWS, "Administrator");
       Set<? extends Image> images = view.getComputeService().listImages();
       for (Image image : images) {
-         System.err.println(image);
          assertEquals(image.getDefaultCredentials().getUser(),
                firstNonNull(defaultUsernames.get(image.getOperatingSystem().getFamily()), "jclouds"));
       }
