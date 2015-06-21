@@ -74,17 +74,17 @@ import com.google.common.util.concurrent.UncheckedTimeoutException;
 /**
  * This implementation maps the following:
  * <ul>
- * <li>{@linkplain NodeMetadata#getId()} to {@link Instance#selfLink()}</li>
- * <li>{@linkplain NodeMetadata#getGroup()} to {@link Instance#metadata()} as {@code jclouds-group}</li>
- * <li>{@linkplain NodeMetadata#getImageId()} to {@link Instance#metadata()} as {@code jclouds-image}</li>
- * <li>{@linkplain Hardware#getId()} to {@link MachineType#selfLink()}</li>
- * <li>{@linkplain org.jclouds.compute.domain.Image#getId()} to {@link Image#selfLink()}</li>
- * <li>{@linkplain Location#getId()} to {@link org.jclouds.googlecomputeengine.domain.Zone#name()}</li>
- * <li>{@linkplain Location#getDescription()} to {@link Zone#selfLink()}</li>
+ *    <li>{@linkplain NodeMetadata#getId()} to {@link Instance#selfLink()}</li>
+ *    <li>{@linkplain NodeMetadata#getGroup()} to {@link Instance#metadata()} as {@code jclouds-group}</li>
+ *    <li>{@linkplain NodeMetadata#getImageId()} to {@link Instance#metadata()} as {@code jclouds-image}</li>
+ *    <li>{@linkplain Hardware#getId()} to {@link MachineType#selfLink()}</li>
+ *    <li>{@linkplain org.jclouds.compute.domain.Image#getId()} to {@link Image#selfLink()}</li>
+ *    <li>{@linkplain Location#getId()} to {@link org.jclouds.googlecomputeengine.domain.Zone#name()}</li>
+ *    <li>{@linkplain Location#getDescription()} to {@link Zone#selfLink()}</li>
  * </ul>
  */
-public final class GoogleComputeEngineServiceAdapter implements
-      ComputeServiceAdapter<Instance, MachineType, Image, Location> {
+public final class GoogleComputeEngineServiceAdapter
+      implements ComputeServiceAdapter<Instance, MachineType, Image, Location> {
 
    private final JustProvider justProvider;
    private final GoogleComputeEngineApi api;
@@ -95,11 +95,13 @@ public final class GoogleComputeEngineServiceAdapter implements
    private final FirewallTagNamingConvention.Factory firewallTagNamingConvention;
    private final List<String> imageProjects;
 
-   @Inject
-   GoogleComputeEngineServiceAdapter(JustProvider justProvider, GoogleComputeEngineApi api,
-         Predicate<AtomicReference<Operation>> operationDone, Predicate<AtomicReference<Instance>> instanceVisible,
-         Map<URI, URI> diskToSourceImage, Resources resources,
-         FirewallTagNamingConvention.Factory firewallTagNamingConvention, @Named(IMAGE_PROJECTS) String imageProjects) {
+   @Inject GoogleComputeEngineServiceAdapter(JustProvider justProvider, GoogleComputeEngineApi api,
+                                            Predicate<AtomicReference<Operation>> operationDone,
+                                            Predicate<AtomicReference<Instance>> instanceVisible,
+                                            Map<URI, URI> diskToSourceImage,
+                                            Resources resources,
+                                            FirewallTagNamingConvention.Factory firewallTagNamingConvention,
+                                            @Named(IMAGE_PROJECTS) String imageProjects) {
       this.justProvider = justProvider;
       this.api = api;
       this.operationDone = operationDone;
@@ -110,8 +112,8 @@ public final class GoogleComputeEngineServiceAdapter implements
       this.imageProjects = Splitter.on(',').omitEmptyStrings().splitToList(imageProjects);
    }
 
-   @Override
-   public NodeAndInitialCredentials<Instance> createNodeWithGroupEncodedIntoName(String group, String name, Template template) {
+   @Override public NodeAndInitialCredentials<Instance> createNodeWithGroupEncodedIntoName(String group, String name,
+         Template template) {
       GoogleComputeEngineTemplateOptions options = GoogleComputeEngineTemplateOptions.class.cast(template.getOptions());
       checkNotNull(options.network(), "template options must specify a network");
       checkNotNull(template.getHardware().getUri(), "hardware must have a URI");
@@ -162,8 +164,7 @@ public final class GoogleComputeEngineServiceAdapter implements
 
       LoginCredentials credentials = resolveNodeCredentials(template);
       if (options.getPublicKey() != null) {
-         newInstance.metadata().put(
-               "sshKeys",
+         newInstance.metadata().put("sshKeys",
                format("%s:%s %s@localhost", credentials.getUser(), options.getPublicKey(), credentials.getUser()));
       }
 
@@ -192,7 +193,7 @@ public final class GoogleComputeEngineServiceAdapter implements
             newInstance.metadata(), // metadata
             null, // serviceAccounts
             Scheduling.create(OnHostMaintenance.MIGRATE, true) // scheduling
-            ));
+      ));
       checkState(instanceVisible.apply(instance), "instance %s is not api visible!", instance.get());
 
       // Add lookup for InstanceToNodeMetadata
@@ -201,18 +202,15 @@ public final class GoogleComputeEngineServiceAdapter implements
       return new NodeAndInitialCredentials<Instance>(instance.get(), instance.get().selfLink().toString(), credentials);
    }
 
-   @Override
-   public Iterable<MachineType> listHardwareProfiles() {
-      return filter(concat(api.aggregatedList().machineTypes()), new Predicate<MachineType>() {
-         @Override
-         public boolean apply(MachineType input) {
-            return input.deprecated() == null;
-         }
-      });
-   }
+   @Override public Iterable<MachineType> listHardwareProfiles() {
+	      return filter(concat(api.aggregatedList().machineTypes()), new Predicate<MachineType>() {
+	         @Override public boolean apply(MachineType input) {
+	            return input.deprecated() == null;
+	         }
+	      });
+	   }
 
-   @Override
-   public Iterable<Image> listImages() {
+   @Override public Iterable<Image> listImages() {
       List<Iterable<Image>> images = newArrayList();
 
       images.add(concat(api.images().list()));
@@ -224,65 +222,61 @@ public final class GoogleComputeEngineServiceAdapter implements
       return Iterables.concat(images);
    }
 
-   @Override
-   public Image getImage(String selfLink) {
+   @Override public Image getImage(String selfLink) {
       return api.images().get(URI.create(checkNotNull(selfLink, "id")));
    }
 
-   /** Unlike EC2, you cannot default GCE instances to a region. Hence, we constrain to zones. */
-   @Override
-   public Iterable<Location> listLocations() {
+   /**  Unlike EC2, you cannot default GCE instances to a region. Hence, we constrain to zones. */
+   @Override public Iterable<Location> listLocations() {
       Location provider = justProvider.get().iterator().next();
       ImmutableList.Builder<Location> zones = ImmutableList.builder();
       for (Region region : concat(api.regions().list())) {
-         Location regionLocation = new LocationBuilder().scope(LocationScope.REGION).id(region.name())
-               .description(region.selfLink().toString()).parent(provider).build();
+         Location regionLocation = new LocationBuilder()
+               .scope(LocationScope.REGION)
+               .id(region.name())
+               .description(region.selfLink().toString())
+               .parent(provider).build();
          for (URI zoneSelfLink : region.zones()) {
             String zoneName = toName(zoneSelfLink);
-            zones.add(new LocationBuilder().scope(LocationScope.ZONE).id(zoneName).description(zoneSelfLink.toString())
+            zones.add(new LocationBuilder()
+                  .scope(LocationScope.ZONE)
+                  .id(zoneName)
+                  .description(zoneSelfLink.toString())
                   .parent(regionLocation).build());
          }
       }
       return zones.build();
    }
 
-   @Override
-   public Instance getNode(String selfLink) {
+   @Override public Instance getNode(String selfLink) {
       return resources.instance(URI.create(checkNotNull(selfLink, "id")));
    }
 
-   @Override
-   public Iterable<Instance> listNodes() {
+   @Override public Iterable<Instance> listNodes() {
       return concat(api.aggregatedList().instances());
    }
 
-   @Override
-   public Iterable<Instance> listNodesByIds(final Iterable<String> selfLinks) {
+   @Override public Iterable<Instance> listNodesByIds(final Iterable<String> selfLinks) {
       return filter(listNodes(), new Predicate<Instance>() { // TODO: convert to server-side filter
-               @Override
-               public boolean apply(Instance instance) {
-                  return Iterables.contains(selfLinks, instance.selfLink().toString());
-               }
-            });
+         @Override public boolean apply(Instance instance) {
+            return Iterables.contains(selfLinks, instance.selfLink().toString());
+         }
+      });
    }
 
-   @Override
-   public void destroyNode(String selfLink) {
+   @Override public void destroyNode(String selfLink) {
       waitOperationDone(resources.delete(URI.create(checkNotNull(selfLink, "id"))));
    }
 
-   @Override
-   public void rebootNode(String selfLink) {
+   @Override public void rebootNode(String selfLink) {
       waitOperationDone(resources.resetInstance(URI.create(checkNotNull(selfLink, "id"))));
    }
 
-   @Override
-   public void resumeNode(String name) {
+   @Override public void resumeNode(String name) {
       throw new UnsupportedOperationException("resume is not supported by GCE");
    }
 
-   @Override
-   public void suspendNode(String name) {
+   @Override  public void suspendNode(String name) {
       throw new UnsupportedOperationException("suspend is not supported by GCE");
    }
 
