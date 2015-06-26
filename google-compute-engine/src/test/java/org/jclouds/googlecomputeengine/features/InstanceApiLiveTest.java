@@ -132,6 +132,7 @@ public class InstanceApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
       assertEquals(instance.description(), "description");
       assertEquals(instance.serviceAccounts().get(0).scopes(), ImmutableList.of("https://www.googleapis.com/auth/compute"));
       assertTrue(instance.scheduling().automaticRestart());
+      assertFalse(instance.scheduling().preemptible());
       assertEquals(instance.scheduling().onHostMaintenance(), OnHostMaintenance.MIGRATE);
    }
 
@@ -205,12 +206,14 @@ public class InstanceApiLiveTest extends BaseGoogleComputeEngineApiLiveTest {
    public void testSetScheduling() {
       Instance instance = api().get(INSTANCE_NAME);
       assertEquals(instance.scheduling().automaticRestart(), true);
+      assertEquals(instance.scheduling().preemptible(), false);
       assertEquals(instance.scheduling().onHostMaintenance(), Scheduling.OnHostMaintenance.MIGRATE);
 
       assertOperationDoneSuccessfully(api().setScheduling(INSTANCE_NAME, Scheduling.OnHostMaintenance.TERMINATE, false));
 
       Instance instanceAltered = api().get(INSTANCE_NAME);
       assertEquals(instanceAltered.scheduling().automaticRestart(), false);
+      assertEquals(instance.scheduling().preemptible(), false);
       assertEquals(instanceAltered.scheduling().onHostMaintenance(), Scheduling.OnHostMaintenance.TERMINATE);
    }
 

@@ -231,7 +231,7 @@ public class InstanceApiMockTest extends BaseGoogleComputeEngineApiMockTest {
             new ParseZoneOperationTest().expected(url("/projects")));
 
       assertSent(server, "POST", "/projects/party/zones/us-central1-a/instances/test-1/setScheduling",
-            "{\"onHostMaintenance\": \"TERMINATE\",\"automaticRestart\": true}");
+            "{\"onHostMaintenance\": \"TERMINATE\",\"automaticRestart\": true,\"preemptible\": false}");
    }
 
    public void start_test() throws Exception {
