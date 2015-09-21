@@ -145,4 +145,9 @@ public class GoogleComputeEngineServiceLiveTest extends BaseComputeServiceLiveTe
       String path = link.getPath();
       return path.substring(path.lastIndexOf('/') + 1);
    }
+
+   @Override
+   protected void checkVolumes(Hardware hardware) {
+      // Hardware profiles might not have volumes.
+   }
 }
