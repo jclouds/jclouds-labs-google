@@ -206,12 +206,7 @@ public final class GoogleCloudStorageBlobStore extends BaseBlobStore {
     */
    @Override
    public boolean blobExists(String container, String name) {
-      try {
-         String urlName = name.contains("/") ? URLEncoder.encode(name, Charsets.UTF_8.toString()) : name;
-         return api.getObjectApi().objectExists(container, urlName);
-      } catch (UnsupportedEncodingException e) {
-         throw Throwables.propagate(e);
-      }
+      return api.getObjectApi().objectExists(container, getUrlName(name));
    }
 
    /**
@@ -241,12 +236,13 @@ public final class GoogleCloudStorageBlobStore extends BaseBlobStore {
 
    @Override
    public BlobMetadata blobMetadata(String container, String name) {
-      return objectToBlobMetadata.apply(api.getObjectApi().getObject(container, name));
+      return objectToBlobMetadata.apply(api.getObjectApi().getObject(container, getUrlName(name)));
    }
 
    @Override
    public Blob getBlob(String container, String name, GetOptions options) {
-      GoogleCloudStorageObject gcsObject = api.getObjectApi().getObject(container, name);
+      String urlName = getUrlName(name);
+      GoogleCloudStorageObject gcsObject = api.getObjectApi().getObject(container, urlName);
       if (gcsObject == null) {
          return null;
       }
@@ -254,7 +250,7 @@ public final class GoogleCloudStorageBlobStore extends BaseBlobStore {
       MutableBlobMetadata metadata = objectToBlobMetadata.apply(gcsObject);
       Blob blob = new BlobImpl(metadata);
       // TODO: Does getObject not get the payload?!
-      Payload payload = api.getObjectApi().download(container, name, httpOptions).getPayload();
+      Payload payload = api.getObjectApi().download(container, urlName, httpOptions).getPayload();
       payload.setContentMetadata(metadata.getContentMetadata()); // Doing this first retains it on setPayload.
       blob.setPayload(payload);
       return blob;
@@ -262,17 +258,22 @@ public final class GoogleCloudStorageBlobStore extends BaseBlobStore {
 
    @Override
    public void removeBlob(String container, String name) {
+      api.getObjectApi().deleteObject(container, getUrlName(name));
+   }
+
+   private String getUrlName(String name) {
       String urlName;
       try {
          urlName = name.contains("/") ? URLEncoder.encode(name, Charsets.UTF_8.toString()) : name;
       } catch (UnsupportedEncodingException uee) {
          throw Throwables.propagate(uee);
       }
-      api.getObjectApi().deleteObject(container, urlName);
+      return urlName;
    }
 
    @Override
    public BlobAccess getBlobAccess(String container, String name) {
+      // TODO: Check if blob ACL needs URL encoding or not
       ObjectAccessControls controls = api.getObjectAccessControlsApi().getObjectAccessControls(container, name, "allUsers");
       if (controls != null && controls.role() == DomainResourceReferences.ObjectRole.READER) {
          return BlobAccess.PUBLIC_READ;
@@ -314,7 +315,8 @@ public final class GoogleCloudStorageBlobStore extends BaseBlobStore {
    public String copyBlob(String fromContainer, String fromName, String toContainer, String toName,
          CopyOptions options) {
       if (!options.getContentMetadata().isPresent() && !options.getUserMetadata().isPresent()) {
-         return api.getObjectApi().copyObject(toContainer, toName, fromContainer, fromName).etag();
+         return api.getObjectApi().copyObject(toContainer, getUrlName(toName),
+                 fromContainer, getUrlName(fromName)).etag();
       }
 
       ObjectTemplate template = new ObjectTemplate();
