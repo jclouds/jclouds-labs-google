@@ -20,8 +20,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.io.BaseEncoding.base64;
 import static org.jclouds.googlecloudstorage.domain.DomainResourceReferences.ObjectRole.READER;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -69,13 +67,12 @@ import org.jclouds.http.HttpResponseException;
 import org.jclouds.io.ContentMetadata;
 import org.jclouds.io.Payload;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
-import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
 import com.google.common.hash.HashCode;
 import com.google.inject.Provider;
+import org.jclouds.util.Strings2;
 
 public final class GoogleCloudStorageBlobStore extends BaseBlobStore {
 
@@ -261,20 +258,10 @@ public final class GoogleCloudStorageBlobStore extends BaseBlobStore {
       api.getObjectApi().deleteObject(container, getUrlName(name));
    }
 
-   private String getUrlName(String name) {
-      String urlName;
-      try {
-         urlName = name.contains("/") ? URLEncoder.encode(name, Charsets.UTF_8.toString()) : name;
-      } catch (UnsupportedEncodingException uee) {
-         throw Throwables.propagate(uee);
-      }
-      return urlName;
-   }
-
    @Override
    public BlobAccess getBlobAccess(String container, String name) {
-      // TODO: Check if blob ACL needs URL encoding or not
-      ObjectAccessControls controls = api.getObjectAccessControlsApi().getObjectAccessControls(container, name, "allUsers");
+      ObjectAccessControls controls = api.getObjectAccessControlsApi()
+              .getObjectAccessControls(container, getUrlName(name), "allUsers");
       if (controls != null && controls.role() == DomainResourceReferences.ObjectRole.READER) {
          return BlobAccess.PUBLIC_READ;
       } else {
@@ -290,9 +277,9 @@ public final class GoogleCloudStorageBlobStore extends BaseBlobStore {
                .bucket(container)
                .role(READER)
                .build();
-         api.getObjectApi().patchObject(container, name, new ObjectTemplate().addAcl(controls));
+         api.getObjectApi().patchObject(container, getUrlName(name), new ObjectTemplate().addAcl(controls));
       } else {
-         api.getObjectAccessControlsApi().deleteObjectAccessControls(container, name, "allUsers");
+         api.getObjectAccessControlsApi().deleteObjectAccessControls(container, getUrlName(name), "allUsers");
       }
    }
 
@@ -354,5 +341,9 @@ public final class GoogleCloudStorageBlobStore extends BaseBlobStore {
       }
 
       return api.getObjectApi().copyObject(toContainer, toName, fromContainer, fromName, template).etag();
+   }
+
+   private String getUrlName(String name) {
+      return name.contains("/") ? Strings2.urlEncode(name) : name;
    }
 }
