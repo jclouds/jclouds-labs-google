@@ -89,7 +89,7 @@ public class ParseInstanceTest extends BaseGoogleComputeEngineParseTest<Instance
                     .put("jclouds-image", baseUrl + "/debian-cloud/global/images/debian-7-wheezy-v20140718")
                     .put("jclouds-delete-boot-disk", "true"), // metadata
             ImmutableList.of(ServiceAccount.create("default", ImmutableList.of("myscope"))), // serviceAccounts
-            Instance.Scheduling.create(OnHostMaintenance.MIGRATE, false) // scheduling
+            Instance.Scheduling.create(OnHostMaintenance.MIGRATE, false, false) // scheduling
       );
    }
 }

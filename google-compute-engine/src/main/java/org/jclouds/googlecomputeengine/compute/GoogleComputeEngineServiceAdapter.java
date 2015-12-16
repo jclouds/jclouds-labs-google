@@ -119,12 +119,15 @@ public final class GoogleComputeEngineServiceAdapter
       List<AttachDisk> disks = Lists.newArrayList();
       disks.add(AttachDisk.newBootDisk(template.getImage().getUri(), getDiskTypeArgument(options, zone)));
 
+      Scheduling scheduling = getScheduling(options);
+
       NewInstance newInstance = NewInstance.create(
             name, // name
             template.getHardware().getUri(), // machineType
             options.network(), // network
             disks, // disks
-            group // description
+            group, // description
+            scheduling
       );
 
       // Add tags from template and for security groups
@@ -163,8 +166,8 @@ public final class GoogleComputeEngineServiceAdapter
             null, // disks
             newInstance.metadata(), // metadata
             null, // serviceAccounts
-            Scheduling.create(OnHostMaintenance.MIGRATE, true) // scheduling
-      ));
+            scheduling) // scheduling
+      );
       checkState(instanceVisible.apply(instance), "instance %s is not api visible!", instance.get());
 
       // Add lookup for InstanceToNodeMetadata
@@ -299,5 +302,18 @@ public final class GoogleComputeEngineServiceAdapter
       }
 
       return null;
+   }
+
+   public Scheduling getScheduling(GoogleComputeEngineTemplateOptions options) {
+      OnHostMaintenance onHostMaintenance = OnHostMaintenance.MIGRATE;
+      boolean automaticRestart = true;
+
+      // Preemptible instances cannot use a MIGRATE maintenance strategy or automatic restarts
+      if (options.preemptible()) {
+         onHostMaintenance = OnHostMaintenance.TERMINATE;
+         automaticRestart = false;
+      }
+
+      return Scheduling.create(onHostMaintenance, automaticRestart, options.preemptible());
    }
 }
