@@ -81,6 +81,10 @@ public abstract class NewInstance {
    }
 
    public static NewInstance create(String name, URI machineType, URI network, List<AttachDisk> disks, String description) {
+      return create(name, machineType, network, disks, description, null);
+   }
+
+   public static NewInstance create(String name, URI machineType, URI network, List<AttachDisk> disks, String description, Scheduling scheduling) {
       checkArgument(disks.get(0).boot(), "disk 0 must be a boot disk! %s", disks);
       boolean foundBoot = false;
       for (AttachDisk disk : disks) {
@@ -90,7 +94,7 @@ public abstract class NewInstance {
          }
       }
       return create(name, machineType, null, ImmutableList.of(NetworkInterface.create(network)), ImmutableList.copyOf(disks),
-            description, Tags.create(), Metadata.create(), null, null);
+            description, Tags.create(), Metadata.create(), null, scheduling);
    }
 
    @SerializedNames({ "name", "machineType", "canIpForward", "networkInterfaces", "disks", "description", "tags", "metadata",

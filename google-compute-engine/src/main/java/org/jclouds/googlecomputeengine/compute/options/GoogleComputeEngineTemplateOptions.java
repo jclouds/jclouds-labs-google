@@ -30,6 +30,7 @@ public final class GoogleComputeEngineTemplateOptions extends TemplateOptions {
    private URI network = null;
    private boolean autoCreateKeyPair = true;
    private String bootDiskType;
+   private boolean preemptible = false;
 
    @Override
    public GoogleComputeEngineTemplateOptions clone() {
@@ -46,6 +47,7 @@ public final class GoogleComputeEngineTemplateOptions extends TemplateOptions {
          eTo.network(network());
          eTo.autoCreateKeyPair(autoCreateKeyPair());
          eTo.bootDiskType(bootDiskType());
+         eTo.preemptible(preemptible());
       }
    }
 
@@ -73,6 +75,21 @@ public final class GoogleComputeEngineTemplateOptions extends TemplateOptions {
     */
    public String bootDiskType() {
       return bootDiskType;
+   }
+
+   /**
+    * Sets whether the resulting instance should be preemptible.
+    */
+   public GoogleComputeEngineTemplateOptions preemptible(boolean preemptible) {
+      this.preemptible = preemptible;
+      return this;
+   }
+
+   /**
+    * Gets whether the resulting instance should be preemptible.
+    */
+   public boolean preemptible() {
+      return preemptible;
    }
 
    /**

@@ -231,6 +231,16 @@ public class InstanceApiMockTest extends BaseGoogleComputeEngineApiMockTest {
             "{\"onHostMaintenance\": \"TERMINATE\",\"automaticRestart\": true}");
    }
 
+   public void setScheduling_preemtible() throws Exception {
+      server.enqueue(jsonResponse("/zone_operation.json"));
+
+      assertEquals(instanceApi().setScheduling("test-1", OnHostMaintenance.TERMINATE, true, false),
+            new ParseZoneOperationTest().expected(url("/projects")));
+
+      assertSent(server, "POST", "/projects/party/zones/us-central1-a/instances/test-1/setScheduling",
+            "{\"onHostMaintenance\": \"TERMINATE\",\"automaticRestart\": true,\"preemptible\": false}");
+   }
+
    public void start_test() throws Exception {
       server.enqueue(jsonResponse("/zone_operation.json"));
 
