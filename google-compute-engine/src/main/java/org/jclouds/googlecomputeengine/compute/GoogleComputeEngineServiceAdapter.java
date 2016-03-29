@@ -24,24 +24,19 @@ import static java.lang.String.format;
 import static org.jclouds.googlecloud.internal.ListPages.concat;
 import static org.jclouds.googlecomputeengine.config.GoogleComputeEngineProperties.IMAGE_PROJECTS;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.Atomics;
-import com.google.common.util.concurrent.UncheckedTimeoutException;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import com.google.common.collect.ImmutableMap;
 import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.domain.Hardware;
 import org.jclouds.compute.domain.NodeMetadata;
+import org.jclouds.compute.domain.OsFamily;
 import org.jclouds.compute.domain.Template;
 import org.jclouds.compute.options.TemplateOptions;
 import org.jclouds.domain.Location;
@@ -66,6 +61,16 @@ import org.jclouds.googlecomputeengine.domain.Zone;
 import org.jclouds.googlecomputeengine.features.InstanceApi;
 import org.jclouds.location.suppliers.all.JustProvider;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Atomics;
+import com.google.common.util.concurrent.UncheckedTimeoutException;
+
 /**
  * This implementation maps the following:
  * <ul>
@@ -87,6 +92,7 @@ public final class GoogleComputeEngineServiceAdapter
    private final Map<URI, URI> diskToSourceImage;
    private final Predicate<AtomicReference<Operation>> operationDone;
    private final Predicate<AtomicReference<Instance>> instanceVisible;
+   private final Function<Map<String, ?>, String> windowsPasswordGenerator;
    private final FirewallTagNamingConvention.Factory firewallTagNamingConvention;
    private final List<String> imageProjects;
 
@@ -94,6 +100,7 @@ public final class GoogleComputeEngineServiceAdapter
                                             Predicate<AtomicReference<Operation>> operationDone,
                                             Predicate<AtomicReference<Instance>> instanceVisible,
                                             Map<URI, URI> diskToSourceImage,
+                                            Function<Map<String, ?>, String> windowsPasswordGenerator,
                                             Resources resources,
                                             FirewallTagNamingConvention.Factory firewallTagNamingConvention,
                                             @Named(IMAGE_PROJECTS) String imageProjects) {
@@ -102,6 +109,7 @@ public final class GoogleComputeEngineServiceAdapter
       this.operationDone = operationDone;
       this.instanceVisible = instanceVisible;
       this.diskToSourceImage = diskToSourceImage;
+      this.windowsPasswordGenerator = windowsPasswordGenerator;
       this.resources = resources;
       this.firewallTagNamingConvention = firewallTagNamingConvention;
       this.imageProjects = Splitter.on(',').omitEmptyStrings().splitToList(imageProjects);
@@ -172,6 +180,15 @@ public final class GoogleComputeEngineServiceAdapter
 
       // Add lookup for InstanceToNodeMetadata
       diskToSourceImage.put(instance.get().disks().get(0).source(), template.getImage().getUri());
+
+      if (options.autoCreateWindowsPassword() != null && options.autoCreateWindowsPassword()
+              || OsFamily.WINDOWS == template.getImage().getOperatingSystem().getFamily()) {
+          Map<String, ?> params = ImmutableMap.of("instance", instance, "zone", zone, "email", create.user(), "userName", credentials.getUser());
+          String password = windowsPasswordGenerator.apply(params);
+          credentials = LoginCredentials.builder(credentials)
+		          .password(password)
+		          .build();
+      }
 
       return new NodeAndInitialCredentials<Instance>(instance.get(), instance.get().selfLink().toString(), credentials);
    }
