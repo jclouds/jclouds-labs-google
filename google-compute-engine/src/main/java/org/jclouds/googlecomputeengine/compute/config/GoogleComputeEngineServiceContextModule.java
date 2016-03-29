@@ -58,10 +58,11 @@ import org.jclouds.googlecomputeengine.compute.functions.InstanceToNodeMetadata;
 import org.jclouds.googlecomputeengine.compute.functions.MachineTypeToHardware;
 import org.jclouds.googlecomputeengine.compute.functions.OrphanedGroupsFromDeadNodes;
 import org.jclouds.googlecomputeengine.compute.functions.Resources;
+import org.jclouds.googlecomputeengine.compute.functions.ResetWindowsPassword;
 import org.jclouds.googlecomputeengine.compute.options.GoogleComputeEngineTemplateOptions;
-import org.jclouds.googlecomputeengine.compute.predicates.GroupIsEmpty;
 import org.jclouds.googlecomputeengine.compute.predicates.AtomicInstanceVisible;
 import org.jclouds.googlecomputeengine.compute.predicates.AtomicOperationDone;
+import org.jclouds.googlecomputeengine.compute.predicates.GroupIsEmpty;
 import org.jclouds.googlecomputeengine.compute.strategy.CreateNodesWithGroupEncodedIntoNameThenAddToSet;
 import org.jclouds.googlecomputeengine.domain.Image;
 import org.jclouds.googlecomputeengine.domain.Instance;
@@ -133,6 +134,9 @@ public final class GoogleComputeEngineServiceContextModule
 
       bind(new TypeLiteral<CacheLoader<NetworkAndAddressRange, Network>>() {
       }).to(FindNetworkOrCreate.class);
+
+      bind(new TypeLiteral<Function<Map<String, ?>, String>>() {
+      }).to(ResetWindowsPassword.class);
 
       bind(FirewallTagNamingConvention.Factory.class).in(Scopes.SINGLETON);
       bindHttpApi(binder(), Resources.class);

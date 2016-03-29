@@ -29,6 +29,7 @@ public final class GoogleComputeEngineTemplateOptions extends TemplateOptions {
 
    private URI network = null;
    private boolean autoCreateKeyPair = true;
+   private Boolean autoCreateWindowsPassword = null;
    private String bootDiskType;
    private boolean preemptible = false;
 
@@ -46,6 +47,7 @@ public final class GoogleComputeEngineTemplateOptions extends TemplateOptions {
          GoogleComputeEngineTemplateOptions eTo = GoogleComputeEngineTemplateOptions.class.cast(to);
          eTo.network(network());
          eTo.autoCreateKeyPair(autoCreateKeyPair());
+         eTo.autoCreateWindowsPassword(autoCreateWindowsPassword());
          eTo.bootDiskType(bootDiskType());
          eTo.preemptible(preemptible());
       }
@@ -101,12 +103,30 @@ public final class GoogleComputeEngineTemplateOptions extends TemplateOptions {
    }
 
    /**
-    * Sets whether an SSH key pair should be created automatically.
+    * Whether an SSH key pair should be created automatically.
     */
    public boolean autoCreateKeyPair() {
       return autoCreateKeyPair;
    }
-
+   
+   /**
+    * Whether a Windows password should be created automatically; {@link null} means to generate
+    * the password if and only if the image is for a Windows VM.
+    */
+   public Boolean autoCreateWindowsPassword() {
+	  return autoCreateWindowsPassword;
+   }
+   
+   /**
+    * Sets whether to auto-create a windows password. The default ({@code null}) is to always
+    * do so for Windows VMs, inferring this from the image. An explicit value of true or false
+    * overrides this.
+    */
+   public GoogleComputeEngineTemplateOptions autoCreateWindowsPassword(Boolean autoCreateWindowsPassword) {
+      this.autoCreateWindowsPassword = autoCreateWindowsPassword;
+      return this;
+   }
+   
    /**
     * {@inheritDoc}
     */

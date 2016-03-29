@@ -60,6 +60,7 @@ public class BaseGoogleComputeEngineApiLiveTest extends BaseApiLiveTest<GoogleCo
    protected static final String TARGET_HTTP_PROXY_API_URL_SUFFIX = "/global/targetHttpProxies/";
    protected static final String GOOGLE_PROJECT = "google";
 
+   protected Injector injector;
    protected Predicate<AtomicReference<Operation>> operationDone;
    protected URI projectUrl;
 
@@ -73,7 +74,7 @@ public class BaseGoogleComputeEngineApiLiveTest extends BaseApiLiveTest<GoogleCo
    }
 
    @Override protected GoogleComputeEngineApi create(Properties props, Iterable<Module> modules) {
-      Injector injector = newBuilder().modules(modules).overrides(props).buildInjector();
+      injector = newBuilder().modules(modules).overrides(props).buildInjector();
       operationDone = injector.getInstance(Key.get(new TypeLiteral<Predicate<AtomicReference<Operation>>>() {
       }));
       projectUrl = injector.getInstance(Key.get(new TypeLiteral<Supplier<URI>>() {
