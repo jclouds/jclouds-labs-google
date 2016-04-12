@@ -41,6 +41,7 @@ import org.jclouds.compute.domain.Hardware;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.compute.domain.OperatingSystem;
 import org.jclouds.compute.domain.OsFamily;
+import org.jclouds.compute.domain.TemplateBuilder;
 import org.jclouds.compute.extensions.ImageExtension;
 import org.jclouds.compute.extensions.SecurityGroupExtension;
 import org.jclouds.compute.options.TemplateOptions;
@@ -58,6 +59,7 @@ import org.jclouds.googlecomputeengine.compute.functions.InstanceToNodeMetadata;
 import org.jclouds.googlecomputeengine.compute.functions.MachineTypeToHardware;
 import org.jclouds.googlecomputeengine.compute.functions.OrphanedGroupsFromDeadNodes;
 import org.jclouds.googlecomputeengine.compute.functions.Resources;
+import org.jclouds.googlecomputeengine.compute.internal.GCETemplateBuilderImpl;
 import org.jclouds.googlecomputeengine.compute.options.GoogleComputeEngineTemplateOptions;
 import org.jclouds.googlecomputeengine.compute.predicates.GroupIsEmpty;
 import org.jclouds.googlecomputeengine.compute.predicates.AtomicInstanceVisible;
@@ -119,12 +121,14 @@ public final class GoogleComputeEngineServiceContextModule
 
       bind(TemplateOptions.class).to(GoogleComputeEngineTemplateOptions.class);
 
+      bind(TemplateBuilder.class).to(GCETemplateBuilderImpl.class);
+
       bind(new TypeLiteral<Function<Set<? extends NodeMetadata>, Set<String>>>() {
       }).to(OrphanedGroupsFromDeadNodes.class);
 
       bind(new TypeLiteral<Predicate<String>>() {
       }).to(GroupIsEmpty.class);
-      
+
       bind(new TypeLiteral<Function<String, OperatingSystem>>() {
       }).to(ImageNameToOperatingSystem.class);
 
@@ -179,7 +183,7 @@ public final class GoogleComputeEngineServiceContextModule
          }
       }, seconds, SECONDS);
    }
-   
+
    @Override
    protected Map<OsFamily, LoginCredentials> osFamilyToCredentials(Injector injector) {
       // GCE does not enable the 'root' account for ssh access by default, but it will create a privileged
