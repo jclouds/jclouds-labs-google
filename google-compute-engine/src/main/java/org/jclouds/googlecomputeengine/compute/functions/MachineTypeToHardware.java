@@ -54,9 +54,8 @@ public final class MachineTypeToHardware implements Function<MachineType, Hardwa
          throw new IllegalStateException(
                String.format("zone %s not present in %s", zoneLink, locationsByUri.get().keySet()));
       }
-
       return new HardwareBuilder()
-              .id(buildHardwareId(zone, input.selfLink()))
+              .id(input.selfLink().toString())
               .providerId(input.id())
               .location(zone)
               .name(input.name())
@@ -68,12 +67,6 @@ public final class MachineTypeToHardware implements Function<MachineType, Hardwa
               .volumes(collectVolumes(input))
               .supportsImage(Predicates.<Image>alwaysTrue())
               .build();
-   }
-
-   private String buildHardwareId(Location zone, URI uri) {
-      String hardwareURI = uri.toString();
-      String hardwareName = hardwareURI.substring(hardwareURI.lastIndexOf('/') + 1);
-      return String.format("%s/%s", zone.getId(), hardwareName);
    }
 
    private Iterable<Volume> collectVolumes(MachineType input) {
