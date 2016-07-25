@@ -103,14 +103,15 @@ public final class CreateNodesWithGroupEncodedIntoNameThenAddToSet extends
 
       String sharedResourceName = namingConvention.create().sharedNameForGroup(group);
       Template mutableTemplate = template.clone();
-      GoogleComputeEngineTemplateOptions templateOptions = GoogleComputeEngineTemplateOptions.class
-            .cast(mutableTemplate.getOptions());
+      GoogleComputeEngineTemplateOptions templateOptions = GoogleComputeEngineTemplateOptions.class.cast(mutableTemplate.getOptions());
       assert template.getOptions().equals(templateOptions) : "options didn't clone properly";
 
-      // get or insert the network and insert a firewall with the users
-      // configuration
+      // get or insert the network and insert a firewall with the users configuration
       Network network = getOrCreateNetwork(templateOptions, sharedResourceName);
-      getOrCreateFirewalls(templateOptions, network, firewallTagNamingConvention.get(group));
+      // add firewalls *only* if the template options don't contain explicit network
+      if (templateOptions.network() == null) {
+         checkOrAddFirewalls(templateOptions, network, firewallTagNamingConvention.get(group));
+      }
       templateOptions.network(network.selfLink());
       templateOptions.userMetadata(ComputeServiceConstants.NODE_GROUP_KEY, group);
 
@@ -147,12 +148,12 @@ public final class CreateNodesWithGroupEncodedIntoNameThenAddToSet extends
     * {@link FirewallTagNamingConvention}, with a target tag also following the
     * {@link FirewallTagNamingConvention}, which opens the requested port for
     * all sources on both TCP and UDP protocols.
-    * 
+    *
     * @see org.jclouds.googlecomputeengine.features.FirewallApi#patch(String,
     *      org.jclouds.googlecomputeengine.options.FirewallOptions)
     */
-   private void getOrCreateFirewalls(GoogleComputeEngineTemplateOptions templateOptions, Network network,
-         FirewallTagNamingConvention naming) {
+   private void checkOrAddFirewalls(GoogleComputeEngineTemplateOptions templateOptions, Network network,
+                                    FirewallTagNamingConvention naming) {
 
       FirewallApi firewallApi = api.firewalls();
       List<AtomicReference<Operation>> operations = Lists.newArrayList();
